@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33103.184
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "inti-back", "inti-back\inti-back.csproj", "{6F8C433D-9EDA-42EB-99A7-C710148CE347}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6F8C433D-9EDA-42EB-99A7-C710148CE347}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F8C433D-9EDA-42EB-99A7-C710148CE347}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F8C433D-9EDA-42EB-99A7-C710148CE347}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F8C433D-9EDA-42EB-99A7-C710148CE347}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {83E1FAF4-24F1-42CD-B320-7F89477711BE}
+	EndGlobalSection
+EndGlobal
