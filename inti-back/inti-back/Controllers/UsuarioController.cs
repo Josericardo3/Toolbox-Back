@@ -53,7 +53,7 @@ namespace inti_back.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateUsuario([FromBody] Usuario usuario)
+        public async Task<IActionResult> UpdateUsuario([FromHeader] Usuario usuario)
         {
             if (usuario == null)
             {
@@ -71,7 +71,7 @@ namespace inti_back.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteUsuario(int id)
         {
-            var borrado = await _usuarioRepository.DeleteUsuario(new Usuario { Usuarioid = id });
+            var borrado = await _usuarioRepository.DeleteUsuario(id);
             
             return Ok(borrado);
             

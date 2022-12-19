@@ -16,7 +16,7 @@ namespace inti_repository
         Task<Usuario> GetUsuario(int id);
         Task<bool> InsertUsuario(Usuario usuario);
         Task<bool> UpdateUsuario(Usuario usuario);
-        Task<bool> DeleteUsuario(Usuario usuario);
+        Task<bool> DeleteUsuario(int id);
 
     }
 }

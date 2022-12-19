@@ -8,7 +8,7 @@ namespace inti_model
 {
     public class Usuario
     {
-        public int Usuarioid { get; set; }
+        public int Idusuario { get; set; }
         public String? Nombre { get; set; }
         public String? Apellido { get; set; }
         public String? TipoEmpresa { get; set; }
@@ -21,6 +21,20 @@ namespace inti_model
         public String? Telefono { get; set; }
         public String? User { get; set; }
         public String? Password { get; set; }
-        //public UsuariosPST idUsuarioPst { get; set; }
+        public String? NroColaboradores { get; set; }
+        public String? Dimesion { get; set; }
+        public String? ServicioTurismoAventura { get; set; }
+        public String? RepLegal { get; set; }
+        public String? TipoDocRepLegal { get; set; }
+        public String? DocRepLegal { get; set; }
+        public String? EmailRepLegal { get; set; } 
+        public String? MovilReplegal { get; set; }
+        public String? NumeroRepLegal { get; set; }
+        public String? LiderSostenibilidad { get; set; }
+        public String? CargoLiderSostenibilidad { get; set; }
+        public String? TelLiderSostenibilidad { get; set; }
+        public String? Nit { get; set; }
+        public Boolean Activo { get; set; }
+        
     }
 }
