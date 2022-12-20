@@ -26,6 +26,8 @@ namespace inti_repository
             var sql = @"UPDATE usuarios 
                         SET activo = FALSE
                         WHERE idusuario = @Idusuario";
+            
+
             var result = await db.ExecuteAsync(sql, new { Idusuario = id });
             
             return result > 0;
