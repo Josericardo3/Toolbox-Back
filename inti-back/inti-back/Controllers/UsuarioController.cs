@@ -51,8 +51,6 @@ namespace inti_back.Controllers
             var create = await _usuarioPstRepository.InsertUsuarioPst(usuariopst);
             return Ok(new
             {
-                create,
-                usuario = usuariopst.IdUsuarioPst,
                 StatusCode(201).StatusCode
             });
 
