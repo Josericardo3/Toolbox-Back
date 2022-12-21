@@ -2,6 +2,7 @@
 using inti_model;
 using inti_repository;
 
+
 namespace inti_back.Controllers
 {
     [Route("api/[controller]")]
@@ -9,24 +10,24 @@ namespace inti_back.Controllers
     public class UsuarioController : ControllerBase
     {
 
-        private readonly IUsuarioRepository _usuarioRepository;
+        private readonly IUsuarioPstRepository _usuarioPstRepository;
 
-        public UsuarioController(IUsuarioRepository usuarioRepository)
+        public UsuarioController(IUsuarioPstRepository usuarioPstRepository)
         {
-            _usuarioRepository = usuarioRepository;
+            _usuarioPstRepository = usuarioPstRepository;
         }
 
 
         [HttpGet]
         public async Task<IActionResult> GetAllUsuarios()
         {
-            return Ok(await _usuarioRepository.GetAllUsuarios());
+            return Ok(await _usuarioPstRepository.GetAllUsuariosPst());
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult>GetUsuario(int id)
+        public async Task<IActionResult> GetUsuarioPst(int id)
         {
-            var response = await _usuarioRepository.GetUsuario(id);
+            var response = await _usuarioPstRepository.GetUsuarioPst(id);
 
             if (response == null)
             {
@@ -36,9 +37,9 @@ namespace inti_back.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> InsertUsuario([FromBody] Usuario usuario) {
+        public async Task<IActionResult> InsertUsuarioPst([FromBody] UsuarioPst usuariopst) {
 
-            if (usuario == null)
+            if (usuariopst == null)
             {
                 return BadRequest();
             }
@@ -47,22 +48,32 @@ namespace inti_back.Controllers
                 return BadRequest(ModelState);
             }
 
-            var create = await _usuarioRepository.InsertUsuario(usuario);
-            return Created("Usuario Creado", create);
+            var create = await _usuarioPstRepository.InsertUsuarioPst(usuariopst);
+            return Ok(new
+            {
+                create,
+                usuario = usuariopst.IdUsuarioPst,
+                StatusCode(201).StatusCode
+            });
 
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateUsuario([FromHeader] Usuario usuario)
+        public async Task<IActionResult> UpdateUsuarioPst([FromBody] UsuarioPst usuariopst)
         {
-            if (usuario == null)
+            if (usuariopst == null)
             {
                 return BadRequest();
             }
             else
             {
-                await _usuarioRepository.UpdateUsuario(usuario);
-                return Ok();
+                await _usuarioPstRepository.InsertUsuarioPst(usuariopst);
+                return Ok(new
+                {
+                    Id = usuariopst.IdUsuarioPst,
+                    StatusCode(200).StatusCode
+                });
+
 
             }
 
@@ -71,13 +82,14 @@ namespace inti_back.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteUsuario(int id)
         {
-            var borrado = await _usuarioRepository.DeleteUsuario(id);
+            var borrado = await _usuarioPstRepository.DeleteUsuarioPst(id);
             
-            return Ok(borrado);
-            
+            return Ok(new
+            {
+                Id = id,
+                StatusCode(204).StatusCode
+            });
+
         }
-
-
-
     }
 }
