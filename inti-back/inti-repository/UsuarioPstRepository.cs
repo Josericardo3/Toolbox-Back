@@ -26,8 +26,6 @@ namespace inti_repository
             var sql = @"UPDATE usuariospst 
                         SET activo = FALSE
                         WHERE idusuariopst = @IdUsuarioPst";
-            
-
             var result = await db.ExecuteAsync(sql, new { IdUsuarioPst = id });
             
             return result > 0;
@@ -36,7 +34,7 @@ namespace inti_repository
         public async Task<IEnumerable<UsuarioPst>> GetAllUsuariosPst()
         {
             var db = dbConnection();
-            var sql = @"SELECT idusuariopst,nit,rnt,categoriarnt,subcategoriarnt,nombrepst,razonsocialpst,correopst,telefonopst,nombrerepresentantelegal,correorepresentantelegal,telefonorepresentantelegal,tipoidentificacionrepresentantelegal,identificacionrepresentantelegal,departamento,municipio,nombreresponsablesostenibilidad,correoresponsablesostenibilidad,telefonoresponsablesostenibilidad,contraseña,avatar,activo FROM usuariospst WHERE activo = TRUE";
+            var sql = @"SELECT idusuariopst,nit,rnt,idcategoriarnt,idsubcategoriarnt,nombrepst,razonsocialpst,correopst,telefonopst,nombrerepresentantelegal,correorepresentantelegal,telefonorepresentantelegal,idtipoidentificacion,identificacionrepresentantelegal,iddepartamento,idmunicipio,nombreresponsablesostenibilidad,correoresponsablesostenibilidad,telefonoresponsablesostenibilidad,password,idtipoavatar,activo FROM usuariospst WHERE activo = TRUE";
             return await db.QueryAsync<UsuarioPst>(sql,new { });
 
         }
@@ -44,28 +42,28 @@ namespace inti_repository
         public async Task<UsuarioPst> GetUsuarioPst(int id)
         {
             var db = dbConnection();
-            var sql = @"SELECT idusuariopst,nit,rnt,categoriarnt,subcategoriarnt,nombrepst,razonsocialpst,correopst,telefonopst,nombrerepresentantelegal,correorepresentantelegal,telefonorepresentantelegal,tipoidentificacionrepresentantelegal,identificacionrepresentantelegal,departamento,municipio,nombreresponsablesostenibilidad,correoresponsablesostenibilidad,telefonoresponsablesostenibilidad,contraseña,avatar,activo FROM usuariospst WHERE idusuariopst = @IdUsuarioPst AND activo = TRUE ";
+            var sql = @"SELECT idusuariopst,nit,rnt,idcategoriarnt,idsubcategoriarnt,nombrepst,razonsocialpst,correopst,telefonopst,nombrerepresentantelegal,correorepresentantelegal,telefonorepresentantelegal,idtipoidentificacion,identificacionrepresentantelegal,iddepartamento,idmunicipio,nombreresponsablesostenibilidad,correoresponsablesostenibilidad,telefonoresponsablesostenibilidad,password,idtipoavatar,activo FROM usuariospst WHERE idusuariopst = @IdUsuarioPst AND activo = TRUE ";
             return await db.QueryFirstOrDefaultAsync<UsuarioPst>(sql, new { IdUsuarioPst = id });
         }
 
         public async Task<bool> InsertUsuarioPst(UsuarioPst usuariopst)
         {
             var db = dbConnection();
-            var sql = @"INSERT INTO usuariospst(nit,rnt,categoriarnt,subcategoriarnt,nombrepst,razonsocialpst,correopst,telefonopst,nombrerepresentantelegal,correorepresentantelegal,telefonorepresentantelegal,tipoidentificacionrepresentantelegal,identificacionrepresentantelegal,departamento,municipio,nombreresponsablesostenibilidad,correoresponsablesostenibilidad,telefonoresponsablesostenibilidad,contraseña,avatar) 
-                        VALUES (@Nit,@Rnt,@CategoriaRnt,@SubCategoriaRnt,@NombrePst,@RazonSocialPst,@CorreoPst,@TelefonoPst,@NombreRepresentanteLegal,@CorreoRepresentanteLegal,@TelefonoRepresentanteLegal,@TipoIdentificacionRepresentanteLegal,@IdentificacionRepresentanteLegal,@Departamento,@Municipio,@NombreResponsableSostenibilidad,@CorreoResponsableSostenibilidad,@TelefonoResponsableSostenibilidad,@Contraseña,@Avatar) ";
-            var result = await db.ExecuteAsync(sql, new { usuariopst.Nit, usuariopst.Rnt, usuariopst.CategoriaRnt, usuariopst.SubCategoriaRnt,usuariopst.NombrePst, usuariopst.RazonSocialPst,usuariopst.CorreoPst, usuariopst.TelefonoPst, usuariopst.NombreRepresentanteLegal, usuariopst.CorreoRepresentanteLegal, usuariopst.TelefonoRepresentanteLegal, usuariopst.TipoIdentificacionRepresentanteLegal, usuariopst.IdentificacionRepresentanteLegal, usuariopst.Departamento, usuariopst.Municipio, usuariopst.NombreResponsableSostenibilidad,usuariopst.CorreoResponsableSostenibilidad, usuariopst.TelefonoResponsableSostenibilidad, usuariopst.Contraseña, usuariopst.Avatar });
+            var sql = @"INSERT INTO usuariospst(nit,rnt,idcategoriarnt,idsubcategoriarnt,nombrepst,razonsocialpst,correopst,telefonopst,nombrerepresentantelegal,correorepresentantelegal,telefonorepresentantelegal,idtipoidentificacion,identificacionrepresentantelegal,iddepartamento,idmunicipio,nombreresponsablesostenibilidad,correoresponsablesostenibilidad,telefonoresponsablesostenibilidad,password,idtipoavatar) 
+                        VALUES (@Nit,@Rnt,@idCategoriaRnt,@idSubCategoriaRnt,@NombrePst,@RazonSocialPst,@CorreoPst,@TelefonoPst,@NombreRepresentanteLegal,@CorreoRepresentanteLegal,@TelefonoRepresentanteLegal,@idTipoIdentificacion,@IdentificacionRepresentanteLegal,@idDepartamento,@idMunicipio,@NombreResponsableSostenibilidad,@CorreoResponsableSostenibilidad,@TelefonoResponsableSostenibilidad,@Password,@idTipoAvatar) ";
+            var result = await db.ExecuteAsync(sql, new { usuariopst.Nit, usuariopst.Rnt, usuariopst.idCategoriaRnt, usuariopst.idSubCategoriaRnt,usuariopst.NombrePst, usuariopst.RazonSocialPst,usuariopst.CorreoPst, usuariopst.TelefonoPst, usuariopst.NombreRepresentanteLegal, usuariopst.CorreoRepresentanteLegal, usuariopst.TelefonoRepresentanteLegal, usuariopst.idTipoIdentificacion, usuariopst.IdentificacionRepresentanteLegal, usuariopst.idDepartamento, usuariopst.idMunicipio, usuariopst.NombreResponsableSostenibilidad,usuariopst.CorreoResponsableSostenibilidad, usuariopst.TelefonoResponsableSostenibilidad, usuariopst.Password, usuariopst.idTipoAvatar });
             return result > 0;
         }
 
-        public async Task<String> UpdateUsuarioPst(UsuarioPst usuariopst)
+        public async Task<String> UpdateUsuarioPst(UsuarioPstUpd usuariopst)
         {
             var db = dbConnection();
             var sql = @"UPDATE usuariospst 
-                        SET idusuariospst = @IdUsuarioPst,
+                        SET idusuariopst = @IdUsuarioPst,
                             nit = @Nit,
                             rnt = @Rnt,
-                            categoriarnt = @CategoriaRnt,
-                            subcategoriarnt = @SubCategoriaRnt,
+                            idcategoriarnt = @idCategoriaRnt,
+                            idsubcategoriarnt = @idSubCategoriaRnt,
                             nombrepst = @NombrePst,
                             razonsocialpst = @RazonSocialPst,
                             correopst = @CorreoPst,
@@ -73,17 +71,16 @@ namespace inti_repository
                             nombrerepresentantelegal = @NombreRepresentanteLegal,
                             correorepresentantelegal = @CorreoRepresentanteLegal,
                             telefonorepresentantelegal = @TelefonoRepresentanteLegal,
-                            tipoidentificacionrepresentantelegal = @TipoIdentificacionRepresentanteLegal,
+                            idtipoidentificacion = @idTipoIdentificacion,
                             identificacionrepresentantelegal = @IdentificacionRepresentanteLegal,
-                            departamento = @Departamento,
-                            municipio = @Municipio,
+                            idDepartamento = @iddepartamento,
+                            idMunicipio = @idmunicipio,
                             nombreresponsablesostenibilidad = @NombreResponsableSostenibilidad,
                             correoresponsablesostenibilidad = @CorreoResponsableSostenibilidad,
                             telefonoresponsablesostenibilidad = @TelefonoResponsableSostenibilidad,
-                            contraseña = @Contraseña,
-                            avatar = @Avatar
+                            idtipoavatar = @idTipoAvatar
                         WHERE idusuariopst = @IdUsuarioPst";
-            var result = await db.ExecuteAsync(sql, new { usuariopst.IdUsuarioPst,usuariopst.Nit, usuariopst.Rnt, usuariopst.CategoriaRnt, usuariopst.SubCategoriaRnt, usuariopst.NombrePst, usuariopst.RazonSocialPst, usuariopst.CorreoPst, usuariopst.TelefonoPst, usuariopst.NombreRepresentanteLegal, usuariopst.CorreoRepresentanteLegal, usuariopst.TelefonoRepresentanteLegal, usuariopst.TipoIdentificacionRepresentanteLegal, usuariopst.IdentificacionRepresentanteLegal, usuariopst.Departamento, usuariopst.Municipio, usuariopst.NombreResponsableSostenibilidad, usuariopst.CorreoResponsableSostenibilidad, usuariopst.TelefonoResponsableSostenibilidad, usuariopst.Contraseña, usuariopst.Avatar });
+            var result = await db.ExecuteAsync(sql, new { usuariopst.IdUsuarioPst,usuariopst.Nit, usuariopst.Rnt, usuariopst.idCategoriaRnt, usuariopst.idSubCategoriaRnt, usuariopst.NombrePst, usuariopst.RazonSocialPst, usuariopst.CorreoPst, usuariopst.TelefonoPst, usuariopst.NombreRepresentanteLegal, usuariopst.CorreoRepresentanteLegal, usuariopst.TelefonoRepresentanteLegal, usuariopst.idTipoIdentificacion, usuariopst.IdentificacionRepresentanteLegal, usuariopst.idDepartamento, usuariopst.idMunicipio, usuariopst.NombreResponsableSostenibilidad, usuariopst.CorreoResponsableSostenibilidad, usuariopst.TelefonoResponsableSostenibilidad, usuariopst.idTipoAvatar });
             return result.ToString();
         }
     }

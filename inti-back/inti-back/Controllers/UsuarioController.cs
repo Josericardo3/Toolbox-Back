@@ -57,18 +57,18 @@ namespace inti_back.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateUsuarioPst([FromBody] UsuarioPst usuariopst)
+        public async Task<IActionResult> UpdateUsuarioPst([FromBody] UsuarioPstUpd usuariopst1)
         {
-            if (usuariopst == null)
+            if (usuariopst1 == null)
             {
                 return BadRequest();
             }
             else
             {
-                await _usuarioPstRepository.InsertUsuarioPst(usuariopst);
+                await _usuarioPstRepository.UpdateUsuarioPst(usuariopst1);
                 return Ok(new
                 {
-                    Id = usuariopst.IdUsuarioPst,
+                    Id = usuariopst1.IdUsuarioPst,
                     StatusCode(200).StatusCode
                 });
 

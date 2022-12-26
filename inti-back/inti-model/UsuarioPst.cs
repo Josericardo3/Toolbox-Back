@@ -14,14 +14,14 @@ namespace inti_model
         [Required(ErrorMessage = "Nit es requerido")]
         public String? Nit { get; set; }
 
-        //[Required(ErrorMessage = "Rnt es requerido")]
+        [Required(ErrorMessage = "Rnt es requerido")]
         public String? Rnt { get; set; }
 
         [Required(ErrorMessage = "CategoriaRnt es requerido")]
-        public String? CategoriaRnt { get; set; }
+        public int idCategoriaRnt { get; set; }
 
         [Required(ErrorMessage = "SubCategoriaRnt es requerido")]
-        public String? SubCategoriaRnt { get; set; }
+        public int idSubCategoriaRnt { get; set; }
 
         [Required(ErrorMessage = "NombrePst es requerido")]
         public String? NombrePst { get; set; }
@@ -45,16 +45,16 @@ namespace inti_model
         public String? TelefonoRepresentanteLegal { get; set; }
 
         [Required(ErrorMessage = "TipoIdentificacionRepresentanteLegal es requerido")]
-        public String? TipoIdentificacionRepresentanteLegal { get; set; }
+        public int idTipoIdentificacion { get; set; }
 
         [Required(ErrorMessage = "IdentificacionRepresentanteLegal es requerido")]
         public String? IdentificacionRepresentanteLegal { get; set; }
 
         [Required(ErrorMessage = "Departamento es requerido")]
-        public String? Departamento { get; set; }
+        public int idDepartamento { get; set; }
 
         [Required(ErrorMessage = "Municipio es requerido")]
-        public String? Municipio { get; set; }
+        public int idMunicipio { get; set; }
 
         [Required(ErrorMessage = "NombreResponsableSostenibilidad es requerido")]
         public String? NombreResponsableSostenibilidad { get; set; }
@@ -66,10 +66,10 @@ namespace inti_model
         public String? TelefonoResponsableSostenibilidad { get; set; }
 
         [Required(ErrorMessage = "Contraseña es requerido")]
-        public String? Contraseña { get; set; }
+        public String? Password { get; set; }
 
         [Required(ErrorMessage = "Avatar es requerido")]
-        public String? Avatar { get; set; }
+        public int idTipoAvatar { get; set; }
         public bool Activo { get; set; }
 
     }
