@@ -1,0 +1,25 @@
+stages:
+    - master
+    - execsonar
+
+UPD_Master:
+    stage: master
+    tags:
+        - fuentes
+    script:
+        - cd $RUTA_INTI_BACK_MAS
+        - sudo git pull origin master
+    only:
+        - master
+
+EjecutarSonar:
+    stage: execsonar
+    tags:
+        - sonar
+    script:
+        - H:\sonnar\sonar.bat
+        
+    when: manual
+    
+    only:
+        - master
