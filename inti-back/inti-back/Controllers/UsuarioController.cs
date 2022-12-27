@@ -80,13 +80,23 @@ namespace inti_back.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteUsuario(int id)
         {
-            var borrado = await _usuarioPstRepository.DeleteUsuarioPst(id);
-            
-            return Ok(new
+            var busqueda = await _usuarioPstRepository.GetUsuarioPst(id);
+            if (busqueda == null)
             {
-                Id = id,
-                StatusCode(204).StatusCode
-            });
+                return NotFound();
+            }
+            else
+            {
+                var borrado = await _usuarioPstRepository.DeleteUsuarioPst(id);
+
+                return Ok(new
+                {
+                    Id = id,
+                    StatusCode(204).StatusCode
+                });
+
+            }
+            
 
         }
     }
