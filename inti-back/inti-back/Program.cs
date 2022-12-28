@@ -31,7 +31,7 @@ builder.Services.AddSwaggerGen();
 
 var MySqlConfiguration = new MySQLConfiguration(builder.Configuration.GetConnectionString(connectionString));
 builder.Services.AddSingleton(MySqlConfiguration);
-builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IUsuarioPstRepository, UsuarioPstRepository>();
 
 
 var app = builder.Build();
