@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33103.184
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "inti-back", "inti-back\inti-back.csproj", "{6F8C433D-9EDA-42EB-99A7-C710148CE347}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "inti-back", "inti-back\inti-back.csproj", "{6F8C433D-9EDA-42EB-99A7-C710148CE347}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "inti-model", "inti-model\inti-model.csproj", "{FFB5790D-5576-4101-ADD4-E856D3D4F407}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "inti-repository", "inti-repository\inti-repository.csproj", "{F22FAE7F-6F9A-419E-9BD1-7655BED77315}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{6F8C433D-9EDA-42EB-99A7-C710148CE347}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F8C433D-9EDA-42EB-99A7-C710148CE347}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F8C433D-9EDA-42EB-99A7-C710148CE347}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FFB5790D-5576-4101-ADD4-E856D3D4F407}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFB5790D-5576-4101-ADD4-E856D3D4F407}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFB5790D-5576-4101-ADD4-E856D3D4F407}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFB5790D-5576-4101-ADD4-E856D3D4F407}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F22FAE7F-6F9A-419E-9BD1-7655BED77315}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F22FAE7F-6F9A-419E-9BD1-7655BED77315}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F22FAE7F-6F9A-419E-9BD1-7655BED77315}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F22FAE7F-6F9A-419E-9BD1-7655BED77315}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
