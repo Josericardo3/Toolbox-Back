@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+
+  inti:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: inti_back
+    ports:
+      - 8050:8050
+    environment:
+      - ASPNETCORE_ENVIRONMENT="Development"
+    env_file:
+      - .env
