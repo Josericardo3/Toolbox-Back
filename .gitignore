@@ -30,6 +30,8 @@ msbuild.log
 msbuild.err
 msbuild.wrn
 inti-back/inti-repository/obj/*
-inti-back/inti-repository/obj/project.nuget.cache
+inti-back/inti-back/bin
+inti-back/**/bin
+
 # Visual Studio 2015
 .vs/
