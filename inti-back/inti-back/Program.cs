@@ -66,22 +66,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddCors(
-options =>
-            {
-                options.AddPolicy("CorsPolicy",
-                    builder => builder
-                    .AllowAnyOrigin()
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    );
 
-                options.AddPolicy("signalr",
-                    builder => builder
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .AllowCredentials()
-                    .SetIsOriginAllowed(hostName => true));
-            }
 
 );
 
@@ -128,6 +113,11 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+app.UseCors(x => x
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(origin => true) // allow any origin
+                .AllowCredentials());
 
 app.Run();
 
