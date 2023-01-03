@@ -65,23 +65,26 @@ builder.Services.AddSwaggerGen(c =>
 
 });
 
-var MyAllowSpecificOrigins = "AllPolicies";
+builder.Services.AddCors(
+options =>
+            {
+                options.AddPolicy("CorsPolicy",
+                    builder => builder
+                    .AllowAnyOrigin()
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    );
 
+                options.AddPolicy("signalr",
+                    builder => builder
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: MyAllowSpecificOrigins,
-                      policy =>
-                      {
-                          policy.AllowAnyOrigin().
-                          AllowAnyHeader(
-                          ).AllowAnyMethod(
-                          ).AllowCredentials(
-                          );
-                      });
-});
+                    .AllowCredentials()
+                    .SetIsOriginAllowed(hostName => true));
+            }
 
-
+);
 
 var MySqlConfiguration = new MySQLConfiguration(builder.Configuration.GetConnectionString("MySqlConnectionDev"));
 builder.Services.AddSingleton(MySqlConfiguration);
@@ -112,12 +115,7 @@ builder.Services.AddAuthentication(options =>
 var app = builder.Build();
 
 
-app.UseCors(builder =>
-{
-    builder.AllowAnyOrigin()
-           .AllowAnyMethod()
-           .AllowAnyHeader();
-});
+
 // Configure the HTTP request pipeline.
 
 app.UseSwagger();
@@ -130,6 +128,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.UseCors();
 
 app.Run();
 
