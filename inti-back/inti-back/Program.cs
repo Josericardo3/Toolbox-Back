@@ -65,6 +65,19 @@ builder.Services.AddSwaggerGen(c =>
 
 });
 
+var MyAllowSpecificOrigins = "AllPolicies";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+                      policy =>
+                      {
+                          policy.AllowAnyOrigin().
+                          AllowAnyHeader(
+                          ).AllowAnyMethod(
+                          ).AllowCredentials(
+                          );
+                      });
+});
 
 var MySqlConfiguration = new MySQLConfiguration(builder.Configuration.GetConnectionString("MySqlConnectionDev"));
 builder.Services.AddSingleton(MySqlConfiguration);
