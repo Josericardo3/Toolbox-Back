@@ -79,7 +79,6 @@ options =>
                     builder => builder
                     .AllowAnyMethod()
                     .AllowAnyHeader()
-
                     .AllowCredentials()
                     .SetIsOriginAllowed(hostName => true));
             }
@@ -128,7 +127,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.UseCors();
+
 
 app.Run();
 
