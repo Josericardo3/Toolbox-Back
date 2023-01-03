@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using inti_model;
 using inti_repository;
-
+using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 
 namespace inti_back.Controllers
 {
@@ -11,10 +12,12 @@ namespace inti_back.Controllers
     {
 
         private readonly IUsuarioPstRepository _usuarioPstRepository;
-
-        public UsuarioController(IUsuarioPstRepository usuarioPstRepository)
+        TokenConfiguration objTokenConf = new TokenConfiguration();
+        private IConfiguration Configuration;
+        public UsuarioController(IUsuarioPstRepository usuarioPstRepository, IConfiguration _configuration)
         {
             _usuarioPstRepository = usuarioPstRepository;
+            Configuration = _configuration;
         }
 
 
@@ -99,5 +102,39 @@ namespace inti_back.Controllers
             
 
         }
+
+        [HttpPost("LoginUsuario")]
+        public async Task<IActionResult> LoginUsuario(string usuario, string Password)
+        {
+            var objUsuarioLogin = await _usuarioPstRepository.LoginUsuario(usuario, Password);
+
+            if (objUsuarioLogin == null)
+            {
+                return NotFound();
+            }
+
+            string issuer = this.Configuration.GetValue<string>("Jwt:Issuer");
+            string audience = this.Configuration.GetValue<string>("Jwt:Audience");
+            string key = this.Configuration.GetValue<string>("Jwt:key");
+
+            objUsuarioLogin.TokenAcceso = objTokenConf.GenerarToken(usuario, 5, objUsuarioLogin.IdUsuarioPst,
+                issuer, audience, key);
+            objUsuarioLogin.TokenRefresco = objTokenConf.GenerarToken(usuario, 20, objUsuarioLogin.IdUsuarioPst,
+                issuer, audience, key);
+            objUsuarioLogin.HoraLogueo = DateTime.Now.ToString("hh:mm:ss");
+            var serialized = JsonSerializer.Serialize(objUsuarioLogin);
+
+            return Ok(serialized);
+        }
+
+        [HttpGet("Prueba")]
+        [Authorize]
+        public string Prueba()
+        {
+
+            return "Prueba";
+
+        }
+
     }
 }

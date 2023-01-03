@@ -83,5 +83,41 @@ namespace inti_repository
             var result = await db.ExecuteAsync(sql, new { usuariopst.IdUsuarioPst,usuariopst.Nit, usuariopst.Rnt, usuariopst.idCategoriaRnt, usuariopst.idSubCategoriaRnt, usuariopst.NombrePst, usuariopst.RazonSocialPst, usuariopst.CorreoPst, usuariopst.TelefonoPst, usuariopst.NombreRepresentanteLegal, usuariopst.CorreoRepresentanteLegal, usuariopst.TelefonoRepresentanteLegal, usuariopst.idTipoIdentificacion, usuariopst.IdentificacionRepresentanteLegal, usuariopst.idDepartamento, usuariopst.idMunicipio, usuariopst.NombreResponsableSostenibilidad, usuariopst.CorreoResponsableSostenibilidad, usuariopst.TelefonoResponsableSostenibilidad, usuariopst.idTipoAvatar });
             return result.ToString();
         }
+
+        public async Task<UsuarioPstLogin> LoginUsuario(string user, string Password)
+        {
+            var db = dbConnection();
+            var sql = @"SELECT Idusuariopst,nit,password FROM usuariospst WHERE nit = @user AND password = SHA1(@Password)";
+            UsuarioPstLogin objUsuarioLogin = new UsuarioPstLogin();
+            objUsuarioLogin = db.QueryFirstOrDefault<UsuarioPstLogin>(sql, new { user = user, Password = Password });
+
+            if (objUsuarioLogin != null)
+            {
+                var objpermiso = ObtenerPermisosUsuario(objUsuarioLogin.IdUsuarioPst);
+
+                objUsuarioLogin.Grupo = objpermiso.Where(x => x.idtabla == 1).ToList();
+                objUsuarioLogin.SubGrupo = objpermiso.Where(x => x.idtabla == 2).ToList();
+                objUsuarioLogin.permisoUsuario = objpermiso.Where(x => x.idtabla == 3).ToList();
+            }
+
+            return await Task.FromResult<UsuarioPstLogin>(objUsuarioLogin);
+        }
+
+        public IEnumerable<Permiso> ObtenerPermisosUsuario(int id)
+        {
+            var db = dbConnection();
+            var sql = @"select per.idtabla,per.item,ma.descripcion,per.idusuariopst from permiso per
+            inner join maestro ma 
+            ON per.idtabla = ma.idtabla and per.item = ma.item
+            where
+            per.estado=1
+            and ma.estado=1";
+            var listPermiso = db.Query<Permiso>(sql, new { });
+
+            listPermiso = listPermiso.Where(x => x.idusuariopst == id).ToList();
+
+
+            return listPermiso;
+        }
     }
 }
