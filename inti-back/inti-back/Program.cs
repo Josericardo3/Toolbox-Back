@@ -66,6 +66,8 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var MyAllowSpecificOrigins = "AllPolicies";
+
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
@@ -78,6 +80,8 @@ builder.Services.AddCors(options =>
                           );
                       });
 });
+
+
 
 var MySqlConfiguration = new MySQLConfiguration(builder.Configuration.GetConnectionString("MySqlConnectionDev"));
 builder.Services.AddSingleton(MySqlConfiguration);
@@ -107,6 +111,13 @@ builder.Services.AddAuthentication(options =>
 
 var app = builder.Build();
 
+
+app.UseCors(builder =>
+{
+    builder.AllowAnyOrigin()
+           .AllowAnyMethod()
+           .AllowAnyHeader();
+});
 // Configure the HTTP request pipeline.
 
 app.UseSwagger();
