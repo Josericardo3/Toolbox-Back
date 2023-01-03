@@ -10,7 +10,7 @@ namespace inti_model
     public class UsuarioPst
     {
 
-
+        public int IdUsuarioPst { get; set; }
         [Required(ErrorMessage = "Nit es requerido")]
         public String? Nit { get; set; }
 
