@@ -13,8 +13,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 
-var port = Environment.GetEnvironmentVariable("INTI_BACK_PORT");
-var host = Environment.GetEnvironmentVariable("INTI_BACK_HOST");
+//var port = Environment.GetEnvironmentVariable("INTI_BACK_PORT");
+var port = "8050";
+//var host = Environment.GetEnvironmentVariable("INTI_BACK_HOST");
+var host = "0.0.0.0";
 var env = Environment.GetEnvironmentVariable("INTI_BACK_ENV");
 
 String connectionString = env != "DEV" ? "MySqlConnectionDev" : "MySqlConnection";
@@ -101,6 +103,7 @@ var app = builder.Build();
 
 
 // Configure the HTTP request pipeline.
+
 
 app.UseSwagger();
 app.UseSwaggerUI();
