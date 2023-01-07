@@ -40,7 +40,8 @@ namespace inti_back.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> InsertUsuarioPst([FromBody] UsuarioPst usuariopst) {
+        public async Task<IActionResult> InsertUsuarioPst([FromBody] UsuarioPst usuariopst)
+        {
 
             if (usuariopst == null)
             {
@@ -99,7 +100,7 @@ namespace inti_back.Controllers
                 });
 
             }
-            
+
 
         }
 
