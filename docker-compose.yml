@@ -18,10 +18,14 @@ services:
       - ASPNETCORE_ENVIRONMENT="Development"
     env_file:
       - .env
+
   inti_nginx:
-    image: nginx:stable
+    build:
+      context: .
+      dockerfile: frontend.Dockerfile
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
+
     depends_on:
       - inti_back
 
@@ -30,3 +34,4 @@ services:
 
     ports:
       - "8050:8050"
+      - "8080:8080"
