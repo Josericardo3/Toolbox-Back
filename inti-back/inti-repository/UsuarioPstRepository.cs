@@ -1,7 +1,7 @@
-﻿using inti_model;
-using Dapper;
+﻿using Dapper;
+using inti_model;
 using MySql.Data.MySqlClient;
-
+using Newtonsoft;
 
 namespace inti_repository
 {
@@ -22,12 +22,12 @@ namespace inti_repository
         public async Task<bool> DeleteUsuarioPst(int id)
         {
             var db = dbConnection();
-            
+
             var sql = @"UPDATE usuariospst 
                         SET activo = FALSE
                         WHERE idusuariopst = @IdUsuarioPst";
             var result = await db.ExecuteAsync(sql, new { IdUsuarioPst = id });
-            
+
             return result > 0;
         }
 
@@ -35,7 +35,7 @@ namespace inti_repository
         {
             var db = dbConnection();
             var sql = @"SELECT idusuariopst,nit,rnt,idcategoriarnt,idsubcategoriarnt,nombrepst,razonsocialpst,correopst,telefonopst,nombrerepresentantelegal,correorepresentantelegal,telefonorepresentantelegal,idtipoidentificacion,identificacionrepresentantelegal,iddepartamento,idmunicipio,nombreresponsablesostenibilidad,correoresponsablesostenibilidad,telefonoresponsablesostenibilidad,password,idtipoavatar,activo FROM usuariospst WHERE activo = TRUE";
-            return await db.QueryAsync<UsuarioPst>(sql,new { });
+            return await db.QueryAsync<UsuarioPst>(sql, new { });
 
         }
 
@@ -51,7 +51,7 @@ namespace inti_repository
             var db = dbConnection();
             var sql = @"INSERT INTO usuariospst(nit,rnt,idcategoriarnt,idsubcategoriarnt,nombrepst,razonsocialpst,correopst,telefonopst,nombrerepresentantelegal,correorepresentantelegal,telefonorepresentantelegal,idtipoidentificacion,identificacionrepresentantelegal,iddepartamento,idmunicipio,nombreresponsablesostenibilidad,correoresponsablesostenibilidad,telefonoresponsablesostenibilidad,password,idtipoavatar) 
                         VALUES (@Nit,@Rnt,@idCategoriaRnt,@idSubCategoriaRnt,@NombrePst,@RazonSocialPst,@CorreoPst,@TelefonoPst,@NombreRepresentanteLegal,@CorreoRepresentanteLegal,@TelefonoRepresentanteLegal,@idTipoIdentificacion,@IdentificacionRepresentanteLegal,@idDepartamento,@idMunicipio,@NombreResponsableSostenibilidad,@CorreoResponsableSostenibilidad,@TelefonoResponsableSostenibilidad, SHA1(@Password),@idTipoAvatar) ";
-            var result = await db.ExecuteAsync(sql, new { usuariopst.Nit, usuariopst.Rnt, usuariopst.idCategoriaRnt, usuariopst.idSubCategoriaRnt,usuariopst.NombrePst, usuariopst.RazonSocialPst,usuariopst.CorreoPst, usuariopst.TelefonoPst, usuariopst.NombreRepresentanteLegal, usuariopst.CorreoRepresentanteLegal, usuariopst.TelefonoRepresentanteLegal, usuariopst.idTipoIdentificacion, usuariopst.IdentificacionRepresentanteLegal, usuariopst.idDepartamento, usuariopst.idMunicipio, usuariopst.NombreResponsableSostenibilidad,usuariopst.CorreoResponsableSostenibilidad, usuariopst.TelefonoResponsableSostenibilidad, usuariopst.Password, usuariopst.idTipoAvatar });
+            var result = await db.ExecuteAsync(sql, new { usuariopst.Nit, usuariopst.Rnt, usuariopst.idCategoriaRnt, usuariopst.idSubCategoriaRnt, usuariopst.NombrePst, usuariopst.RazonSocialPst, usuariopst.CorreoPst, usuariopst.TelefonoPst, usuariopst.NombreRepresentanteLegal, usuariopst.CorreoRepresentanteLegal, usuariopst.TelefonoRepresentanteLegal, usuariopst.idTipoIdentificacion, usuariopst.IdentificacionRepresentanteLegal, usuariopst.idDepartamento, usuariopst.idMunicipio, usuariopst.NombreResponsableSostenibilidad, usuariopst.CorreoResponsableSostenibilidad, usuariopst.TelefonoResponsableSostenibilidad, usuariopst.Password, usuariopst.idTipoAvatar });
             return result > 0;
         }
 
@@ -80,7 +80,7 @@ namespace inti_repository
                             telefonoresponsablesostenibilidad = @TelefonoResponsableSostenibilidad,
                             idtipoavatar = @idTipoAvatar
                         WHERE idusuariopst = @IdUsuarioPst";
-            var result = await db.ExecuteAsync(sql, new { usuariopst.IdUsuarioPst,usuariopst.Nit, usuariopst.Rnt, usuariopst.idCategoriaRnt, usuariopst.idSubCategoriaRnt, usuariopst.NombrePst, usuariopst.RazonSocialPst, usuariopst.CorreoPst, usuariopst.TelefonoPst, usuariopst.NombreRepresentanteLegal, usuariopst.CorreoRepresentanteLegal, usuariopst.TelefonoRepresentanteLegal, usuariopst.idTipoIdentificacion, usuariopst.IdentificacionRepresentanteLegal, usuariopst.idDepartamento, usuariopst.idMunicipio, usuariopst.NombreResponsableSostenibilidad, usuariopst.CorreoResponsableSostenibilidad, usuariopst.TelefonoResponsableSostenibilidad, usuariopst.idTipoAvatar });
+            var result = await db.ExecuteAsync(sql, new { usuariopst.IdUsuarioPst, usuariopst.Nit, usuariopst.Rnt, usuariopst.idCategoriaRnt, usuariopst.idSubCategoriaRnt, usuariopst.NombrePst, usuariopst.RazonSocialPst, usuariopst.CorreoPst, usuariopst.TelefonoPst, usuariopst.NombreRepresentanteLegal, usuariopst.CorreoRepresentanteLegal, usuariopst.TelefonoRepresentanteLegal, usuariopst.idTipoIdentificacion, usuariopst.IdentificacionRepresentanteLegal, usuariopst.idDepartamento, usuariopst.idMunicipio, usuariopst.NombreResponsableSostenibilidad, usuariopst.CorreoResponsableSostenibilidad, usuariopst.TelefonoResponsableSostenibilidad, usuariopst.idTipoAvatar });
             return result.ToString();
         }
 
@@ -119,5 +119,106 @@ namespace inti_repository
 
             return listPermiso;
         }
+
+        public async Task<ResponseCaracterizacion> GetResponseCaracterizacion(int id)
+        {
+            var db = dbConnection();
+            var queryUsuario = @"
+                                select
+	                                u.*,
+	                                c.categoriarnt ,
+	                                s.subcategoriarnt ,
+	                                t.tipoidentificacion ,
+	                                d.departamento ,
+	                                m.municipio ,
+	                                t2.avatar
+                                from
+	                                usuariospst u
+                                inner join categoriasrnt c ON
+	                                c.idcategoriarnt = u.idcategoriarnt
+                                inner join subcategoriasrnt s on
+	                                s.idsubcategoriarnt = u.idsubcategoriarnt
+                                inner join tiposidentificacionrepresentantelegal t on
+	                                t.idtipoidentificacion = u.idtipoidentificacion
+                                inner JOIN departamentos d on
+	                                d.iddepartamento = u.iddepartamento
+                                inner join municipios m on
+	                                m.idmunicipio = u.idmunicipio
+                                inner JOIN tiposdeavatar t2 on
+	                                t2.idtipoavatar = u.idtipoavatar
+                                WHERE
+	                                u.idusuariopst = @id_user";
+
+            ResponseUsuario dataUsuario = await db.QueryFirstOrDefaultAsync<ResponseUsuario>(queryUsuario, new { id_user = id });
+
+            var queryCaracterizacion = @"SELECT idcaracterizaciondinamica,nombre,idcategoriarnt,tipodedato,mensaje,codigo,tablarelacionada,campo_local,activo FROM caracterizaciondinamica WHERE idcategoriarnt = @idcategoria AND activo=TRUE";
+
+            var dataCaracterizacion = db.Query<Caracterizacion>(queryCaracterizacion, new { idcategoria = dataUsuario.idCategoriaRnt }).ToList();
+
+            ResponseCaracterizacion responseCaracterizacion = new ResponseCaracterizacion();
+
+            responseCaracterizacion.id_user = dataUsuario.idusuariopst;
+            
+
+            for (int i = 0; i < dataCaracterizacion.Count(); i++)
+            {
+                var fila = dataCaracterizacion[i];
+
+                await tipoEvaluacion(fila, dataUsuario, responseCaracterizacion, db);
+
+            }
+
+            return responseCaracterizacion;
+
+        }
+
+        private async Task<ResponseCaracterizacion> tipoEvaluacion(Caracterizacion fila, ResponseUsuario dataUsuario, ResponseCaracterizacion responseCaracterizacion,MySqlConnection db)
+        {
+
+            if (fila.tipodedato == "string" || fila.tipodedato == "int" || fila.tipodedato == "float" || fila.tipodedato == "bool" || fila.tipodedato == "double" || fila.tipodedato == "number")
+            {
+                
+                
+            }
+            else if (fila.tipodedato == "option")
+            {
+
+                var desplegable = fila.idcaracterizaciondinamica;
+                var datosDesplegable = @"select * from desplegablescaracterizacion where idcaracterizacion = @id_desplegable AND activo=TRUE";
+                var responseDesplegable = db.Query<DesplegableCaracterizacion>(datosDesplegable, new { id_desplegable = desplegable }).ToList();
+                foreach(DesplegableCaracterizacion i in responseDesplegable)
+                {
+
+                    fila.desplegable.Add(i);
+
+                }
+
+
+            }
+            else if (fila.tipodedato == "referencia_id")
+            {
+                var tablarelacionada = fila.tablarelacionada;
+                var datosTablarelacionada = String.Format("select * from {0} where activo=TRUE", tablarelacionada);
+                var responseTablarelacionada = db.Query(datosTablarelacionada);
+                var json = Newtonsoft.Json.JsonConvert.SerializeObject(new { table = responseTablarelacionada.ToList() });
+                fila.relations = json; 
+            }
+            else if (fila.tipodedato == "local_reference_id")
+            {
+                var campolocal = fila.campo_local;
+                var nombre = dataUsuario[campolocal].ToString();
+                fila.values = nombre;
+
+            }
+
+            responseCaracterizacion.campos.Add(fila);
+
+            return responseCaracterizacion;
+            
+        }
+        
+
+        
+
     }
 }

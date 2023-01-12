@@ -73,4 +73,5 @@ namespace inti_model
         public bool Activo { get; set; }
 
     }
+
 }
