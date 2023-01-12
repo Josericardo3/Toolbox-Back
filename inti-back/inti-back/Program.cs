@@ -13,16 +13,14 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 
-//var port = int.Parse(Environment.GetEnvironmentVariable("INTI_BACK_PORT"));
-var port = 8050;
+var port = int.Parse(Environment.GetEnvironmentVariable("INTI_BACK_PORT"));
 
-//var host = Environment.GetEnvironmentVariable("INTI_BACK_HOST");
-var host = "0.0.0.0";
+var host = Environment.GetEnvironmentVariable("INTI_BACK_HOST");
 var env = Environment.GetEnvironmentVariable("INTI_BACK_ENV");
 
 String connectionString = env != "DEV" ? "MySqlConnectionDev" : "MySqlConnection";
 
-
+Console.WriteLine("env->" + connectionString);
 Console.WriteLine("Connection string {0}", connectionString);
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -122,6 +120,8 @@ app.UseCors(x => x
                 .AllowAnyHeader()
                 .SetIsOriginAllowed(origin => true) // allow any origin
                 .AllowCredentials());
+
+
 
 app.Run();
 
