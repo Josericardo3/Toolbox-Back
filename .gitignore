@@ -35,3 +35,4 @@ inti-back/**/bin
 
 # Visual Studio 2015
 .vs/
+**/obj
