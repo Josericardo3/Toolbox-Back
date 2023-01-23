@@ -137,7 +137,7 @@ namespace inti_back.Controllers
 
         }
 
-        [HttpGet("response/{id}")]
+        [HttpGet("caracterizacion/{id}")]
         public async Task<IActionResult> GetResponseCaracterizacion(int id)
         {
             var response = await _usuarioPstRepository.GetResponseCaracterizacion(id);
