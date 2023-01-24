@@ -13,11 +13,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 
-var port = int.Parse(Environment.GetEnvironmentVariable("INTI_BACK_PORT"));
+//var port = int.Parse(Environment.GetEnvironmentVariable("INTI_BACK_PORT"));
 
-var host = Environment.GetEnvironmentVariable("INTI_BACK_HOST");
+//var host = Environment.GetEnvironmentVariable("INTI_BACK_HOST");
 var env = Environment.GetEnvironmentVariable("INTI_BACK_ENV");
-
+var port = 8050;
+var host = "0.0.0.0";
 String connectionString = env != "DEV" ? "MySqlConnectionDev" : "MySqlConnection";
 
 Console.WriteLine("env->" + connectionString);

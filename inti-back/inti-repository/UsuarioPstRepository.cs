@@ -151,21 +151,21 @@ namespace inti_repository
 
             ResponseUsuario dataUsuario = await db.QueryFirstOrDefaultAsync<ResponseUsuario>(queryUsuario, new { id_user = id });
 
-            var queryCaracterizacion = @"SELECT idcaracterizaciondinamica,nombre,idcategoriarnt,tipodedato,mensaje,codigo,tablarelacionada,campo_local,activo FROM caracterizaciondinamica WHERE idcategoriarnt = @idcategoria AND activo=TRUE";
+            var queryCaracterizacion = @"SELECT idcaracterizaciondinamica,nombre,idcategoriarnt,tipodedato,mensaje,codigo,tablarelacionada,campo_local,activo FROM caracterizaciondinamica WHERE activo=TRUE AND ( idcategoriarnt = @idcategoria OR idcategoriarnt = 0)";
 
             var dataCaracterizacion = db.Query<Caracterizacion>(queryCaracterizacion, new { idcategoria = dataUsuario.idCategoriaRnt }).ToList();
 
             ResponseCaracterizacion responseCaracterizacion = new ResponseCaracterizacion();
 
             responseCaracterizacion.id_user = dataUsuario.idusuariopst;
-            
+            var i = 0;
 
-            for (int i = 0; i < dataCaracterizacion.Count(); i++)
+            while (i < dataCaracterizacion.Count())
             {
                 var fila = dataCaracterizacion[i];
 
                 await tipoEvaluacion(fila, dataUsuario, responseCaracterizacion, db);
-
+                i++;
             }
 
             return responseCaracterizacion;
@@ -184,8 +184,9 @@ namespace inti_repository
             {
 
                 var desplegable = fila.idcaracterizaciondinamica;
-                var datosDesplegable = @"select * from desplegablescaracterizacion where idcaracterizacion = @id_desplegable AND activo=TRUE";
-                var responseDesplegable = db.Query<DesplegableCaracterizacion>(datosDesplegable, new { id_desplegable = desplegable }).ToList();
+                var vcodigo = fila.codigo;
+                var datosDesplegable = @"select * from desplegablescaracterizacion where activo=TRUE AND (idcaracterizacion = @id_desplegable OR idcaracterizacion = @codigo)";
+                var responseDesplegable = db.Query<DesplegableCaracterizacion>(datosDesplegable, new { id_desplegable = desplegable, codigo = vcodigo }).ToList();
                 foreach(DesplegableCaracterizacion i in responseDesplegable)
                 {
 
@@ -201,7 +202,7 @@ namespace inti_repository
                 var datosTablarelacionada = String.Format("select * from {0} where activo=TRUE", tablarelacionada);
                 var responseTablarelacionada = db.Query(datosTablarelacionada);
                 var json = Newtonsoft.Json.JsonConvert.SerializeObject(new { table = responseTablarelacionada.ToList() });
-                fila.relations = json; 
+                fila.relations = json;
             }
             else if (fila.tipodedato == "local_reference_id")
             {
