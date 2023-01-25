@@ -149,5 +149,25 @@ namespace inti_back.Controllers
             return Ok(response);
         }
 
+        [HttpPost("caracterizacion/respuesta")]
+        public async Task<IActionResult> InsertRespuestaCaracterizacion(RespuestaCaracterizacion respuestaCaracterizacion)
+        {
+
+            if (respuestaCaracterizacion == null)
+            {
+                return BadRequest();
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var create = await _usuarioPstRepository.InsertRespuestaCaracterizacion(respuestaCaracterizacion);
+            return Ok(new
+            {
+                StatusCode(201).StatusCode
+            });
+
+        }
     }
 }

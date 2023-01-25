@@ -2,6 +2,7 @@
 using inti_model;
 using MySql.Data.MySqlClient;
 using Newtonsoft;
+using System.Reflection.Metadata.Ecma335;
 
 namespace inti_repository
 {
@@ -163,7 +164,6 @@ namespace inti_repository
             while (i < dataCaracterizacion.Count())
             {
                 var fila = dataCaracterizacion[i];
-
                 await tipoEvaluacion(fila, dataUsuario, responseCaracterizacion, db);
                 i++;
             }
@@ -176,25 +176,17 @@ namespace inti_repository
         {
 
             if (fila.tipodedato == "string" || fila.tipodedato == "int" || fila.tipodedato == "float" || fila.tipodedato == "bool" || fila.tipodedato == "double" || fila.tipodedato == "number")
-            {
-                
-                
-            }
+            { }
             else if (fila.tipodedato == "option")
             {
-
                 var desplegable = fila.idcaracterizaciondinamica;
                 var vcodigo = fila.codigo;
                 var datosDesplegable = @"select * from desplegablescaracterizacion where activo=TRUE AND (idcaracterizacion = @id_desplegable OR idcaracterizacion = @codigo)";
                 var responseDesplegable = db.Query<DesplegableCaracterizacion>(datosDesplegable, new { id_desplegable = desplegable, codigo = vcodigo }).ToList();
                 foreach(DesplegableCaracterizacion i in responseDesplegable)
                 {
-
                     fila.desplegable.Add(i);
-
                 }
-
-
             }
             else if (fila.tipodedato == "referencia_id")
             {
@@ -211,15 +203,20 @@ namespace inti_repository
                 fila.values = nombre;
 
             }
-
             responseCaracterizacion.campos.Add(fila);
-
             return responseCaracterizacion;
-            
         }
-        
 
-        
+        public async Task<bool> InsertRespuestaCaracterizacion(RespuestaCaracterizacion respuestaCaracterizacion)
+        {
+
+            var db = dbConnection();
+            var sql = @"INSERT INTO respuestas(valor,idusuariopst,idcategoriarnt,idcaracterizacion)
+                         VALUES (@valor,@idUsuarioPst,@idCategoriaRnt,@idCaracterizacion)";
+            var result = await db.ExecuteAsync(sql, new { respuestaCaracterizacion.valor, respuestaCaracterizacion.idUsuarioPst, respuestaCaracterizacion.idCategoriaRnt, respuestaCaracterizacion.idCaracterizacion });
+
+            return result > 0 ;
+        }
 
     }
 }
