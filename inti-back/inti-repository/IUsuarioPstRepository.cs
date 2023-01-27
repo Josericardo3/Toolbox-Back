@@ -19,7 +19,6 @@ namespace inti_repository
         Task<bool> DeleteUsuarioPst(int  id);
         Task <ResponseCaracterizacion> GetResponseCaracterizacion(int id);
         Task<UsuarioPstLogin> LoginUsuario(string usuario, string Password);
-
-        
+        Task<bool> InsertRespuestaCaracterizacion(RespuestaCaracterizacion respuestaCaracterizacion);
     }
 }

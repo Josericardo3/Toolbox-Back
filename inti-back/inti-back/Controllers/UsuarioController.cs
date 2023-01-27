@@ -34,7 +34,11 @@ namespace inti_back.Controllers
 
             if (response == null)
             {
-                return NotFound();
+                Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "el usuario no se ha encontrado"
+                });
             }
             return Ok(response);
         }
@@ -140,14 +144,40 @@ namespace inti_back.Controllers
         [HttpGet("caracterizacion/{id}")]
         public async Task<IActionResult> GetResponseCaracterizacion(int id)
         {
-            var response = await _usuarioPstRepository.GetResponseCaracterizacion(id);
-
-            if (response == null)
+            try
             {
-                return NotFound();
+                var response = await _usuarioPstRepository.GetResponseCaracterizacion(id);
+                return Ok(response);
             }
-            return Ok(response);
+            catch(Exception ex)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "el usuario no se ha encontrado"
+                });
+            }
         }
 
+        [HttpPost("caracterizacion/respuesta")]
+        public async Task<IActionResult> InsertRespuestaCaracterizacion(RespuestaCaracterizacion respuestaCaracterizacion)
+        {
+
+            if (respuestaCaracterizacion == null)
+            {
+                return BadRequest();
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var create = await _usuarioPstRepository.InsertRespuestaCaracterizacion(respuestaCaracterizacion);
+            return Ok(new
+            {
+                StatusCode(201).StatusCode
+            });
+
+        }
     }
 }
