@@ -177,13 +177,14 @@ namespace inti_repository
 
             if (fila.tipodedato == "string" || fila.tipodedato == "int" || fila.tipodedato == "float" || fila.tipodedato == "bool" || fila.tipodedato == "double" || fila.tipodedato == "number")
             { }
-            else if (fila.tipodedato == "option")
+            else if (fila.tipodedato == "option" || fila.tipodedato == "checkbox" || fila.tipodedato == "radio")
             {
+
                 var desplegable = fila.idcaracterizaciondinamica;
                 var vcodigo = fila.codigo;
                 var datosDesplegable = @"select * from desplegablescaracterizacion where activo=TRUE AND (idcaracterizacion = @id_desplegable OR idcaracterizacion = @codigo)";
                 var responseDesplegable = db.Query<DesplegableCaracterizacion>(datosDesplegable, new { id_desplegable = desplegable, codigo = vcodigo }).ToList();
-                foreach(DesplegableCaracterizacion i in responseDesplegable)
+                foreach (DesplegableCaracterizacion i in responseDesplegable)
                 {
                     fila.desplegable.Add(i);
                 }
