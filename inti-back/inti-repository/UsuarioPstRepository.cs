@@ -2,6 +2,7 @@
 using inti_model;
 using MySql.Data.MySqlClient;
 using Newtonsoft;
+using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 
 namespace inti_repository
@@ -219,5 +220,18 @@ namespace inti_repository
             return result > 0 ;
         }
 
+        public async Task<NormaTecnica>GetNormaTecnica(int id)
+        {
+            var db = dbConnection();
+            var queryNorma = @"Select * from normas where idcategoriarnt = @id_categoria";
+            NormaTecnica dataNorma = db.Query<NormaTecnica>(queryNorma, new { idcategoriarnt = id }).ToList();
+            
+            
+            
+            
+            
+            return ;
+
+        }
     }
 }

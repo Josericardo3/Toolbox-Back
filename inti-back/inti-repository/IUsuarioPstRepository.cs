@@ -20,5 +20,6 @@ namespace inti_repository
         Task <ResponseCaracterizacion> GetResponseCaracterizacion(int id);
         Task<UsuarioPstLogin> LoginUsuario(string usuario, string Password);
         Task<bool> InsertRespuestaCaracterizacion(RespuestaCaracterizacion respuestaCaracterizacion);
+        Task<NormaTecnica> GetNormaTecnica(int id);
     }
 }
