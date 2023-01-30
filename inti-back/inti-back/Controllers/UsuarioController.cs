@@ -182,19 +182,27 @@ namespace inti_back.Controllers
         [HttpGet("SelectorDeNorma")]
         public async Task<IActionResult> GetNormaTecnica(int id)
         {
+            try{
+                var response = await _usuarioPstRepository.GetNormaTecnica(id);
 
-            var response = await _usuarioPstRepository.GetNormaTecnica(id);
+                if (response == null)
+                {
+                    Ok(new
+                    {
+                        StatusCode(200).StatusCode,
+                    });
+                }
+                return Ok(response);
 
-            if (response == null)
-            {
-                Ok(new
+            }
+            catch(Exception ex) {
+                return Ok(new
                 {
                     StatusCode(200).StatusCode,
+                    valor = "el usuario no se ha encontrado"
                 });
+
             }
-            return Ok(response);
-
-
         }
     }
 }
