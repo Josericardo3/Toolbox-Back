@@ -224,13 +224,16 @@ namespace inti_repository
         {
             var db = dbConnection();
             var queryNorma = @"Select * from normas where idcategoriarnt = @id_categoria";
-            NormaTecnica dataNorma = db.Query<NormaTecnica>(queryNorma, new { idcategoriarnt = id }).ToList();
+            var dataNorma = db.Query<NormaTecnica>(queryNorma, new { id_categoria = id }).ToList();
+            var i = 0;
+            NormaTecnica normaTecnica = new NormaTecnica();
+            while (i < dataNorma.Count)
+            {
+                normaTecnica = dataNorma[i];
+                i++;
+            }
             
-            
-            
-            
-            
-            return ;
+            return normaTecnica;
 
         }
     }
