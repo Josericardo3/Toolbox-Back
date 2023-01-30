@@ -179,5 +179,22 @@ namespace inti_back.Controllers
             });
 
         }
+        [HttpGet("SelectorDeNorma")]
+        public async Task<IActionResult> GetNormaTecnica(int id)
+        {
+
+            var response = await _usuarioPstRepository.GetNormaTecnica(id);
+
+            if (response == null)
+            {
+                Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                });
+            }
+            return Ok(response);
+
+
+        }
     }
 }
