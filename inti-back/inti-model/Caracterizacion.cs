@@ -14,6 +14,7 @@ namespace inti_model
         public int idcategoriarnt { get; set; }
         public String? mensaje { get; set; }
         public String? codigo { get; set; }
+        public String? Dependiente { get; set; }
         public String? desplegable_id { get; set; }
         public String? tablarelacionada { get; set; }
         public bool existe { get; set; }
