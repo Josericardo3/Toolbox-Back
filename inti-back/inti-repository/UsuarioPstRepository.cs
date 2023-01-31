@@ -2,7 +2,10 @@
 using inti_model;
 using MySql.Data.MySqlClient;
 using Newtonsoft;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Reflection.Metadata.Ecma335;
+using static Org.BouncyCastle.Bcpg.Attr.ImageAttrib;
 
 namespace inti_repository
 {
@@ -152,7 +155,7 @@ namespace inti_repository
 
             ResponseUsuario dataUsuario = await db.QueryFirstOrDefaultAsync<ResponseUsuario>(queryUsuario, new { id_user = id });
 
-            var queryCaracterizacion = @"SELECT idcaracterizaciondinamica,nombre,idcategoriarnt,tipodedato,mensaje,codigo,tablarelacionada,campo_local,activo FROM caracterizaciondinamica WHERE activo=TRUE AND ( idcategoriarnt = @idcategoria OR idcategoriarnt = 0)";
+            var queryCaracterizacion = @"SELECT idcaracterizaciondinamica,nombre,idcategoriarnt,tipodedato,mensaje,codigo,tablarelacionada,campo_local,requerido,activo FROM caracterizaciondinamica WHERE activo=TRUE AND ( idcategoriarnt = @idcategoria OR idcategoriarnt = 0)";
 
             var dataCaracterizacion = db.Query<Caracterizacion>(queryCaracterizacion, new { idcategoria = dataUsuario.idCategoriaRnt }).ToList();
 
@@ -204,6 +207,16 @@ namespace inti_repository
                 fila.values = nombre;
 
             }
+            else if (fila.tipodedato == "norma")
+            {
+
+                var id = dataUsuario.idCategoriaRnt;
+                var queryNorma = @"Select * from normas where idcategoriarnt = @id_categoria";
+                var dataNorma = db.Query<NormaTecnica>(queryNorma, new { id_categoria = id });
+                var json = Newtonsoft.Json.JsonConvert.SerializeObject(new { table = dataNorma.ToList() });
+                fila.relations = json;
+
+            }
             responseCaracterizacion.campos.Add(fila);
             return responseCaracterizacion;
         }
@@ -219,5 +232,17 @@ namespace inti_repository
             return result > 0 ;
         }
 
+        public async Task<List<NormaTecnica>>GetNormaTecnica(int id)
+        {
+            var db = dbConnection();
+            var queryUsuario = @"select idusuariopst,idcategoriarnt from usuariospst where activo = TRUE AND idusuariopst = @id_user";
+            var dataUsuario = await db.QueryFirstOrDefaultAsync<ResponseNormaUsuario>(queryUsuario, new { id_user = id });
+            var idNorma = dataUsuario.idCategoriarnt;
+            var queryNorma = @"Select * from normas where idcategoriarnt = @id_categoria";
+            var dataNorma = db.Query<NormaTecnica>(queryNorma, new { id_categoria = idNorma }).ToList();
+            
+            return dataNorma;
+
+        }
     }
 }

@@ -20,6 +20,7 @@ namespace inti_model
         public List<DesplegableCaracterizacion>? desplegable { get; set; }
         public String? relations { get; set; }
         public String? campo_local { get; set; }
+        public bool requerido { get; set; }
         public String? values { get; set; }
         public bool activo { get; set; }
 
