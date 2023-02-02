@@ -47,20 +47,26 @@ namespace inti_back.Controllers
         public async Task<IActionResult> InsertUsuarioPst([FromBody] UsuarioPst usuariopst)
         {
 
-            if (usuariopst == null)
+            try
             {
-                return BadRequest();
+                if (usuariopst == null)
+                {
+                    return BadRequest();
+                }
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                var create = await _usuarioPstRepository.InsertUsuarioPst(usuariopst);
+                return Ok(new
+                {
+                    StatusCode(201).StatusCode
+                });
             }
-            if (!ModelState.IsValid)
+            catch (Exception ex)
             {
-                return BadRequest(ModelState);
+                throw new CustomException(ex.ErrorCode, ex.message);
             }
-
-            var create = await _usuarioPstRepository.InsertUsuarioPst(usuariopst);
-            return Ok(new
-            {
-                StatusCode(201).StatusCode
-            });
 
         }
 
