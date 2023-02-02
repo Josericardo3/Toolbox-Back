@@ -3,6 +3,7 @@ using inti_model;
 using inti_repository;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
+using Google.Protobuf;
 
 namespace inti_back.Controllers
 {
@@ -47,20 +48,20 @@ namespace inti_back.Controllers
         public async Task<IActionResult> InsertUsuarioPst([FromBody] UsuarioPst usuariopst)
         {
 
-            if (usuariopst == null)
+            try
+            {
+                var create = await _usuarioPstRepository.InsertUsuarioPst(usuariopst);
+                return Ok(new
+                {
+                    StatusCode(201).StatusCode
+                });
+            }
+            catch
             {
                 return BadRequest();
             }
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
 
-            var create = await _usuarioPstRepository.InsertUsuarioPst(usuariopst);
-            return Ok(new
-            {
-                StatusCode(201).StatusCode
-            });
+
 
         }
 
