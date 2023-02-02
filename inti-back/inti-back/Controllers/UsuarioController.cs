@@ -65,7 +65,7 @@ namespace inti_back.Controllers
             }
             catch (Exception ex)
             {
-                throw new CustomException(ex.ErrorCode, ex.message);
+                throw new Exception();
             }
 
         }
