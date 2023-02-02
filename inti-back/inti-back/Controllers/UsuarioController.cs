@@ -204,5 +204,24 @@ namespace inti_back.Controllers
 
             }
         }
+
+        [HttpGet("Diagnostico/{id}")]
+        public async Task<IActionResult> GetResponseDiagnostico(int id)
+        {
+            string Valortabladiagnostico = this.Configuration.GetValue<string>("ValorMaestro:Diagnostico");
+            try
+            {
+                var response = await _usuarioPstRepository.GetResponseDiagnostico(id, Convert.ToInt32(Valortabladiagnostico));
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "el usuario no se ha encontrado"
+                });
+            }
+        }
     }
 }
