@@ -21,5 +21,6 @@ namespace inti_repository
         Task<UsuarioPstLogin> LoginUsuario(string usuario, string Password);
         Task<bool> InsertRespuestaCaracterizacion(RespuestaCaracterizacion respuestaCaracterizacion);
         Task<List<NormaTecnica>> GetNormaTecnica(int id);
+        Task<ResponseDiagnostico> GetResponseDiagnostico(int id, int valortabla);
     }
 }

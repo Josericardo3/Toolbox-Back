@@ -6,15 +6,15 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.HttpOverrides;
-const String default_url = "http://{0}:{1};https://{2}:{3}";
+const String default_url = "http://{0}:{1};https://{2}:{3}"; 
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args); 
 
 // Add services to the container.
 builder.Services.AddControllers();
 
 //var port = int.Parse(Environment.GetEnvironmentVariable("INTI_BACK_PORT"));
-
+//var edw = int.Parse(Environment.GetEnvironmentVariable("INTI_BACK_PORT"));
 //var host = Environment.GetEnvironmentVariable("INTI_BACK_HOST");
 var env = Environment.GetEnvironmentVariable("INTI_BACK_ENV");
 var port = 8050;

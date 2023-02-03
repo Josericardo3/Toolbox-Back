@@ -3,9 +3,9 @@ using inti_model;
 using MySql.Data.MySqlClient;
 using Newtonsoft;
 using System.Collections.Immutable;
-using System.Linq;
+using System.Linq; 
 using System.Reflection.Metadata.Ecma335;
-using static Org.BouncyCastle.Bcpg.Attr.ImageAttrib;
+using static Org.BouncyCastle.Bcpg.Attr.ImageAttrib; 
 
 namespace inti_repository
 {
@@ -244,5 +244,80 @@ namespace inti_repository
             return dataNorma;
 
         }
+
+
+        public async Task<ResponseDiagnostico> GetResponseDiagnostico(int id, int valortabla)
+        {
+            var db = dbConnection();
+            var querydiagnostico = @"
+SELECT 
+iddiagnosticodinamico,
+idnormatecnica,
+numeralprincipal,
+numeralespecifico,
+titulo,
+requisito,
+tipodedato
+FROM inti.diagnosticodinamico
+where idnormatecnica =@idnormatecnica
+  and activo = 1";
+
+            var datadiagnostico = db.Query<Diagnostico>(querydiagnostico, new { idnormatecnica = id }).ToList();
+
+            ResponseDiagnostico responseDiagnostico = new ResponseDiagnostico();
+
+
+            var i = 0;
+
+            while (i < datadiagnostico.Count())
+            {
+                var fila = datadiagnostico[i];
+                await tipoDiagnostico(fila, responseDiagnostico, db, valortabla);
+                i++;
+            }
+
+            return responseDiagnostico;
+
+        }
+
+
+        private async Task<ResponseDiagnostico> tipoDiagnostico(Diagnostico fila, ResponseDiagnostico responseDiagnostico, MySqlConnection db, int valortabla)
+        {
+
+            if (fila.tipodedato == "string" || fila.tipodedato == "int" || fila.tipodedato == "float" || fila.tipodedato == "bool" || fila.tipodedato == "double" || fila.tipodedato == "number")
+            { }
+            else if (fila.tipodedato == "option" || fila.tipodedato == "checkbox" || fila.tipodedato == "radio")
+            {
+
+
+                var datosDesplegable = @"
+SELECT 
+item,
+descripcion,
+valor,
+estado
+
+ FROM inti.maestro
+where idtabla=@idtabla
+and estado=1
+and not item=0
+
+";
+                var responseDesplegable = db.Query<DesplegableDiagnostico>(datosDesplegable, new { idtabla = valortabla }).ToList();
+                foreach (DesplegableDiagnostico i in responseDesplegable)
+                {
+                    fila.desplegable.Add(i);
+                }
+            }
+
+
+            responseDiagnostico.campos.Add(fila);
+            return responseDiagnostico;
+        }
+
+
     }
+    
+
 }
+
