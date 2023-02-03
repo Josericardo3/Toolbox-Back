@@ -3,6 +3,7 @@ using inti_model;
 using inti_repository;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
+using Google.Protobuf;
 
 namespace inti_back.Controllers
 {
@@ -47,36 +48,42 @@ namespace inti_back.Controllers
         public async Task<IActionResult> InsertUsuarioPst([FromBody] UsuarioPst usuariopst)
         {
 
-            if (usuariopst == null)
+            try
+            {
+                var create = await _usuarioPstRepository.InsertUsuarioPst(usuariopst);
+                if (usuariopst == null)
+                {
+                    return BadRequest();
+                }
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                return Ok(new
+                {
+                    StatusCode(201).StatusCode
+                });
+            }
+            catch
             {
                 return BadRequest();
             }
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var create = await _usuarioPstRepository.InsertUsuarioPst(usuariopst);
-            return Ok(new
-            {
-                StatusCode(201).StatusCode
-            });
 
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateUsuarioPst([FromBody] UsuarioPstUpd usuariopst1)
+        public async Task<IActionResult> UpdateUsuarioPst([FromBody] UsuarioPstUpd usuariopst)
         {
-            if (usuariopst1 == null)
+            if (usuariopst == null)
             {
                 return BadRequest();
             }
             else
             {
-                await _usuarioPstRepository.UpdateUsuarioPst(usuariopst1);
+                await _usuarioPstRepository.UpdateUsuarioPst(usuariopst);
                 return Ok(new
                 {
-                    Id = usuariopst1.IdUsuarioPst,
+                    Id = usuariopst.IdUsuarioPst,
                     StatusCode(200).StatusCode
                 });
 
@@ -88,12 +95,7 @@ namespace inti_back.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteUsuario(int id)
         {
-            var busqueda = await _usuarioPstRepository.GetUsuarioPst(id);
-            if (busqueda == null)
-            {
-                return NotFound();
-            }
-            else
+            try
             {
                 var borrado = await _usuarioPstRepository.DeleteUsuarioPst(id);
 
@@ -102,8 +104,14 @@ namespace inti_back.Controllers
                     Id = id,
                     StatusCode(204).StatusCode
                 });
-
             }
+            catch(Exception ex)
+            {
+                return BadRequest();
+            }
+                
+
+            
 
 
         }
