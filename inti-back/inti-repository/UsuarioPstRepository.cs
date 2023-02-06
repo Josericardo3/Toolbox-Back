@@ -177,10 +177,11 @@ namespace inti_repository
 
         private async Task<ResponseCaracterizacion> tipoEvaluacion(Caracterizacion fila, ResponseUsuario dataUsuario, ResponseCaracterizacion responseCaracterizacion,MySqlConnection db)
         {
-
+            var tipo = fila.tipodedato;
+            var men = fila.mensaje;
             if (fila.tipodedato == "string" || fila.tipodedato == "int" || fila.tipodedato == "float" || fila.tipodedato == "bool" || fila.tipodedato == "double" || fila.tipodedato == "number")
             { }
-            else if (fila.tipodedato == "option" || fila.tipodedato == "checkbox" || fila.tipodedato == "radio")
+            else if ((fila.tipodedato == "option" || fila.tipodedato == "checkbox" || fila.tipodedato == "radio" ) && fila.mensaje != "municipios")
             {
 
                 var desplegable = fila.idcaracterizaciondinamica;
@@ -205,6 +206,15 @@ namespace inti_repository
                 var campolocal = fila.campo_local;
                 var nombre = dataUsuario[campolocal].ToString();
                 fila.values = nombre;
+
+            }
+            else if (fila.tipodedato == "checkbox" && fila.mensaje == "municipios" )
+            {
+                var tablarelacionada = fila.tablarelacionada;
+                var datosTablarelacionada = String.Format("select * from {0} where activo=TRUE", tablarelacionada);
+                var responseTablarelacionada = db.Query(datosTablarelacionada);
+                var json = Newtonsoft.Json.JsonConvert.SerializeObject(new { table = responseTablarelacionada.ToList() });
+                fila.relations = json;
 
             }
             else if (fila.tipodedato == "norma")
