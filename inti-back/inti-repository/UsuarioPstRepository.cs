@@ -180,8 +180,7 @@ namespace inti_repository
 
         private async Task<ResponseCaracterizacion> tipoEvaluacion(Caracterizacion fila, ResponseUsuario dataUsuario, ResponseCaracterizacion responseCaracterizacion,MySqlConnection db)
         {
-            var tipo = fila.tipodedato;
-            var men = fila.mensaje;
+
             if (fila.tipodedato == "string" || fila.tipodedato == "int" || fila.tipodedato == "float" || fila.tipodedato == "bool" || fila.tipodedato == "double" || fila.tipodedato == "number")
             { }
             else if ((fila.tipodedato == "option" || fila.tipodedato == "checkbox" || fila.tipodedato == "radio" ) && fila.mensaje != "municipios")
