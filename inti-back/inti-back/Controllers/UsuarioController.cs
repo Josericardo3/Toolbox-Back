@@ -231,5 +231,26 @@ namespace inti_back.Controllers
                 });
             }
         }
+
+        [HttpPost("Diagnosticorespuesta")]
+        public async Task<IActionResult> InsertRespuestaDiagnostico(RespuestaDiagnostico respuestaDiagnostico)
+        {
+
+            if (respuestaDiagnostico == null)
+            {
+                return BadRequest();
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var create = await _usuarioPstRepository.InsertRespuestaDiagnostico(respuestaDiagnostico);
+            return Ok(new
+            {
+                StatusCode(201).StatusCode
+            });
+
+        }
     }
 }

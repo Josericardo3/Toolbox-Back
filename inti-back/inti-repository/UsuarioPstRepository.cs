@@ -1,11 +1,14 @@
-﻿using Dapper;
+using Dapper;
+using Google.Protobuf;
 using inti_model;
 using MySql.Data.MySqlClient;
 using Newtonsoft;
+using Newtonsoft.Json;
 using System.Collections.Immutable;
 using System.Linq; 
 using System.Reflection.Metadata.Ecma335;
-using static Org.BouncyCastle.Bcpg.Attr.ImageAttrib; 
+using System.Text.Json.Serialization;
+using static Org.BouncyCastle.Bcpg.Attr.ImageAttrib;
 
 namespace inti_repository
 {
@@ -268,7 +271,7 @@ numeralespecifico,
 titulo,
 requisito,
 tipodedato
-FROM inti.diagnosticodinamico
+FROM diagnosticodinamico
 where idnormatecnica =@idnormatecnica
   and activo = 1";
 
@@ -307,7 +310,7 @@ descripcion,
 valor,
 estado
 
- FROM inti.maestro
+ FROM maestro
 where idtabla=@idtabla
 and estado=1
 and not item=0

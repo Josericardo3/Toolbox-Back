@@ -22,5 +22,7 @@ namespace inti_repository
         Task<bool> InsertRespuestaCaracterizacion(RespuestaCaracterizacion respuestaCaracterizacion);
         Task<List<NormaTecnica>> GetNormaTecnica(int id);
         Task<ResponseDiagnostico> GetResponseDiagnostico(int id, int valortabla);
+        Task<bool> InsertRespuestaDiagnostico(RespuestaDiagnostico respuestaDiagnostico);
+        Task<String> ObtenerDatosDiagnostico(int id);
     }
 }
