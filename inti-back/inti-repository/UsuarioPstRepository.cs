@@ -326,6 +326,16 @@ and not item=0
             responseDiagnostico.campos.Add(fila);
             return responseDiagnostico;
         }
+        public async Task<bool> InsertRespuestaDiagnostico(RespuestaDiagnostico respuestaDiagnostico)
+        {
+
+            var db = dbConnection();
+            var sql = @"INSERT INTO respuestadiagnostico(idusuario,idnormatecnica,numeralprincipal,numeralespecifico,valor)
+                         VALUES (@idusuario,@idnormatecnica,@numeralprincipal,@numeralespecifico,@valor)";
+            var result = await db.ExecuteAsync(sql, new { respuestaDiagnostico.idusuario, respuestaDiagnostico.idnormatecnica, respuestaDiagnostico.numeralprincipal, respuestaDiagnostico.numeralespecifico, respuestaDiagnostico.valor });
+
+            return result > 0;
+        }
 
     }
     
