@@ -19,6 +19,7 @@ namespace inti_model
         public String? tablarelacionada { get; set; }
         public bool existe { get; set; }
         public List<DesplegableCaracterizacion>? desplegable { get; set; }
+        public List<Municipios> municipios { get; set; }
         public String? relations { get; set; }
         public String? campo_local { get; set; }
         public bool requerido { get; set; }
@@ -29,6 +30,7 @@ namespace inti_model
         {
             this.relations = "{}";
             this.desplegable = new List<DesplegableCaracterizacion>();
+            this.municipios = new List<Municipios>();
         }
     }
 
