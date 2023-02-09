@@ -214,9 +214,9 @@ namespace inti_repository
             else if (fila.tipodedato == "checkbox" && fila.mensaje == "municipios" )
             {
                 var tablarelacionada = fila.tablarelacionada;
-                var datosTablarelacionada = String.Format("select * from {0} where activo=TRUE", tablarelacionada);
+                var datosTablarelacionada = String.Format("select idmunicipio, municipio, activo from municipios where activo=TRUE", tablarelacionada);
                 var responseTablarelacionada = db.Query(datosTablarelacionada);
-                var json = Newtonsoft.Json.JsonConvert.SerializeObject(new { table = responseTablarelacionada.ToList() });
+                var json = Newtonsoft.Json.JsonConvert.SerializeObject(new { municipios = responseTablarelacionada.ToList() });
                 fila.relations = json;
 
             }
@@ -328,6 +328,8 @@ and not item=0
             return responseDiagnostico;
         }
 
+<<<<<<< Updated upstream
+=======
         public async Task<bool> InsertRespuestaDiagnostico(RespuestaDiagnostico respuestaDiagnostico)
         {
 
@@ -338,7 +340,6 @@ and not item=0
 
             return result > 0;
         }
-
         public async Task<DataPstDiagnostico> DataUsuarioPstDiagnostico(int id, MySqlConnection db)
         {
             var QueryPst = @"SELECT u.nombrepst,u.nit,u.idcategoriarnt,u.idmunicipio,u.nombreresponsablesostenibilidad,u.correoresponsablesostenibilidad,u.rnt,u.idsubcategoriarnt,u.iddepartamento,u.telefonoresponsablesostenibilidad,c.categoriarnt,s.subcategoriarnt,d.departamento,m.municipio 
@@ -359,9 +360,12 @@ and not item=0
         {
             var db = dbConnection();
             var dataPst = DataUsuarioPstDiagnostico(id, db);
-            return JsonSerializerContext.Equals(dataPst); ;
+            return "";
         }
 
+>>>>>>> Stashed changes
+
+        
 
     }
     
