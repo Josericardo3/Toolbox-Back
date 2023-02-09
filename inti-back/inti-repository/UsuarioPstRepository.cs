@@ -212,11 +212,13 @@ namespace inti_repository
             }
             else if (fila.tipodedato == "checkbox" && fila.mensaje == "municipios" )
             {
-                var tablarelacionada = fila.tablarelacionada;
-                var datosTablarelacionada = String.Format("select idmunicipio, municipio, activo from municipios where activo=TRUE", tablarelacionada);
-                var responseTablarelacionada = db.Query(datosTablarelacionada);
-                var json = Newtonsoft.Json.JsonConvert.SerializeObject(new { municipios = responseTablarelacionada.ToList() });
-                fila.relations = json;
+
+                var datosTablarelacionada = @"select idmunicipio, municipio, activo from municipios where activo=TRUE";
+                var responseTablarelacionada = db.Query<Municipios>(datosTablarelacionada).ToList();
+                foreach( Municipios i in responseTablarelacionada)
+                {
+                    fila.municipios.Add(i);
+                }
 
             }
             else if (fila.tipodedato == "norma")
