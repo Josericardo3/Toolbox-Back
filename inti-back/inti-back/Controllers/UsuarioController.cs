@@ -117,9 +117,9 @@ namespace inti_back.Controllers
         }
 
         [HttpPost("LoginUsuario")]
-        public async Task<IActionResult> LoginUsuario(string usuario, string Password)
+        public async Task<IActionResult> LoginUsuario(string usuario, string Password, string Correo)
         {
-            var objUsuarioLogin = await _usuarioPstRepository.LoginUsuario(usuario, Password);
+            var objUsuarioLogin = await _usuarioPstRepository.LoginUsuario(usuario, Password, Correo);
 
             if (objUsuarioLogin == null)
             {
@@ -250,6 +250,20 @@ namespace inti_back.Controllers
             {
                 StatusCode(201).StatusCode
             });
+
+        }
+        [HttpGet("Correo/{correo}")]
+        public async Task<bool> ValidarRegistroCorreo(String correo)
+        {
+            bool validacion = await _usuarioPstRepository.ValidarRegistroCorreo(correo);
+            return validacion;
+
+        }
+        [HttpGet("Telefono/{telefono}")]
+        public async Task<bool> ValidarRegistroTelefono(String telefono)
+        {
+            bool validacion = await _usuarioPstRepository.ValidarRegistroTelefono(telefono);
+            return validacion;
 
         }
     }

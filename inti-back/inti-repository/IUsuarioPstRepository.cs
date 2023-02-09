@@ -18,11 +18,13 @@ namespace inti_repository
         Task<String> UpdateUsuarioPst(UsuarioPstUpd usuariopst);
         Task<bool> DeleteUsuarioPst(int  id);
         Task <ResponseCaracterizacion> GetResponseCaracterizacion(int id);
-        Task<UsuarioPstLogin> LoginUsuario(string usuario, string Password);
+        Task<UsuarioPstLogin> LoginUsuario(string usuario, string Password, string Correo);
         Task<bool> InsertRespuestaCaracterizacion(RespuestaCaracterizacion respuestaCaracterizacion);
         Task<List<NormaTecnica>> GetNormaTecnica(int id);
         Task<ResponseDiagnostico> GetResponseDiagnostico(int id, int valortabla);
         Task<bool> InsertRespuestaDiagnostico(RespuestaDiagnostico respuestaDiagnostico);
+        Task<bool> ValidarRegistroCorreo(string datoCorreo);
+        Task<bool> ValidarRegistroTelefono(string datoTelefono);
         
     }
 }

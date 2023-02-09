@@ -5,6 +5,7 @@ using MySql.Data.MySqlClient;
 using Newtonsoft;
 using Newtonsoft.Json;
 using System.Collections.Immutable;
+using System.Diagnostics.Metrics;
 using System.Linq; 
 using System.Reflection.Metadata.Ecma335;
 using System.Text.Json.Serialization;
@@ -91,12 +92,12 @@ namespace inti_repository
             return result.ToString();
         }
 
-        public async Task<UsuarioPstLogin> LoginUsuario(string user, string Password)
+        public async Task<UsuarioPstLogin> LoginUsuario(string user, string Password, string Correo)
         {
             var db = dbConnection();
-            var sql = @"SELECT Idusuariopst,nit,password FROM usuariospst WHERE nit = @user AND password = SHA1(@Password)";
+            var sql = @"SELECT Idusuariopst,nit,password,correopst FROM usuariospst WHERE nit = @user AND password = SHA1(@Password) AND correopst = @Correopst";
             UsuarioPstLogin objUsuarioLogin = new UsuarioPstLogin();
-            objUsuarioLogin = db.QueryFirstOrDefault<UsuarioPstLogin>(sql, new { user = user, Password = Password });
+            objUsuarioLogin = db.QueryFirstOrDefault<UsuarioPstLogin>(sql, new { user = user, Password = Password, Correopst = Correo });
 
             if (objUsuarioLogin != null)
             {
@@ -339,6 +340,40 @@ and not item=0
             return result > 0;
         }
 
+        public async Task<bool> ValidarRegistroCorreo(String datoCorreo)
+        {
+            var db = dbConnection();
+            var dataCorreo = @"Select correopst from usuariospst where correopst=@correo";
+            var result = db.Query(dataCorreo, new { correo = datoCorreo });
+
+            if (result.Count() > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+            
+        }
+        public async Task<bool> ValidarRegistroTelefono(String datoTelefono)
+        {
+            var db = dbConnection();
+            var dataTelefono = @"Select telefonopst from usuariospst where telefonopst=@telefono";
+            var result = db.Query(dataTelefono, new { telefono = datoTelefono });
+
+            if (result.Count() > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+
+        
     }
     
 
