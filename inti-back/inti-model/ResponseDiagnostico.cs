@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 public class ResponseDiagnostico
 {
     public int id { get; set; }
+    public String? TituloPrincipal { get; set; }
     public List<Diagnostico>? campos { get; set; }
 
     public ResponseDiagnostico()

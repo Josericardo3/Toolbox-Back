@@ -216,10 +216,11 @@ namespace inti_back.Controllers
         [HttpGet("Diagnostico/{id}")]
         public async Task<IActionResult> GetResponseDiagnostico(int id)
         {
-            string Valortabladiagnostico = this.Configuration.GetValue<string>("ValorMaestro:Diagnostico");
+            string ValorMaestroTituloFormulariodiagnostico = this.Configuration.GetValue<string>("ValorMaestro:TituloFormularioDiagnostisco");
+            string ValorMaestroDiagnostico = this.Configuration.GetValue<string>("ValorMaestro:Diagnostico");
             try
             {
-                var response = await _usuarioPstRepository.GetResponseDiagnostico(id, Convert.ToInt32(Valortabladiagnostico));
+                var response = await _usuarioPstRepository.GetResponseDiagnostico(id, Convert.ToInt32(ValorMaestroTituloFormulariodiagnostico), Convert.ToInt32(ValorMaestroDiagnostico));
                 return Ok(response);
             }
             catch (Exception ex)

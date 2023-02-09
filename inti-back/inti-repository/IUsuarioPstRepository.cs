@@ -21,7 +21,7 @@ namespace inti_repository
         Task<UsuarioPstLogin> LoginUsuario(string usuario, string Password, string Correo);
         Task<bool> InsertRespuestaCaracterizacion(RespuestaCaracterizacion respuestaCaracterizacion);
         Task<List<NormaTecnica>> GetNormaTecnica(int id);
-        Task<ResponseDiagnostico> GetResponseDiagnostico(int id, int valortabla);
+        Task<ResponseDiagnostico> GetResponseDiagnostico(int idnorma, int idValorTituloFormulariodiagnostico, int idValorMaestroDiagnostico);
         Task<bool> InsertRespuestaDiagnostico(RespuestaDiagnostico respuestaDiagnostico);
         Task<bool> ValidarRegistroCorreo(string datoCorreo);
         Task<bool> ValidarRegistroTelefono(string datoTelefono);
