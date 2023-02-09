@@ -211,9 +211,9 @@ namespace inti_repository
             else if (fila.tipodedato == "checkbox" && fila.mensaje == "municipios" )
             {
                 var tablarelacionada = fila.tablarelacionada;
-                var datosTablarelacionada = String.Format("select * from {0} where activo=TRUE", tablarelacionada);
+                var datosTablarelacionada = String.Format("select idmunicipio, municipio, activo from municipios where activo=TRUE", tablarelacionada);
                 var responseTablarelacionada = db.Query(datosTablarelacionada);
-                var json = Newtonsoft.Json.JsonConvert.SerializeObject(new { table = responseTablarelacionada.ToList() });
+                var json = Newtonsoft.Json.JsonConvert.SerializeObject(new { municipios = responseTablarelacionada.ToList() });
                 fila.relations = json;
 
             }
@@ -325,6 +325,44 @@ and not item=0
             return responseDiagnostico;
         }
 
+<<<<<<< Updated upstream
+=======
+        public async Task<bool> InsertRespuestaDiagnostico(RespuestaDiagnostico respuestaDiagnostico)
+        {
+
+            var db = dbConnection();
+            var sql = @"INSERT INTO respuestadiagnostico(idusuario,idnormatecnica,numeralprincipal,numeralespecifico,valor)
+                         VALUES (@idusuario,@idnormatecnica,@numeralprincipal,@numeralespecifico,@valor)";
+            var result = await db.ExecuteAsync(sql, new { respuestaDiagnostico.idusuario, respuestaDiagnostico.idnormatecnica, respuestaDiagnostico.numeralprincipal, respuestaDiagnostico.numeralespecifico, respuestaDiagnostico.valor });
+
+            return result > 0;
+        }
+        public async Task<DataPstDiagnostico> DataUsuarioPstDiagnostico(int id, MySqlConnection db)
+        {
+            var QueryPst = @"SELECT u.nombrepst,u.nit,u.idcategoriarnt,u.idmunicipio,u.nombreresponsablesostenibilidad,u.correoresponsablesostenibilidad,u.rnt,u.idsubcategoriarnt,u.iddepartamento,u.telefonoresponsablesostenibilidad,c.categoriarnt,s.subcategoriarnt,d.departamento,m.municipio 
+                        FROM usuariospst u 
+                        INNER JOIN categoriasrnt c 
+                        ON c.idcategoriarnt = u.idcategoriarnt
+                        INNER JOIN subcategoriasrnt s 
+                        ON s.idsubcategoriarnt = u.idsubcategoriarnt
+                        INNER JOIN departamentos d 
+                        ON d.iddepartamento = u.iddepartamento
+                        INNER JOIN municipios m 
+                        ON m.idmunicipio = u.idmunicipio
+                        WHERE u.idusuariopst = @iduser; ";
+            var dataPst = db.QueryFirstOrDefault<DataPstDiagnostico>(QueryPst, new { iduser = id });
+            return dataPst;
+        }
+        public Task<String> ObtenerDatosDiagnostico(int id)
+        {
+            var db = dbConnection();
+            var dataPst = DataUsuarioPstDiagnostico(id, db);
+            return "";
+        }
+
+>>>>>>> Stashed changes
+
+        
 
     }
     
