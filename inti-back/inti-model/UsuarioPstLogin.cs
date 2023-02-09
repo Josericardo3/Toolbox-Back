@@ -12,6 +12,7 @@ namespace inti_model
 
         public String? nit { get; set; }
         public String? Password { get; set; }
+        public String? Correo { get; set; }
         public String? HoraLogueo { get; set; }
         public String? TokenAcceso { get; set; }
         public String? TokenRefresco { get; set; }
