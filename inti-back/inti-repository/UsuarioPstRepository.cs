@@ -1,10 +1,13 @@
 using Dapper;
+using Google.Protobuf;
 using inti_model;
 using MySql.Data.MySqlClient;
 using Newtonsoft;
+using Newtonsoft.Json;
 using System.Collections.Immutable;
 using System.Linq; 
 using System.Reflection.Metadata.Ecma335;
+using System.Text.Json.Serialization;
 using static Org.BouncyCastle.Bcpg.Attr.ImageAttrib;
 
 namespace inti_repository
@@ -334,6 +337,29 @@ and not item=0
             var result = await db.ExecuteAsync(sql, new { respuestaDiagnostico.idusuario, respuestaDiagnostico.idnormatecnica, respuestaDiagnostico.numeralprincipal, respuestaDiagnostico.numeralespecifico, respuestaDiagnostico.valor });
 
             return result > 0;
+        }
+
+        public async Task<DataPstDiagnostico> DataUsuarioPstDiagnostico(int id, MySqlConnection db)
+        {
+            var QueryPst = @"SELECT u.nombrepst,u.nit,u.idcategoriarnt,u.idmunicipio,u.nombreresponsablesostenibilidad,u.correoresponsablesostenibilidad,u.rnt,u.idsubcategoriarnt,u.iddepartamento,u.telefonoresponsablesostenibilidad,c.categoriarnt,s.subcategoriarnt,d.departamento,m.municipio 
+                        FROM usuariospst u 
+                        INNER JOIN categoriasrnt c 
+                        ON c.idcategoriarnt = u.idcategoriarnt
+                        INNER JOIN subcategoriasrnt s 
+                        ON s.idsubcategoriarnt = u.idsubcategoriarnt
+                        INNER JOIN departamentos d 
+                        ON d.iddepartamento = u.iddepartamento
+                        INNER JOIN municipios m 
+                        ON m.idmunicipio = u.idmunicipio
+                        WHERE u.idusuariopst = @iduser; ";
+            var dataPst = db.QueryFirstOrDefault<DataPstDiagnostico>(QueryPst, new { iduser = id });
+            return dataPst;
+        }
+        public Task<String> ObtenerDatosDiagnostico(int id)
+        {
+            var db = dbConnection();
+            var dataPst = DataUsuarioPstDiagnostico(id, db);
+            return JsonSerializerContext.Equals(dataPst); ;
         }
 
 
