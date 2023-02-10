@@ -21,10 +21,10 @@ namespace inti_model
         public String? campo_local { get; set; }
         public String? nombre { get; set; }
 
-        public String? tipodedato_Observacion { get; set; }
+        public String? tipodedato_evidencia { get; set; }
 
-        public String? campo_local_Observacion { get; set; }
-        public String? Observacion { get; set; }
+        public String? campo_local_evidencia { get; set; }
+        public String? nombre_evidencia { get; set; }
         public List<DesplegableDiagnostico>? desplegable { get; set; }
         public SubGrupoDiagnostico()
         {

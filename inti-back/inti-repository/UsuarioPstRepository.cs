@@ -293,7 +293,7 @@ group by dd.idnormatecnica,dd.numeralprincipal,d.tituloprincipal";
                 querysubagrupaciondiagnostico = @"
 SELECT dd.idnormatecnica,dd.numeralprincipal,dd.numeralespecifico,
 d.tituloespecifico as nombre,d.tituloespecifico as titulo,d.Requisito,dd.tipodedato, dd.campo_local as campo_local,  
-d.Evidencia as Observacion ,dd.tipodedato_evidencia as tipodedato_Observacion,dd.campo_localevidencia as campo_local_Observacion
+d.Evidencia as nombre_evidencia,dd.tipodedato_evidencia ,dd.campo_localevidencia as campo_local_evidencia
 FROM intidb.diagnosticodinamico dd
 inner join intidb.Diagnostico d on dd.idnormatecnica=d.idnormatecnica
 and dd.numeralprincipal=d.idgrupocampo
