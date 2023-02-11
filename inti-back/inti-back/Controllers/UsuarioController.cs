@@ -267,5 +267,34 @@ namespace inti_back.Controllers
             return validacion;
 
         }
+        [HttpPost("RegistroEmpleadoPst")]
+        public async Task<IActionResult> RegistrarEmpleadoPst([FromBody] EmpleadoPst empleado)
+        {
+            try
+            {
+                var create = await _usuarioPstRepository.RegistrarEmpleadoPst(empleado);
+                if (empleado == null)
+                {
+                    return BadRequest();
+                }
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                return Ok(new
+                {
+                    StatusCode(201).StatusCode
+                });
+            }
+            catch
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "no se pudo registrar el usuario"
+                });
+            }
+
+        }
     }
 }
