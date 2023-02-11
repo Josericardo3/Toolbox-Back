@@ -380,6 +380,15 @@ and not item=0
 
         }
 
+        public async Task<bool> RegistrarEmpleadoPst(EmpleadoPst empleado)
+        {
+            var db = dbConnection();
+            var insertEmpleado = @"INSERT INTO empleadospst(nombre,correo,rol) Values (@nombre,@correo,@rol)";
+            var result = await db.ExecuteAsync(insertEmpleado, new { empleado.nombre, empleado.correo, empleado.rol });
+            return result > 0;
+
+        }
+
         
     }
     
