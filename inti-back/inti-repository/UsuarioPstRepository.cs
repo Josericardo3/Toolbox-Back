@@ -6,7 +6,7 @@ using Newtonsoft;
 using Newtonsoft.Json;
 using System.Collections.Immutable;
 using System.Diagnostics.Metrics;
-using System.Linq; 
+using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Text.Json.Serialization;
 using static Org.BouncyCastle.Bcpg.Attr.ImageAttrib;
@@ -95,7 +95,7 @@ namespace inti_repository
         public async Task<UsuarioPstLogin> LoginUsuario(string user, string Password, string Correo)
         {
             var db = dbConnection();
-            var sql = @"SELECT Idusuariopst,nit,password,correopst FROM usuariospst WHERE nit = @user AND password = SHA1(@Password) AND correopst = @Correopst";
+            var sql = @"SELECT Idusuariopst,nit,password,correopst FROM usuariospst WHERE rnt = @user AND password = SHA1(@Password) AND correopst = @Correopst";
             UsuarioPstLogin objUsuarioLogin = new UsuarioPstLogin();
             objUsuarioLogin = db.QueryFirstOrDefault<UsuarioPstLogin>(sql, new { user = user, Password = Password, Correopst = Correo });
 
@@ -179,12 +179,12 @@ namespace inti_repository
 
         }
 
-        private async Task<ResponseCaracterizacion> tipoEvaluacion(Caracterizacion fila, ResponseUsuario dataUsuario, ResponseCaracterizacion responseCaracterizacion,MySqlConnection db)
+        private async Task<ResponseCaracterizacion> tipoEvaluacion(Caracterizacion fila, ResponseUsuario dataUsuario, ResponseCaracterizacion responseCaracterizacion, MySqlConnection db)
         {
 
             if (fila.tipodedato == "string" || fila.tipodedato == "int" || fila.tipodedato == "float" || fila.tipodedato == "bool" || fila.tipodedato == "double" || fila.tipodedato == "number")
             { }
-            else if ((fila.tipodedato == "option" || fila.tipodedato == "checkbox" || fila.tipodedato == "radio" ) && fila.mensaje != "municipios")
+            else if ((fila.tipodedato == "option" || fila.tipodedato == "checkbox" || fila.tipodedato == "radio") && fila.mensaje != "municipios")
             {
 
                 var desplegable = fila.idcaracterizaciondinamica;
@@ -211,12 +211,12 @@ namespace inti_repository
                 fila.values = nombre;
 
             }
-            else if (fila.tipodedato == "checkbox" && fila.mensaje == "municipios" )
+            else if (fila.tipodedato == "checkbox" && fila.mensaje == "municipios")
             {
 
                 var datosTablarelacionada = @"select idmunicipio, municipio, activo from municipios where activo=TRUE";
                 var responseTablarelacionada = db.Query<Municipios>(datosTablarelacionada).ToList();
-                foreach( Municipios i in responseTablarelacionada)
+                foreach (Municipios i in responseTablarelacionada)
                 {
                     fila.municipios.Add(i);
                 }
@@ -244,10 +244,10 @@ namespace inti_repository
                          VALUES (@valor,@idUsuarioPst,@idCategoriaRnt,@idCaracterizacion)";
             var result = await db.ExecuteAsync(sql, new { respuestaCaracterizacion.valor, respuestaCaracterizacion.idUsuarioPst, respuestaCaracterizacion.idCategoriaRnt, respuestaCaracterizacion.idCaracterizacion });
 
-            return result > 0 ;
+            return result > 0;
         }
 
-        public async Task<List<NormaTecnica>>GetNormaTecnica(int id)
+        public async Task<List<NormaTecnica>> GetNormaTecnica(int id)
         {
             var db = dbConnection();
             var queryUsuario = @"select idusuariopst,idcategoriarnt from usuariospst where activo = TRUE AND idusuariopst = @id_user";
@@ -255,7 +255,7 @@ namespace inti_repository
             var idNorma = dataUsuario.idCategoriarnt;
             var queryNorma = @"Select * from normas where idcategoriarnt = @id_categoria";
             var dataNorma = db.Query<NormaTecnica>(queryNorma, new { id_categoria = idNorma }).ToList();
-            
+
             return dataNorma;
 
         }
@@ -361,7 +361,7 @@ and not item=0
             {
                 return false;
             }
-            
+
         }
         public async Task<bool> ValidarRegistroTelefono(String datoTelefono)
         {
@@ -389,9 +389,75 @@ and not item=0
 
         }
 
-        
+        public async Task<IEnumerable<PST_Asesor>> ListarPSTxAsesor(int idasesor, int idtablamaestro)
+        {
+            var db = dbConnection();
+            var queryPSTAsesor = "";
+            IEnumerable<PST_Asesor> dataPSTAsesor = new List<PST_Asesor>();
+
+            if (idasesor == 0)
+            {
+                queryPSTAsesor = @"
+SELECT up.idusuariopst,up.rnt,up.nombrepst,u.nombre as asesorasignado,ma.descripcion as estadoatencion  FROM intidb.usuariospst up
+
+left join pst_asesor pa
+on pa.idusuariopst = up.idusuariopst
+left join Usuario u
+on pa.idusuario = u.idUsuario
+left join atencion_usuariopst au
+on pa.idusuariopst = au.idusuariopst
+left join maestro ma
+on au.estado = ma.item
+where 
+
+ pa.activo=1
+and up.activo=1
+and u.activo=1
+and ma.idtabla=@idtabla
+and  ma.estado=1
+
+union all
+
+SELECT idusuariopst,rnt,nombrepst,'no asignado'as asesorasignado, 'sin atencion' as estadoatencion FROM usuariospst
+where idusuariopst not in(select idusuariopst from pst_asesor)
+and activo=1";
+                dataPSTAsesor = await db.QueryAsync<PST_Asesor>(queryPSTAsesor, new { idtabla = idtablamaestro });
+            }
+            else
+            {
+                queryPSTAsesor = @"
+SELECT up.idusuariopst,up.rnt,up.nombrepst,u.nombre as asesorasignado,ma.descripcion as estadoatencion  FROM intidb.usuariospst up
+
+left join pst_asesor pa
+on pa.idusuariopst = up.idusuariopst
+left join Usuario u
+on pa.idusuario = u.idUsuario
+left join atencion_usuariopst au
+on pa.idusuariopst = au.idusuariopst
+left join maestro ma
+on au.estado = ma.item
+where 
+pa.idusuario = @idusuario
+and pa.activo=1
+and up.activo=1
+and u.activo=1
+and ma.idtabla=@idtabla
+and  ma.estado=1
+";
+
+                dataPSTAsesor = await db.QueryAsync<PST_Asesor>(queryPSTAsesor, new { idusuario = idasesor, idtabla = idtablamaestro });
+
+            }
+
+            dataPSTAsesor = dataPSTAsesor.OrderBy(x => x.idusuariopst);
+
+            return dataPSTAsesor;
+
+        }
+
+
     }
-    
+
 
 }
 

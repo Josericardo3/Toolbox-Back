@@ -228,7 +228,7 @@ namespace inti_back.Controllers
                 return Ok(new
                 {
                     StatusCode(200).StatusCode,
-                    valor = "el usuario no se ha encontrado"
+                    valor = "Error al momento de obtener el formulario"
                 });
             }
         }
@@ -295,6 +295,25 @@ namespace inti_back.Controllers
                 });
             }
 
+        }
+
+        [HttpGet("usuarioPstxAsesor/{id}")]
+        public async Task<IActionResult> GetusuarioPstxAsesor(int id)
+        {
+            string ValorMaestroValorEstadoAtencion = this.Configuration.GetValue<string>("ValorMaestro:ValorEstadoAtencion");
+            try
+            {
+                var response = await _usuarioPstRepository.ListarPSTxAsesor(id, Convert.ToInt32(ValorMaestroValorEstadoAtencion));
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "Error al momento de obtener el listado de usuario PST"
+                });
+            }
         }
     }
 }
