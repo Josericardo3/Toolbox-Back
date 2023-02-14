@@ -407,7 +407,7 @@ namespace inti_back.Controllers
                 var response = await _usuarioPstRepository.ListarPSTxAsesor(id, Convert.ToInt32(ValorMaestroValorEstadoAtencion));
                 return Ok(response);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Ok(new
                 {

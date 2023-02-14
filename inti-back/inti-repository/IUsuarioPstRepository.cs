@@ -25,10 +25,13 @@ namespace inti_repository
         Task<bool> InsertRespuestaDiagnostico(RespuestaDiagnostico respuestaDiagnostico);
         Task<bool> ValidarRegistroCorreo(string datoCorreo);
         Task<bool> ValidarRegistroTelefono(string datoTelefono);
-
-        //REGISTRO DEL EMPLEADO
         Task<bool> RegistrarEmpleadoPst(EmpleadoPst empleado);
         Task<IEnumerable<PST_Asesor>> ListarPSTxAsesor(int idasesor, int idtablamaestro);
+        Task<IEnumerable<ActividadesAsesor>> GetAllActividades(int idAsesor);
+        Task<ActividadesAsesor> GetActividad(int id, int idAsesor);
+        Task<bool> InsertActividad(ActividadesAsesor actividades);
+        Task<bool> UpdateActividad(ActividadesAsesor actividades);
+        Task<bool> DeleteActividad(int id, int idAsesor);
 
 
     }
