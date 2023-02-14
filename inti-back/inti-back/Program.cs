@@ -6,6 +6,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.OpenApi.Any;
+
 const String default_url = "http://{0}:{1};https://{2}:{3}"; 
 
 var builder = WebApplication.CreateBuilder(args); 
@@ -14,23 +16,23 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 //var port = int.Parse(Environment.GetEnvironmentVariable("INTI_BACK_PORT"));
-//var edw = int.Parse(Environment.GetEnvironmentVariable("INTI_BACK_PORT"));
+
 //var host = Environment.GetEnvironmentVariable("INTI_BACK_HOST");
-//var env = Environment.GetEnvironmentVariable("INTI_BACK_ENV");
-//var port = 8050;
-//var host = "0.0.0.0";
-//String connectionString = env != "DEV" ? "MySqlConnectionDev" : "MySqlConnection";
+var env = Environment.GetEnvironmentVariable("INTI_BACK_ENV");
+var port = 8050;
+var host = "0.0.0.0";
+String connectionString = env != "DEV" ? "MySqlConnectionDev" : "MySqlConnection";
 
-//Console.WriteLine("env->" + connectionString);
-//Console.WriteLine("Connection string {0}", connectionString);
+Console.WriteLine("env->" + connectionString);
+Console.WriteLine("Connection string {0}", connectionString);
 
-//// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
-//String to_use_urls = String.Format(default_url, host, port, host, port + 1);
+String to_use_urls = String.Format(default_url, host, port, host, port + 1);
 
-//Console.WriteLine(to_use_urls);
+Console.WriteLine(to_use_urls);
 
-//builder.WebHost.UseUrls(to_use_urls);
+builder.WebHost.UseUrls(to_use_urls);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -96,6 +98,9 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true
     };
 });
+
+
+
 
 
 var app = builder.Build();

@@ -10,7 +10,7 @@ namespace inti_model
     {
         public int id { get; set; }
         public int idCategoriarnt { get; set; }
-        public String norma { get; set; }
+        public String? norma { get; set; }
 
     }
 }

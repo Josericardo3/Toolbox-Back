@@ -98,22 +98,24 @@ namespace inti_back.Controllers
             try
             {
                 var borrado = await _usuarioPstRepository.DeleteUsuarioPst(id);
-
+                if (borrado == false)
+                {
+                   throw new Exception();
+                }
                 return Ok(new
                 {
                     Id = id,
                     StatusCode(204).StatusCode
                 });
             }
-            catch(Exception ex)
+            catch(Exception)
             {
-                return BadRequest();
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "la actividad no se ha encontrado"
+                });
             }
-                
-
-            
-
-
         }
 
         [HttpPost("LoginUsuario")]
@@ -157,7 +159,7 @@ namespace inti_back.Controllers
                 var response = await _usuarioPstRepository.GetResponseCaracterizacion(id);
                 return Ok(response);
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 return Ok(new
                 {
@@ -203,7 +205,7 @@ namespace inti_back.Controllers
                 return Ok(response);
 
             }
-            catch(Exception ex) {
+            catch(Exception) {
                 return Ok(new
                 {
                     StatusCode(200).StatusCode,
@@ -216,13 +218,14 @@ namespace inti_back.Controllers
         [HttpGet("Diagnostico/{id}")]
         public async Task<IActionResult> GetResponseDiagnostico(int id)
         {
-            string Valortabladiagnostico = this.Configuration.GetValue<string>("ValorMaestro:Diagnostico");
+            string ValorMaestroTituloFormulariodiagnostico = this.Configuration.GetValue<string>("ValorMaestro:TituloFormularioDiagnostisco");
+            string ValorMaestroDiagnostico = this.Configuration.GetValue<string>("ValorMaestro:Diagnostico");
             try
             {
-                var response = await _usuarioPstRepository.GetResponseDiagnostico(id, Convert.ToInt32(Valortabladiagnostico));
+                var response = await _usuarioPstRepository.GetResponseDiagnostico(id, Convert.ToInt32(ValorMaestroTituloFormulariodiagnostico), Convert.ToInt32(ValorMaestroDiagnostico));
                 return Ok(response);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Ok(new
                 {
@@ -266,5 +269,134 @@ namespace inti_back.Controllers
             return validacion;
 
         }
+        [HttpPost("registrarEmpleadoPst")]
+        public async Task<IActionResult> RegistrarEmpleadoPst([FromBody] EmpleadoPst empleado)
+        {
+            try
+            {
+                var create = await _usuarioPstRepository.RegistrarEmpleadoPst(empleado);
+                return Ok(new
+                {
+                    StatusCode(201).StatusCode
+                });
+            }
+            catch
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "no se pudo registrar el usuario"
+                });
+            }
+
+        }
+
+        //CRUD ACTIVIDADES DEL ASESOR
+
+        [HttpGet("actividades")]
+        public async Task<IActionResult> GetAllActividades(int idAsesor)
+        {
+            return Ok(await _usuarioPstRepository.GetAllActividades(idAsesor));
+        }
+
+        [HttpGet("actividades/{idActividad}/{idAsesor}")]
+        public async Task<IActionResult> GetActividad(int idActividad, int idAsesor)
+        {
+            try
+            {
+                var response = await _usuarioPstRepository.GetActividad(idActividad, idAsesor);
+                return Ok(response);
+            }
+            catch(Exception)
+            {
+               
+              return Ok(new
+                {
+                   StatusCode(200).StatusCode,
+                   valor = "la actividad no se ha encontrado"
+                });
+               
+            }
+            
+        }
+
+        [HttpPost("actividades")]
+        public async Task<IActionResult> InsertActividad([FromBody] ActividadesAsesor actividades)
+        {
+
+            try
+            {
+                var create = await _usuarioPstRepository.InsertActividad(actividades);
+                return Ok(new
+                {
+                    StatusCode(201).StatusCode
+                });
+            }
+            catch
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "No concretó la acción, revise los parámetros enviados"
+                });
+            }
+
+        }
+
+        [HttpPut("actividades")]
+        public async Task<IActionResult> UpdateActividad([FromBody] ActividadesAsesor actividades)
+        {
+            try
+            {
+                var resp = await _usuarioPstRepository.UpdateActividad(actividades);
+                if(resp == true)
+                {
+                    return Ok(new
+                    {
+                        Id = actividades.id,
+                        StatusCode(200).StatusCode
+                    });
+                }
+                else
+                {
+                    throw new Exception(); 
+                }
+            }
+            catch(Exception)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "No se pudieron obtener resultados"
+                });
+            }
+
+        }
+
+        [HttpDelete("actividades")]
+        public async Task<IActionResult> DeleteActividad(int id, int idAsesor)
+        {
+            try
+            {
+                var borrado = await _usuarioPstRepository.DeleteActividad(id, idAsesor);
+                if(borrado == false)
+                {
+                    throw new Exception();
+                }
+                return Ok(new
+                {
+                    Id = id,
+                    StatusCode(204).StatusCode
+                });
+            }
+            catch (Exception)
+            {
+                return Ok(new{
+                    StatusCode(200).StatusCode,
+                   valor = "la actividad no se ha encontrado"
+                });
+            }
+        }
+
     }
 }

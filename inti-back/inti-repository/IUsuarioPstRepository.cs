@@ -16,15 +16,26 @@ namespace inti_repository
         Task<UsuarioPst> GetUsuarioPst(int id);
         Task<bool> InsertUsuarioPst(UsuarioPst usuariopst);
         Task<String> UpdateUsuarioPst(UsuarioPstUpd usuariopst);
-        Task<bool> DeleteUsuarioPst(int  id);
-        Task <ResponseCaracterizacion> GetResponseCaracterizacion(int id);
+        Task<bool> DeleteUsuarioPst(int id);
+        Task<ResponseCaracterizacion> GetResponseCaracterizacion(int id);
         Task<UsuarioPstLogin> LoginUsuario(string usuario, string Password, string Correo);
         Task<bool> InsertRespuestaCaracterizacion(RespuestaCaracterizacion respuestaCaracterizacion);
         Task<List<NormaTecnica>> GetNormaTecnica(int id);
-        Task<ResponseDiagnostico> GetResponseDiagnostico(int id, int valortabla);
+        Task<ResponseDiagnostico> GetResponseDiagnostico(int idnorma, int idValorTituloFormulariodiagnostico, int idValorMaestroDiagnostico);
         Task<bool> InsertRespuestaDiagnostico(RespuestaDiagnostico respuestaDiagnostico);
         Task<bool> ValidarRegistroCorreo(string datoCorreo);
         Task<bool> ValidarRegistroTelefono(string datoTelefono);
-        
+
+        //REGISTRO DEL EMPLEADO
+        Task<bool> RegistrarEmpleadoPst(EmpleadoPst empleado);
+
+        //CRUD ACTIVIDADES DEL ASESOR 
+        Task<IEnumerable<ActividadesAsesor>> GetAllActividades(int idAsesor);
+        Task<ActividadesAsesor> GetActividad(int id, int idAsesor);
+        Task<bool> InsertActividad(ActividadesAsesor actividades);
+        Task<bool> UpdateActividad(ActividadesAsesor actividades);
+        Task<bool> DeleteActividad(int id, int idAsesor);
+
+
     }
 }

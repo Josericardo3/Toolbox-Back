@@ -10,15 +10,18 @@ public class Diagnostico
     public int iddiagnosticodinamico { get; set; }
     public int idnormatecnica { get; set; }
     public String? numeralprincipal { get; set; }
-    public String? numeralespecifico { get; set; }
-    public String? titulo { get; set; }
-    public String? requisito { get; set; }
+
+    public String? tituloprincipal { get; set; }
+
     public int activo { get; set; }
     public String? tipodedato { get; set; }
-    public List<DesplegableDiagnostico>? desplegable { get; set; }
+
+    public String? campo_local { get; set; }
+    public String? nombre { get; set; }
+    public List<SubGrupoDiagnostico>? listacampos { get; set; }
     public Diagnostico()
     {
-        this.desplegable = new List<DesplegableDiagnostico>();
+        this.listacampos = new List<SubGrupoDiagnostico>();
 
     }
 }

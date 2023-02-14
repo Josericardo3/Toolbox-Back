@@ -260,57 +260,63 @@ namespace inti_repository
 
         }
 
-
-        public async Task<ResponseDiagnostico> GetResponseDiagnostico(int id, int valortabla)
+        public async Task<ResponseDiagnostico> GetResponseDiagnostico(int idnorma, int idValorTituloFormulariodiagnostico, int idValorMaestroDiagnostico)
         {
             var db = dbConnection();
-            var querydiagnostico = @"
-SELECT 
-iddiagnosticodinamico,
-idnormatecnica,
-numeralprincipal,
-numeralespecifico,
-titulo,
-requisito,
-tipodedato
-FROM diagnosticodinamico
-where idnormatecnica =@idnormatecnica
-  and activo = 1";
-
-            var datadiagnostico = db.Query<Diagnostico>(querydiagnostico, new { idnormatecnica = id }).ToList();
+            var queryDesplegableDiagnostico = @"Select * from maestro where idtabla = @idtabla and item=@iditem";
+            var dataDesplegableDiagnostico = await db.QueryFirstOrDefaultAsync<DesplegableDiagnostico>(queryDesplegableDiagnostico, new { idtabla = idValorTituloFormulariodiagnostico, iditem = idnorma });
 
             ResponseDiagnostico responseDiagnostico = new ResponseDiagnostico();
 
+            responseDiagnostico.id = dataDesplegableDiagnostico.item;
+            responseDiagnostico.TituloPrincipal = dataDesplegableDiagnostico.descripcion;
 
-            var i = 0;
+            var queryagrupaciondiagnostico = @"
+SELECT dd.idnormatecnica,dd.numeralprincipal,d.tituloprincipal,d.tituloprincipal as nombre,'string' as tipodedato, 'tituloprincipal' as campo_local
+FROM diagnosticodinamico dd
+inner join Diagnostico d on dd.idnormatecnica=d.idnormatecnica
+and dd.numeralprincipal=d.idgrupocampo
+and dd.idtituloprincipal=d.idcampo
+where dd.idnormatecnica=@idnormatecnica
+and dd.activo=1
+and d.activo=1
+group by dd.idnormatecnica,dd.numeralprincipal,d.tituloprincipal";
+            var dataagrupaciondiagnostico = db.Query<Diagnostico>(queryagrupaciondiagnostico, new { idnormatecnica = idnorma }).ToList();
 
-            while (i < datadiagnostico.Count())
+            responseDiagnostico.campos = dataagrupaciondiagnostico;
+
+            var querysubagrupaciondiagnostico = "";
+            var datasubagrupaciondiagnostico = new List<SubGrupoDiagnostico>();
+            foreach (var item in responseDiagnostico.campos)
             {
-                var fila = datadiagnostico[i];
-                await tipoDiagnostico(fila, responseDiagnostico, db, valortabla);
-                i++;
-            }
 
-            return responseDiagnostico;
+                querysubagrupaciondiagnostico = @"
+SELECT dd.idnormatecnica,dd.numeralprincipal,dd.numeralespecifico,
+d.tituloespecifico as nombre,d.tituloespecifico as titulo,d.Requisito,dd.tipodedato, dd.campo_local as campo_local,  
+d.Evidencia as nombre_evidencia,dd.tipodedato_evidencia ,dd.campo_localevidencia as campo_local_evidencia
+FROM intidb.diagnosticodinamico dd
+inner join intidb.Diagnostico d on dd.idnormatecnica=d.idnormatecnica
+and dd.numeralprincipal=d.idgrupocampo
+and dd.idtituloespecifico=d.idcampo
+where dd.idnormatecnica=@idnormatecnica
+and dd.numeralprincipal=@numeralprincipal
+and dd.activo=1
+and d.activo=1";
 
-        }
+                datasubagrupaciondiagnostico = db.Query<SubGrupoDiagnostico>(querysubagrupaciondiagnostico, new { idnormatecnica = idnorma, numeralprincipal = item.numeralprincipal }).ToList();
 
+                item.listacampos = datasubagrupaciondiagnostico;
 
-        private async Task<ResponseDiagnostico> tipoDiagnostico(Diagnostico fila, ResponseDiagnostico responseDiagnostico, MySqlConnection db, int valortabla)
-        {
-
-            if (fila.tipodedato == "string" || fila.tipodedato == "int" || fila.tipodedato == "float" || fila.tipodedato == "bool" || fila.tipodedato == "double" || fila.tipodedato == "number")
-            { }
-            else if (fila.tipodedato == "option" || fila.tipodedato == "checkbox" || fila.tipodedato == "radio")
-            {
-
-
-                var datosDesplegable = @"
+                foreach (var l in item.listacampos)
+                {
+                    var datosDesplegable = @"
 SELECT 
 item,
 descripcion,
 valor,
-estado
+descripcion as nombre,
+estado as activo,
+item as id
 
  FROM maestro
 where idtabla=@idtabla
@@ -318,17 +324,18 @@ and estado=1
 and not item=0
 
 ";
-                var responseDesplegable = db.Query<DesplegableDiagnostico>(datosDesplegable, new { idtabla = valortabla }).ToList();
-                foreach (DesplegableDiagnostico i in responseDesplegable)
-                {
-                    fila.desplegable.Add(i);
+                    var responseDesplegable = db.Query<DesplegableDiagnostico>(datosDesplegable, new { idtabla = idValorMaestroDiagnostico }).ToList();
+
+                    l.desplegable = responseDesplegable;
                 }
             }
 
-
-            responseDiagnostico.campos.Add(fila);
             return responseDiagnostico;
+
         }
+
+
+
         public async Task<bool> InsertRespuestaDiagnostico(RespuestaDiagnostico respuestaDiagnostico)
         {
 
@@ -373,7 +380,74 @@ and not item=0
 
         }
 
+        public async Task<bool> RegistrarEmpleadoPst(EmpleadoPst empleado)
+        {
+            var db = dbConnection();
+            var insertEmpleado = @"INSERT INTO empleadospst(nombre,correo,rol) Values (@nombre,@correo,@rol)";
+            var result = await db.ExecuteAsync(insertEmpleado, new { empleado.nombre, empleado.correo, empleado.rol });
+            return result > 0;
+
+        }
+
+        //CRUD ACTIVIDADES DEL ASESOR
+
+        public async Task<IEnumerable<ActividadesAsesor>> GetAllActividades(int idAsesor)
+        {
+            var db = dbConnection();
+            var data = @"select * from actividades where idasesor = @id AND activo = TRUE";
+            var result = await db.QueryAsync<ActividadesAsesor>(data, new { id = idAsesor });
+            return result;
+        }
+
+        public Task<ActividadesAsesor> GetActividad(int idActividad, int idAsesor)
+        {
+            var db = dbConnection();
+            var data = @"select * from actividades where id = @idactividad AND idasesor = @idasesor AND activo = TRUE";
+            var result = db.QueryFirstAsync<ActividadesAsesor>(data, new { idactividad = idActividad, idasesor = idAsesor });
+            return result;
+        }
+
+        public async Task<bool> InsertActividad(ActividadesAsesor actividades)
+        {
+            var db = dbConnection();
+            var dataInsert = @"INSERT INTO actividades( idasesor, idusuariopst, idnorma, fecha_inicio ,fecha_fin,descripcion)
+                               VALUES (@idUsuarioPst,@idAsesor,@idNorma,@fecha_inicio,@fecha_fin,@descripcion)";
+            var result = await db.ExecuteAsync(dataInsert, new { actividades.idUsuarioPst, actividades.idAsesor, actividades.idNorma, actividades.fecha_inicio, actividades.fecha_fin, actividades.descripcion });
+            return result > 0;
+        }
+
+        public async Task<bool> UpdateActividad(ActividadesAsesor actividades)
+        {
+            var db = dbConnection();
+            var sql = @"UPDATE actividades 
+                        SET id = @id,
+                            idusuariopst = @idUsuarioPst,
+                            idasesor = @idAsesor,
+                            idnorma = @idNorma,
+                            fecha_inicio = @fecha_inicio,
+                            fecha_fin = @fecha_fin,
+                            descripcion = @descripcion
+                        WHERE id = @id and activo = TRUE";
+            var result = await db.ExecuteAsync(sql, new { actividades.id, actividades.idUsuarioPst, actividades.idAsesor,actividades.idNorma,actividades.fecha_inicio, actividades.fecha_fin, actividades.descripcion});
+            return result > 0;
+        }
+
+        public async Task<bool> DeleteActividad(int id, int idAsesor)
+        {
+            var db = dbConnection();
+
+            var sql = @"UPDATE actividades
+                        SET activo = FALSE
+                        WHERE id = @id AND idasesor = @idAsesor";
+            var result = await db.ExecuteAsync(sql, new { id = id , idAsesor = idAsesor });
+
+            return result > 0;
+        }
+
+
+
         
+
     }
     
 
