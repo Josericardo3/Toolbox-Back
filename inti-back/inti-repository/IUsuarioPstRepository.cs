@@ -28,13 +28,7 @@ namespace inti_repository
 
         //REGISTRO DEL EMPLEADO
         Task<bool> RegistrarEmpleadoPst(EmpleadoPst empleado);
-
-        //CRUD ACTIVIDADES DEL ASESOR 
-        Task<IEnumerable<ActividadesAsesor>> GetAllActividades(int idAsesor);
-        Task<ActividadesAsesor> GetActividad(int id, int idAsesor);
-        Task<bool> InsertActividad(ActividadesAsesor actividades);
-        Task<bool> UpdateActividad(ActividadesAsesor actividades);
-        Task<bool> DeleteActividad(int id, int idAsesor);
+        Task<IEnumerable<PST_Asesor>> ListarPSTxAsesor(int idasesor, int idtablamaestro);
 
 
     }
