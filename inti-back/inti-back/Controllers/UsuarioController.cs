@@ -275,14 +275,6 @@ namespace inti_back.Controllers
             try
             {
                 var create = await _usuarioPstRepository.RegistrarEmpleadoPst(empleado);
-                if (empleado == null)
-                {
-                    return BadRequest();
-                }
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(ModelState);
-                }
                 return Ok(new
                 {
                     StatusCode(201).StatusCode
