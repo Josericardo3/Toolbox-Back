@@ -6,6 +6,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.OpenApi.Any;
+
 const String default_url = "http://{0}:{1};https://{2}:{3}"; 
 
 var builder = WebApplication.CreateBuilder(args); 
@@ -96,6 +98,9 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true
     };
 });
+
+
+
 
 
 var app = builder.Build();
