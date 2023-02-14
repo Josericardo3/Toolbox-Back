@@ -25,6 +25,7 @@ namespace inti_model
         public bool requerido { get; set; }
         public String? values { get; set; }
         public bool activo { get; set; }
+        public String ffcontext { get; set; }
 
         public Caracterizacion()
         {
