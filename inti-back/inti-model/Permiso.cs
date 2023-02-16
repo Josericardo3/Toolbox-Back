@@ -13,5 +13,6 @@ namespace inti_model
         public int item { get; set; }
         public String? descripcion { get; set; }
         public int idusuariopst { get; set; }
+        public int tipousuario { get; set; }
     }
 }

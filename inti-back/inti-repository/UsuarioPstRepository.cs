@@ -95,13 +95,27 @@ namespace inti_repository
         public async Task<UsuarioPstLogin> LoginUsuario(string user, string Password, string Correo)
         {
             var db = dbConnection();
-            var sql = @"SELECT Idusuariopst,nit,password,correopst FROM usuariospst WHERE rnt = @user AND password = SHA1(@Password) AND correopst = @Correopst";
+            int n;
+            bool isnumeric = int.TryParse(user, out n);
+            var sql = "";
+            var itipousuario = 0;
+            if (isnumeric)
+            {
+                sql = @"SELECT Idusuariopst,nit,password,correopst FROM usuariospst WHERE rnt = @user AND password = SHA1(@Password) AND correopst = @Correopst";
+                itipousuario = 1;
+            }
+            else
+            {
+
+                sql = @"SELECT Idusuario as Idusuariopst,nit,password,correo as correopst FROM Usuario WHERE rnt = @user AND password = SHA1(@Password) AND correo = @Correopst";
+                itipousuario = 2;
+            }
             UsuarioPstLogin objUsuarioLogin = new UsuarioPstLogin();
             objUsuarioLogin = db.QueryFirstOrDefault<UsuarioPstLogin>(sql, new { user = user, Password = Password, Correopst = Correo });
 
             if (objUsuarioLogin != null)
             {
-                var objpermiso = ObtenerPermisosUsuario(objUsuarioLogin.IdUsuarioPst);
+                var objpermiso = ObtenerPermisosUsuario(objUsuarioLogin.IdUsuarioPst,itipousuario);
 
                 objUsuarioLogin.Grupo = objpermiso.Where(x => x.idtabla == 1).ToList();
                 objUsuarioLogin.SubGrupo = objpermiso.Where(x => x.idtabla == 2).ToList();
@@ -111,10 +125,10 @@ namespace inti_repository
             return await Task.FromResult<UsuarioPstLogin>(objUsuarioLogin);
         }
 
-        public IEnumerable<Permiso> ObtenerPermisosUsuario(int id)
+        public IEnumerable<Permiso> ObtenerPermisosUsuario(int id,int tipousuario)
         {
             var db = dbConnection();
-            var sql = @"select per.idtabla,per.item,ma.descripcion,per.idusuariopst from permiso per
+            var sql = @"select per.idtabla,per.item,ma.descripcion,per.idusuariopst,per.tipousuario from permiso per
             inner join maestro ma 
             ON per.idtabla = ma.idtabla and per.item = ma.item
             where
@@ -122,7 +136,7 @@ namespace inti_repository
             and ma.estado=1";
             var listPermiso = db.Query<Permiso>(sql, new { });
 
-            listPermiso = listPermiso.Where(x => x.idusuariopst == id).ToList();
+            listPermiso = listPermiso.Where(x => x.idusuariopst == id && x.tipousuario == tipousuario).ToList();
 
 
             return listPermiso;
