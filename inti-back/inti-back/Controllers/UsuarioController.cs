@@ -416,5 +416,79 @@ namespace inti_back.Controllers
                 });
             }
         }
+
+        [HttpPost("Asesor")]
+        public async Task<IActionResult> RegistrarAsesor([FromBody] Usuario asesor)
+        {
+            try
+            {
+                var create = await _usuarioPstRepository.RegistrarAsesor(asesor);
+                return Ok(new
+                {
+                    StatusCode(201).StatusCode
+                });
+            }
+            catch
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "no se pudo registrar los datos del asesor"
+                });
+            }
+
+        }
+
+        [HttpPut("Asesor")]
+        public async Task<IActionResult> UpdateAsesor([FromBody] UsuarioUpdate asesor)
+        {
+            try
+            {
+                var resp = await _usuarioPstRepository.UpdateAsesor(asesor);
+                if (resp == true)
+                {
+                    return Ok(new
+                    {
+                        Id = asesor.idUsuario,
+                        StatusCode(200).StatusCode
+                    });
+                }
+                else
+                {
+                    throw new Exception();
+                }
+            }
+            catch (Exception)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "no se pudo editar los datos del asesor"
+                });
+            }
+
+        }
+
+        [HttpPost("registrarPSTxAsesor")]
+        public async Task<IActionResult> RegistrarPSTxAsesor([FromBody] PSTxAsesorCreate pst_Asesor)
+        {
+            try
+            {
+                var create = await _usuarioPstRepository.RegistrarPSTxAsesor(pst_Asesor);
+                return Ok(new
+                {
+                    StatusCode(201).StatusCode
+                });
+            }
+            catch
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "no se pudo realizar el registro"
+                });
+            }
+
+        }
     }
 }

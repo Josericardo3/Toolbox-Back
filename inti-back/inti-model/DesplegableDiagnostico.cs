@@ -18,4 +18,7 @@ public class DesplegableDiagnostico
     public String? nombre { get; set; }
     public bool activo { get; set; }
 
+    public int editable { get; set; }
+    public int obligatorio { get; set; }
+
 }
