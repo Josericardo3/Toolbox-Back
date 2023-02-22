@@ -419,7 +419,7 @@ and not item=0
             if (idasesor == 0)
             {
                 queryPSTAsesor = @"
-SELECT up.idusuariopst,up.rnt,up.nombrepst,u.nombre as asesorasignado,ma.descripcion as estadoatencion  FROM intidb.usuariospst up
+SELECT up.idusuariopst,up.rnt,up.nombrepst as Razonsocial,u.nombre as asesorasignado,ma.descripcion as estadoatencion  FROM intidb.usuariospst up
 
 left join pst_asesor pa
 on pa.idusuariopst = up.idusuariopst
@@ -447,7 +447,7 @@ and activo=1";
             else
             {
                 queryPSTAsesor = @"
-SELECT up.idusuariopst,up.rnt,up.nombrepst,u.nombre as asesorasignado,ma.descripcion as estadoatencion  FROM intidb.usuariospst up
+SELECT up.idusuariopst,up.rnt,up.nombrepst as Razonsocial,u.nombre as asesorasignado,ma.descripcion as estadoatencion  FROM intidb.usuariospst up
 
 left join pst_asesor pa
 on pa.idusuariopst = up.idusuariopst
