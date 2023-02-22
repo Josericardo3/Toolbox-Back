@@ -582,6 +582,17 @@ and  ma.estado=1
             return result > 0;
         }
 
+
+        public async Task<IEnumerable<Usuario>> ListAsesor()
+        {
+            var db = dbConnection();
+            var queryUsuario = @"SELECT idUsuario,rnt,nit,correo,telefono,nombre FROM Usuario where activo = 1 and tipousuario=2";
+            var dataUsuario = await db.QueryAsync<Usuario>(queryUsuario, new { });
+
+            return dataUsuario;
+
+        }
+
     }
 
 
