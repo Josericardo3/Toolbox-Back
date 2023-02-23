@@ -568,6 +568,7 @@ and  ma.estado=1
 
         }
 
+        
         public async Task<bool> UpdateAsesor(UsuarioUpdate objAsesor)
         {
             var db = dbConnection();
@@ -592,6 +593,21 @@ and  ma.estado=1
             return dataUsuario;
 
         }
+
+        public async Task<bool> UpdatePSTxAsesor(PST_AsesorUpdate objPST_Asesor)
+        {
+            var db = dbConnection();
+
+            var sql = @"UPDATE pst_asesor 
+                        SET idusuario = @idusuarioNuevo
+                            
+                            WHERE idusuariopst = @idusuariopst
+                            and idusuario = @idusuarioAntiguo
+                            and activo=1";
+            var result = await db.ExecuteAsync(sql, new { objPST_Asesor.idusuarioNuevo, objPST_Asesor.idusuariopst, objPST_Asesor.idusuarioAntiguo, });
+            return result > 0;
+        }
+
 
     }
 
