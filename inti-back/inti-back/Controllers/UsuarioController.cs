@@ -512,37 +512,6 @@ namespace inti_back.Controllers
             }
         }
 
-        [HttpPut("UpdatePSTxAsesor")]
-        public async Task<IActionResult> UpdatePSTxAsesor([FromBody] PST_AsesorUpdate asesor)
-        {
-            try
-            {
-
-                var resp = await _usuarioPstRepository.UpdatePSTxAsesor(asesor);
-                if (resp == true)
-                {
-                    return Ok(new
-                    {
-                        Id = asesor.idusuariopst,
-                        StatusCode(201).StatusCode
-                    });
-                }
-                else
-                {
-                    throw new Exception();
-                }
-
-
-            }
-            catch (Exception)
-            {
-                return Ok(new
-                {
-                    StatusCode(200).StatusCode,
-                    valor = "no se pudo editar los datos"
-                });
-            }
-
-        }
+        
     }
 }

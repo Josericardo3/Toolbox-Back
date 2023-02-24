@@ -559,8 +559,28 @@ and  ma.estado=1
         {
 
             var db = dbConnection();
-            var insertAsesor = @"INSERT INTO pst_asesor(idusuario,idusuariopst,activo) Values (@idusuario,@idusuariopst,1)";
-            var result = await db.ExecuteAsync(insertAsesor, new { objPST_Asesor.idusuario, objPST_Asesor.idusuariopst });
+            var queryPSTxAsesor = @"SELECT idusuariopst FROM pst_asesor where idusuariopst=@idusuariopst and activo = 1";
+            var dataPSTxAsesor = await db.QueryAsync<PST_Asesor>(queryPSTxAsesor, new { objPST_Asesor.idusuariopst });
+            var result = 0;
+            var conteo = dataPSTxAsesor.Count();
+            if (conteo > 0) {
+
+                var sql = @"UPDATE pst_asesor 
+                        SET idusuario = @idusuario
+                            
+                            WHERE idusuariopst = @idusuariopst
+                           
+                            and activo=1";
+                 result = await db.ExecuteAsync(sql, new { objPST_Asesor.idusuario, objPST_Asesor.idusuariopst });
+               
+            }
+            else
+            {
+                var insertAsesor = @"INSERT INTO pst_asesor(idusuario,idusuariopst,activo) Values (@idusuario,@idusuariopst,1)";
+                 result = await db.ExecuteAsync(insertAsesor, new { objPST_Asesor.idusuario, objPST_Asesor.idusuariopst });
+
+            }
+
 
 
 
@@ -568,7 +588,8 @@ and  ma.estado=1
 
         }
 
-        
+       
+
         public async Task<bool> UpdateAsesor(UsuarioUpdate objAsesor)
         {
             var db = dbConnection();
