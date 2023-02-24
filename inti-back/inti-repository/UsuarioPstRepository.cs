@@ -582,6 +582,9 @@ and  ma.estado=1
                 var insertAsesor = @"INSERT INTO pst_asesor(idusuario,idusuariopst,activo) Values (@idusuario,@idusuariopst,1)";
                  result = await db.ExecuteAsync(insertAsesor, new { objPST_Asesor.idusuario, objPST_Asesor.idusuariopst });
 
+                var insertAtencionPST = @"INSERT INTO atencion_usuariopst(idusuariopst,estado) Values (@idusuariopst,1)";
+                result = await db.ExecuteAsync(insertAtencionPST, new {objPST_Asesor.idusuariopst });
+
             }
 
 
