@@ -10,7 +10,7 @@ namespace inti_model
     {
 
         public int idusuariopst { get; set; }
-        public int idusuarioAntiguo { get; set; }
-        public int idusuarioNuevo { get; set; }
+        public int idUsuario { get; set; }
+        
     }
 }

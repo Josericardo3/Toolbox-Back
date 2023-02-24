@@ -555,9 +555,12 @@ and  ma.estado=1
 
 
 
-        public async Task<bool> RegistrarPSTxAsesor(PSTxAsesorCreate objPST_Asesor)
+        public async Task<bool> RegistrarPSTxAsesor(PST_AsesorUpdate obj)
         {
 
+            PSTxAsesorCreate objPST_Asesor = new PSTxAsesorCreate();
+            objPST_Asesor.idusuario = obj.idUsuario;
+            objPST_Asesor.idusuariopst = obj.idusuariopst;
             var db = dbConnection();
             var queryPSTxAsesor = @"SELECT idusuariopst FROM pst_asesor where idusuariopst=@idusuariopst and activo = 1";
             var dataPSTxAsesor = await db.QueryAsync<PST_Asesor>(queryPSTxAsesor, new { objPST_Asesor.idusuariopst });
@@ -615,19 +618,7 @@ and  ma.estado=1
 
         }
 
-        public async Task<bool> UpdatePSTxAsesor(PST_AsesorUpdate objPST_Asesor)
-        {
-            var db = dbConnection();
-
-            var sql = @"UPDATE pst_asesor 
-                        SET idusuario = @idusuarioNuevo
-                            
-                            WHERE idusuariopst = @idusuariopst
-                            and idusuario = @idusuarioAntiguo
-                            and activo=1";
-            var result = await db.ExecuteAsync(sql, new { objPST_Asesor.idusuarioNuevo, objPST_Asesor.idusuariopst, objPST_Asesor.idusuarioAntiguo, });
-            return result > 0;
-        }
+      
 
 
     }

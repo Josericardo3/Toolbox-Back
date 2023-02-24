@@ -473,7 +473,7 @@ namespace inti_back.Controllers
         }
 
         [HttpPost("registrarPSTxAsesor")]
-        public async Task<IActionResult> RegistrarPSTxAsesor([FromBody] PSTxAsesorCreate pst_Asesor)
+        public async Task<IActionResult> RegistrarPSTxAsesor([FromBody] PST_AsesorUpdate pst_Asesor)
         {
             try
             {

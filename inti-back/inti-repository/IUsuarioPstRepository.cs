@@ -33,10 +33,10 @@ namespace inti_repository
         Task<bool> UpdateActividad(ActividadesAsesor actividades);
         Task<bool> DeleteActividad(int id, int idAsesor);
         Task<bool> RegistrarAsesor(Usuario objasesor);
-        Task<bool> RegistrarPSTxAsesor(PSTxAsesorCreate objPST_Asesor);
+        Task<bool> RegistrarPSTxAsesor(PST_AsesorUpdate objPST_Asesor);
         Task<bool> UpdateAsesor(UsuarioUpdate objAsesor);
         Task<IEnumerable<Usuario>> ListAsesor();
-        Task<bool> UpdatePSTxAsesor(PST_AsesorUpdate objPST_Asesor);
+     
 
 
     }
