@@ -95,13 +95,27 @@ namespace inti_repository
         public async Task<UsuarioPstLogin> LoginUsuario(string user, string Password, string Correo)
         {
             var db = dbConnection();
-            var sql = @"SELECT Idusuariopst,nit,password,correopst FROM usuariospst WHERE rnt = @user AND password = SHA1(@Password) AND correopst = @Correopst";
+            int n;
+            bool isnumeric = int.TryParse(user, out n);
+            var sql = "";
+            var itipousuario = 0;
+            if (isnumeric)
+            {
+                sql = @"SELECT Idusuariopst,nit,password,correopst FROM usuariospst WHERE rnt = @user AND password = SHA1(@Password) AND correopst = @Correopst";
+                itipousuario = 1;
+            }
+            else
+            {
+
+                sql = @"SELECT Idusuario as Idusuariopst,nit,password,correo as correopst FROM Usuario WHERE rnt = @user AND password = SHA1(@Password) AND correo = @Correopst";
+                itipousuario = 2;
+            }
             UsuarioPstLogin objUsuarioLogin = new UsuarioPstLogin();
             objUsuarioLogin = db.QueryFirstOrDefault<UsuarioPstLogin>(sql, new { user = user, Password = Password, Correopst = Correo });
 
             if (objUsuarioLogin != null)
             {
-                var objpermiso = ObtenerPermisosUsuario(objUsuarioLogin.IdUsuarioPst);
+                var objpermiso = ObtenerPermisosUsuario(objUsuarioLogin.IdUsuarioPst, itipousuario);
 
                 objUsuarioLogin.Grupo = objpermiso.Where(x => x.idtabla == 1).ToList();
                 objUsuarioLogin.SubGrupo = objpermiso.Where(x => x.idtabla == 2).ToList();
@@ -111,10 +125,10 @@ namespace inti_repository
             return await Task.FromResult<UsuarioPstLogin>(objUsuarioLogin);
         }
 
-        public IEnumerable<Permiso> ObtenerPermisosUsuario(int id)
+        public IEnumerable<Permiso> ObtenerPermisosUsuario(int id, int tipousuario)
         {
             var db = dbConnection();
-            var sql = @"select per.idtabla,per.item,ma.descripcion,per.idusuariopst from permiso per
+            var sql = @"select per.idtabla,per.item,ma.descripcion,per.idusuariopst,per.tipousuario from permiso per
             inner join maestro ma 
             ON per.idtabla = ma.idtabla and per.item = ma.item
             where
@@ -122,7 +136,7 @@ namespace inti_repository
             and ma.estado=1";
             var listPermiso = db.Query<Permiso>(sql, new { });
 
-            listPermiso = listPermiso.Where(x => x.idusuariopst == id).ToList();
+            listPermiso = listPermiso.Where(x => x.idusuariopst == id && x.tipousuario == tipousuario).ToList();
 
 
             return listPermiso;
@@ -272,7 +286,8 @@ namespace inti_repository
             responseDiagnostico.TituloPrincipal = dataDesplegableDiagnostico.descripcion;
 
             var queryagrupaciondiagnostico = @"
-SELECT dd.idnormatecnica,dd.numeralprincipal,d.tituloprincipal,d.tituloprincipal as nombre,'string' as tipodedato, 'tituloprincipal' as campo_local
+SELECT dd.idnormatecnica,dd.numeralprincipal,d.tituloprincipal,d.tituloprincipal as nombre,'string' as tipodedato, 'tituloprincipal' as campo_local,
+0 as editable
 FROM diagnosticodinamico dd
 inner join Diagnostico d on dd.idnormatecnica=d.idnormatecnica
 and dd.numeralprincipal=d.idgrupocampo
@@ -293,7 +308,11 @@ group by dd.idnormatecnica,dd.numeralprincipal,d.tituloprincipal";
                 querysubagrupaciondiagnostico = @"
 SELECT dd.idnormatecnica,dd.numeralprincipal,dd.numeralespecifico,
 d.tituloespecifico as nombre,d.tituloespecifico as titulo,d.Requisito,dd.tipodedato, dd.campo_local as campo_local,  
-d.Evidencia as nombre_evidencia,dd.tipodedato_evidencia ,dd.campo_localevidencia as campo_local_evidencia
+d.Evidencia as nombre_evidencia,dd.tipodedato_evidencia ,dd.campo_localevidencia as campo_local_evidencia,
+0 as tituloeditable,
+0 as requisitoeditable,
+1 as observacioneditable,
+0 as observacionobligatorio
 FROM intidb.diagnosticodinamico dd
 inner join intidb.Diagnostico d on dd.idnormatecnica=d.idnormatecnica
 and dd.numeralprincipal=d.idgrupocampo
@@ -316,7 +335,9 @@ descripcion,
 valor,
 descripcion as nombre,
 estado as activo,
-item as id
+item as id,
+1 as editable,
+1 as obligatorio
 
  FROM maestro
 where idtabla=@idtabla
@@ -398,7 +419,7 @@ and not item=0
             if (idasesor == 0)
             {
                 queryPSTAsesor = @"
-SELECT up.idusuariopst,up.rnt,up.nombrepst,u.nombre as asesorasignado,ma.descripcion as estadoatencion  FROM intidb.usuariospst up
+SELECT up.idusuariopst,up.rnt,up.nombrepst as Razonsocial,u.nombre as asesorasignado,ma.descripcion as estadoatencion  FROM intidb.usuariospst up
 
 left join pst_asesor pa
 on pa.idusuariopst = up.idusuariopst
@@ -426,7 +447,7 @@ and activo=1";
             else
             {
                 queryPSTAsesor = @"
-SELECT up.idusuariopst,up.rnt,up.nombrepst,u.nombre as asesorasignado,ma.descripcion as estadoatencion  FROM intidb.usuariospst up
+SELECT up.idusuariopst,up.rnt,up.nombrepst as Razonsocial,u.nombre as asesorasignado,ma.descripcion as estadoatencion  FROM intidb.usuariospst up
 
 left join pst_asesor pa
 on pa.idusuariopst = up.idusuariopst
@@ -507,6 +528,100 @@ and  ma.estado=1
             return result > 0;
         }
 
+        public async Task<bool> RegistrarAsesor(Usuario objasesor)
+        {
+
+            var db = dbConnection();
+            var insertAsesor = @"INSERT INTO Usuario(rnt,nit,correo,telefono,nombre,password,activo,tipousuario) Values (@rnt,@nit,@correo,@telefono,@nombre,SHA1(@Password),1,2)";
+            var result = await db.ExecuteAsync(insertAsesor, new { objasesor.rnt, objasesor.nit, objasesor.correo, objasesor.telefono, objasesor.nombre, objasesor.password });
+
+            if (result > 0)
+            {
+
+
+                var sqlobtenerasesor = @"SELECT Idusuario as Idusuariopst,nit,password,correo as correopst FROM Usuario WHERE rnt = @user AND password = SHA1(@Password) AND correo = @Correopst";
+
+                UsuarioPstLogin objUsuarioLogin = new UsuarioPstLogin();
+                objUsuarioLogin = db.QueryFirstOrDefault<UsuarioPstLogin>(sqlobtenerasesor, new { user = objasesor.rnt, Password = objasesor.password, Correopst = objasesor.correo });
+
+                var insertPermisoAsesor = @"INSERT INTO permiso(idtabla,item,idusuariopst,estado,tipousuario) Values (1,2,@result,1,2)";
+                var resultPermiso = await db.ExecuteAsync(insertPermisoAsesor, new { result = objUsuarioLogin.IdUsuarioPst });
+
+            }
+
+            return result > 0;
+
+        }
+
+
+
+        public async Task<bool> RegistrarPSTxAsesor(PST_AsesorUpdate obj)
+        {
+
+            PSTxAsesorCreate objPST_Asesor = new PSTxAsesorCreate();
+            objPST_Asesor.idusuario = obj.idUsuario;
+            objPST_Asesor.idusuariopst = obj.idusuariopst;
+            var db = dbConnection();
+            var queryPSTxAsesor = @"SELECT idusuariopst FROM pst_asesor where idusuariopst=@idusuariopst and activo = 1";
+            var dataPSTxAsesor = await db.QueryAsync<PST_Asesor>(queryPSTxAsesor, new { objPST_Asesor.idusuariopst });
+            var result = 0;
+            var conteo = dataPSTxAsesor.Count();
+            if (conteo > 0) {
+
+                var sql = @"UPDATE pst_asesor 
+                        SET idusuario = @idusuario
+                            
+                            WHERE idusuariopst = @idusuariopst
+                           
+                            and activo=1";
+                 result = await db.ExecuteAsync(sql, new { objPST_Asesor.idusuario, objPST_Asesor.idusuariopst });
+               
+            }
+            else
+            {
+                var insertAsesor = @"INSERT INTO pst_asesor(idusuario,idusuariopst,activo) Values (@idusuario,@idusuariopst,1)";
+                 result = await db.ExecuteAsync(insertAsesor, new { objPST_Asesor.idusuario, objPST_Asesor.idusuariopst });
+
+                var insertAtencionPST = @"INSERT INTO atencion_usuariopst(idusuariopst,estado) Values (@idusuariopst,1)";
+                result = await db.ExecuteAsync(insertAtencionPST, new {objPST_Asesor.idusuariopst });
+
+            }
+
+
+
+
+            return result > 0;
+
+        }
+
+       
+
+        public async Task<bool> UpdateAsesor(UsuarioUpdate objAsesor)
+        {
+            var db = dbConnection();
+            var sql = @"UPDATE Usuario 
+                        SET rnt = @rnt,
+                            nit = @nit,
+                            correo = @correo,
+                            telefono = @telefono,
+                            nombre = @nombre
+                            WHERE idUsuario = @idUsuario and activo=1";
+            var result = await db.ExecuteAsync(sql, new { objAsesor.rnt, objAsesor.nit, objAsesor.correo, objAsesor.telefono, objAsesor.nombre, objAsesor.idUsuario });
+            return result > 0;
+        }
+
+
+        public async Task<IEnumerable<Usuario>> ListAsesor()
+        {
+            var db = dbConnection();
+            var queryUsuario = @"SELECT idUsuario,rnt,nit,correo,telefono,nombre FROM Usuario where activo = 1 and tipousuario=2";
+            var dataUsuario = await db.QueryAsync<Usuario>(queryUsuario, new { });
+
+            return dataUsuario;
+
+        }
+
+      
 
 
     }

@@ -18,6 +18,7 @@ public class Diagnostico
 
     public String? campo_local { get; set; }
     public String? nombre { get; set; }
+    public int editable { get; set; }
     public List<SubGrupoDiagnostico>? listacampos { get; set; }
     public Diagnostico()
     {

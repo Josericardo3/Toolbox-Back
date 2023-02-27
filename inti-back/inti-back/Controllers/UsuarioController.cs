@@ -100,7 +100,7 @@ namespace inti_back.Controllers
                 var borrado = await _usuarioPstRepository.DeleteUsuarioPst(id);
                 if (borrado == false)
                 {
-                   throw new Exception();
+                    throw new Exception();
                 }
                 return Ok(new
                 {
@@ -108,7 +108,7 @@ namespace inti_back.Controllers
                     StatusCode(204).StatusCode
                 });
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return Ok(new
                 {
@@ -159,7 +159,7 @@ namespace inti_back.Controllers
                 var response = await _usuarioPstRepository.GetResponseCaracterizacion(id);
                 return Ok(response);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return Ok(new
                 {
@@ -192,7 +192,8 @@ namespace inti_back.Controllers
         [HttpGet("SelectorDeNorma")]
         public async Task<IActionResult> GetNormaTecnica(int id)
         {
-            try{
+            try
+            {
                 var response = await _usuarioPstRepository.GetNormaTecnica(id);
 
                 if (response == null)
@@ -205,7 +206,8 @@ namespace inti_back.Controllers
                 return Ok(response);
 
             }
-            catch(Exception) {
+            catch (Exception)
+            {
                 return Ok(new
                 {
                     StatusCode(200).StatusCode,
@@ -307,17 +309,17 @@ namespace inti_back.Controllers
                 var response = await _usuarioPstRepository.GetActividad(idActividad, idAsesor);
                 return Ok(response);
             }
-            catch(Exception)
+            catch (Exception)
             {
-               
-              return Ok(new
+
+                return Ok(new
                 {
-                   StatusCode(200).StatusCode,
-                   valor = "la actividad no se ha encontrado"
+                    StatusCode(200).StatusCode,
+                    valor = "la actividad no se ha encontrado"
                 });
-               
+
             }
-            
+
         }
 
         [HttpPost("actividades")]
@@ -349,7 +351,7 @@ namespace inti_back.Controllers
             try
             {
                 var resp = await _usuarioPstRepository.UpdateActividad(actividades);
-                if(resp == true)
+                if (resp == true)
                 {
                     return Ok(new
                     {
@@ -359,10 +361,10 @@ namespace inti_back.Controllers
                 }
                 else
                 {
-                    throw new Exception(); 
+                    throw new Exception();
                 }
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return Ok(new
                 {
@@ -379,7 +381,7 @@ namespace inti_back.Controllers
             try
             {
                 var borrado = await _usuarioPstRepository.DeleteActividad(id, idAsesor);
-                if(borrado == false)
+                if (borrado == false)
                 {
                     throw new Exception();
                 }
@@ -391,9 +393,10 @@ namespace inti_back.Controllers
             }
             catch (Exception)
             {
-                return Ok(new{
+                return Ok(new
+                {
                     StatusCode(200).StatusCode,
-                   valor = "la actividad no se ha encontrado"
+                    valor = "la actividad no se ha encontrado"
                 });
             }
         }
@@ -416,5 +419,99 @@ namespace inti_back.Controllers
                 });
             }
         }
+
+        [HttpPost("Asesor")]
+        public async Task<IActionResult> RegistrarAsesor([FromBody] Usuario asesor)
+        {
+            try
+            {
+                var create = await _usuarioPstRepository.RegistrarAsesor(asesor);
+                return Ok(new
+                {
+                    StatusCode(201).StatusCode
+                });
+            }
+            catch
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "no se pudo registrar los datos del asesor"
+                });
+            }
+
+        }
+
+        [HttpPut("Asesor")]
+        public async Task<IActionResult> UpdateAsesor([FromBody] UsuarioUpdate asesor)
+        {
+            try
+            {
+                var resp = await _usuarioPstRepository.UpdateAsesor(asesor);
+                if (resp == true)
+                {
+                    return Ok(new
+                    {
+                        Id = asesor.idUsuario,
+                        StatusCode(200).StatusCode
+                    });
+                }
+                else
+                {
+                    throw new Exception();
+                }
+            }
+            catch (Exception)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "no se pudo editar los datos del asesor"
+                });
+            }
+
+        }
+
+        [HttpPost("registrarPSTxAsesor")]
+        public async Task<IActionResult> RegistrarPSTxAsesor([FromBody] PST_AsesorUpdate pst_Asesor)
+        {
+            try
+            {
+                var create = await _usuarioPstRepository.RegistrarPSTxAsesor(pst_Asesor);
+                return Ok(new
+                {
+                    StatusCode(201).StatusCode
+                });
+            }
+            catch
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "no se pudo realizar el registro"
+                });
+            }
+
+        }
+
+        [HttpGet("ListarAsesor")]
+        public async Task<IActionResult> GetAllAsesor()
+        {
+            try
+            {
+                return Ok(await _usuarioPstRepository.ListAsesor());
+
+            }
+            catch (Exception)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "Error al momento de obtener el listado de asesores"
+                });
+            }
+        }
+
+        
     }
 }

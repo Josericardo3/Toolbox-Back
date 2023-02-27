@@ -25,6 +25,13 @@ namespace inti_model
 
         public String? campo_local_evidencia { get; set; }
         public String? nombre_evidencia { get; set; }
+        public String? observacion { get; set; }
+
+      
+        public int tituloeditable { get; set; }
+        public int requisitoeditable { get; set; }
+        public int observacioneditable { get; set; }
+        public int observacionobligatorio { get; set; }
         public List<DesplegableDiagnostico>? desplegable { get; set; }
         public SubGrupoDiagnostico()
         {
