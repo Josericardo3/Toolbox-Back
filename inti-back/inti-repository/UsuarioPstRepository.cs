@@ -652,6 +652,72 @@ and  ma.estado=1
         }
 
 
+
+        public async Task<ResponseArchivoListaChequeo> GetResponseArchivoListaChequeo(int idnorma, int idusuario, int idValorTituloListaChequeo, int idValorSeccionListaChequeo, int idValordescripcionCalificacion)
+        {
+            var db = dbConnection();
+            var queryTitulo = @"Select * from maestro where idtabla = @idtabla and item=1";
+            var dataTitulo = await db.QueryFirstOrDefaultAsync<Maestro>(queryTitulo, new { idtabla = idValorTituloListaChequeo });
+
+            var querySeccion = @"Select * from maestro where idtabla = @idtabla";
+            var dataSeccion =  db.Query<Maestro>(querySeccion, new { idtabla = idValorSeccionListaChequeo }).ToList();
+
+            var querydescCalificacion = @"Select * from maestro where idtabla = @idtabla";
+            var datadescCalificacion = db.Query<Maestro>(querydescCalificacion, new { idtabla = idValordescripcionCalificacion }).ToList();
+
+            var sql = @"SELECT idusuariopst,nit,rnt,idcategoriarnt,idsubcategoriarnt,nombrepst,razonsocialpst,correopst,telefonopst,nombrerepresentantelegal,correorepresentantelegal,telefonorepresentantelegal,idtipoidentificacion,identificacionrepresentantelegal,iddepartamento,idmunicipio,nombreresponsablesostenibilidad,correoresponsablesostenibilidad,telefonoresponsablesostenibilidad,password,idtipoavatar,activo FROM usuariospst WHERE idusuariopst = @IdUsuarioPst AND activo = TRUE ";
+            var datausuario  = db.QueryFirstOrDefault<UsuarioPst>(sql, new { IdUsuarioPst = idusuario });
+
+           var queryCalificacion = @"
+SELECT d.tituloprincipal as Numeral,
+d.tituloespecifico as tituloRequisito,d.Requisito,  
+d.Evidencia,r.valor as calificado , r.observacion
+
+FROM intidb.diagnosticodinamico dd
+
+inner join intidb.Diagnostico d on dd.idnormatecnica=d.idnormatecnica
+and dd.numeralprincipal=d.idgrupocampo
+and dd.idtituloespecifico=d.idcampo
+
+inner join intidb.respuestadiagnostico r 
+on dd.numeralespecifico=r.numeralespecifico
+and dd.idnormatecnica=r.idnormatecnica
+
+where r.idnormatecnica=@idnormatecnica
+and r.idusuario=@idusuario
+and dd.activo=1
+and d.activo=1";
+
+            var datacalificacion = db.Query<CalifListaChequeo>(queryCalificacion, new { idnormatecnica= idnorma, idusuario= idusuario }).ToList();
+
+            ResponseArchivoListaChequeo responseListaChequeo = new ResponseArchivoListaChequeo();
+
+            responseListaChequeo.Titulo = dataTitulo.descripcion;
+            responseListaChequeo.seccion1 = dataSeccion.Where(x => x.item==1).FirstOrDefault().descripcion;
+            responseListaChequeo.seccion2 = dataSeccion.Where(x => x.item == 2).FirstOrDefault().descripcion;
+            responseListaChequeo.seccion3 = dataSeccion.Where(x => x.item == 3).FirstOrDefault().descripcion;
+            responseListaChequeo.usuario =  datausuario;
+            responseListaChequeo.calificacion = datacalificacion;
+            responseListaChequeo.DescripcionCalificacionCumple = datadescCalificacion.Where(x => x.item == 1).FirstOrDefault().descripcion;
+            responseListaChequeo.DescripcionCalificacionCumpleParcialmente = datadescCalificacion.Where(x => x.item == 2).FirstOrDefault().descripcion;
+            responseListaChequeo.DescripcionCalificacionNoCumple= datadescCalificacion.Where(x => x.item == 3).FirstOrDefault().descripcion;
+            responseListaChequeo.DescripcionCalificacionNoAplica= datadescCalificacion.Where(x => x.item == 4).FirstOrDefault().descripcion;
+
+            responseListaChequeo.NumeroRequisitoNA = "0";
+            responseListaChequeo.NumeroRequisitoNC = "116";
+            responseListaChequeo.NumeroRequisitoCP = "0";
+            responseListaChequeo.NumeroRequisitoC = "0";
+
+            responseListaChequeo.TotalNumeroRequisito = "116";
+            responseListaChequeo.PorcentajeNA = "0";
+            responseListaChequeo.PorcentajeNC = "100";
+            responseListaChequeo.PorcentajeCP = "0";
+            responseListaChequeo.PorcentajeC = "0";
+
+            return responseListaChequeo;
+
+        }
+
     }
 
 

@@ -38,5 +38,8 @@ namespace inti_repository
         Task<UsuarioPassword> RecuperacionContraseña(String correo);
         Task<bool> UpdatePassword(String password, String id);
         Task<IEnumerable<Usuario>> ListAsesor();
+        Task<ResponseArchivoListaChequeo> GetResponseArchivoListaChequeo(int idnorma, int idusuario, int idValorTituloListaChequeo, int idValorSeccionListaChequeo, int idValordescripcionCalificacion);
+
+
     }
 }
