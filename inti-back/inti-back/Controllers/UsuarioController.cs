@@ -497,7 +497,7 @@ namespace inti_back.Controllers
 
         }
 
-<<<<<<< HEAD
+
         [HttpPost("EnviarEmail")]
         public async Task<IActionResult> SendEmail(String correo)
         {
@@ -543,9 +543,9 @@ namespace inti_back.Controllers
         {
             try
             {
-                var result = await _usuarioPstRepository.UpdatePassword(password,id);
+                var result = await _usuarioPstRepository.UpdatePassword(password, id);
 
-                if(result != true)
+                if (result != true)
                 {
                     throw new Exception();
                 }
@@ -556,27 +556,19 @@ namespace inti_back.Controllers
                 });
             }
             catch (Exception e)
-=======
-        [HttpGet("ListarAsesor")]
-        public async Task<IActionResult> GetAllAsesor()
-        {
-            try
-            {
-                return Ok(await _usuarioPstRepository.ListAsesor());
-
-            }
-            catch (Exception)
->>>>>>> 693eb5d001e19f3d4e582134ea13194e77c11822
             {
                 return Ok(new
                 {
                     StatusCode(200).StatusCode,
-<<<<<<< HEAD
                     Valor = "La contraseña no pudo ser modificada",
                     Mensaje = e.Message
                 });
             }
-
+        }
+        [HttpGet("ListarAsesor")]
+        public async Task<IActionResult> GetAllAsesor()
+        {
+            return Ok(await _usuarioPstRepository.ListAsesor());
         }
 
         private async void EnviarCorreo(String correousuario, String subject, int id)
@@ -610,17 +602,5 @@ namespace inti_back.Controllers
             String idsh1 = hashString;
             return idsh1;
         }
-
-
-
-
-=======
-                    valor = "Error al momento de obtener el listado de asesores"
-                });
-            }
-        }
-
-        
->>>>>>> 693eb5d001e19f3d4e582134ea13194e77c11822
     }
 }
