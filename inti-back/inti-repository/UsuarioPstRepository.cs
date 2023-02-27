@@ -622,8 +622,6 @@ and  ma.estado=1
             var result = await db.ExecuteAsync(sql, new { objAsesor.rnt, objAsesor.nit, objAsesor.correo, objAsesor.telefono, objAsesor.nombre, objAsesor.idUsuario });
             return result > 0;
         }
-
-<<<<<<< HEAD
         public async Task<UsuarioPassword> RecuperacionContraseña(String correo)
         {
 
@@ -642,7 +640,6 @@ and  ma.estado=1
             var result = await db.ExecuteAsync(sql, new { Password = password , id = id });
             return result > 0;
         }
-=======
 
         public async Task<IEnumerable<Usuario>> ListAsesor()
         {
@@ -653,9 +650,6 @@ and  ma.estado=1
             return dataUsuario;
 
         }
-
-      
->>>>>>> 693eb5d001e19f3d4e582134ea13194e77c11822
 
 
     }
