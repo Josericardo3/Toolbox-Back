@@ -1,6 +1,7 @@
 using Dapper;
 using Google.Protobuf;
 using inti_model;
+using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 using Newtonsoft;
 using Newtonsoft.Json;
@@ -8,6 +9,8 @@ using System.Collections.Immutable;
 using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json.Serialization;
 using static Org.BouncyCastle.Bcpg.Attr.ImageAttrib;
 
@@ -401,11 +404,21 @@ and not item=0
 
         }
 
-        public async Task<bool> RegistrarEmpleadoPst(EmpleadoPst empleado)
+        public async Task<bool> RegistrarEmpleadoPst(int id, String correo, String rnt)
         {
             var db = dbConnection();
-            var insertEmpleado = @"INSERT INTO empleadospst(nombre,correo,rol) Values (@nombre,@correo,@rol)";
-            var result = await db.ExecuteAsync(insertEmpleado, new { empleado.nombre, empleado.correo, empleado.rol });
+            var queryUsuario = @"Select * from usuariospst where idusuariopst = @id and activo = true";
+            UsuarioPst dataUsuario = await db.QueryFirstAsync<UsuarioPst>(queryUsuario, new { id= id});
+
+            if (dataUsuario == null) throw new Exception();
+
+            // registrar empleado
+
+            var sql = @"INSERT INTO usuariospst(nit,rnt,idcategoriarnt,idsubcategoriarnt,nombrepst,razonsocialpst,correopst,telefonopst,nombrerepresentantelegal,correorepresentantelegal,telefonorepresentantelegal,idtipoidentificacion,identificacionrepresentantelegal,iddepartamento,idmunicipio,nombreresponsablesostenibilidad,correoresponsablesostenibilidad,telefonoresponsablesostenibilidad,password,idtipoavatar) 
+                        VALUES (@Nit,@Rnt,@idCategoriaRnt,@idSubCategoriaRnt,@NombrePst,@RazonSocialPst,@CorreoPst,@TelefonoPst,@NombreRepresentanteLegal,@CorreoRepresentanteLegal,@TelefonoRepresentanteLegal,@idTipoIdentificacion,@IdentificacionRepresentanteLegal,@idDepartamento,@idMunicipio,@NombreResponsableSostenibilidad,@CorreoResponsableSostenibilidad,@TelefonoResponsableSostenibilidad, SHA1(@Password),@idTipoAvatar) ";
+            var result = await db.ExecuteAsync(sql, new { dataUsuario.Nit, Rnt = rnt, dataUsuario.idCategoriaRnt, dataUsuario.idSubCategoriaRnt, dataUsuario.NombrePst, dataUsuario.RazonSocialPst, CorreoPst = correo, dataUsuario.TelefonoPst, dataUsuario.NombreRepresentanteLegal, dataUsuario.CorreoRepresentanteLegal, dataUsuario.TelefonoRepresentanteLegal, dataUsuario.idTipoIdentificacion, dataUsuario.IdentificacionRepresentanteLegal, dataUsuario.idDepartamento, dataUsuario.idMunicipio, dataUsuario.NombreResponsableSostenibilidad, dataUsuario.CorreoResponsableSostenibilidad, dataUsuario.TelefonoResponsableSostenibilidad, Password = 123, dataUsuario.idTipoAvatar });
+
+
             return result > 0;
 
         }
@@ -581,6 +594,26 @@ and  ma.estado=1
             var result = await db.ExecuteAsync(sql, new { objAsesor.rnt, objAsesor.nit, objAsesor.correo, objAsesor.telefono, objAsesor.nombre, objAsesor.idUsuario });
             return result > 0;
         }
+
+        public async Task<UsuarioPassword> RecuperacionContraseña(String correo)
+        {
+
+            var db = dbConnection();
+            var queryUsuario = @"SELECT idusuariopst, correopst from usuariospst where correopst=@correo and activo=1";
+            UsuarioPassword dataUsusario = await db.QueryFirstOrDefaultAsync<UsuarioPassword>(queryUsuario, new { correo = correo });
+            return dataUsusario;
+
+        }
+
+        public async Task<bool> UpdatePassword(String password, String id)
+        {
+            var db = dbConnection();
+            var sql = @"UPDATE usuariospst 
+                        SET password = SHA1(@Password)  WHERE SHA1(idusuariopst) = @id and activo=1";
+            var result = await db.ExecuteAsync(sql, new { Password = password , id = id });
+            return result > 0;
+        }
+
 
     }
 

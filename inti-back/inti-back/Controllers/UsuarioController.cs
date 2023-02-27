@@ -1,9 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using inti_model;
+﻿using inti_model;
 using inti_repository;
-using System.Text.Json;
+using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Authorization;
-using Google.Protobuf;
+using Microsoft.AspNetCore.Mvc;
+using MimeKit;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 
 namespace inti_back.Controllers
 {
@@ -270,11 +273,11 @@ namespace inti_back.Controllers
 
         }
         [HttpPost("registrarEmpleadoPst")]
-        public async Task<IActionResult> RegistrarEmpleadoPst([FromBody] EmpleadoPst empleado)
+        public async Task<IActionResult> RegistrarEmpleadoPst(int id, string correo, string rnt)
         {
             try
             {
-                var create = await _usuarioPstRepository.RegistrarEmpleadoPst(empleado);
+                var create = await _usuarioPstRepository.RegistrarEmpleadoPst(id,correo,rnt);
                 return Ok(new
                 {
                     StatusCode(201).StatusCode
@@ -490,5 +493,110 @@ namespace inti_back.Controllers
             }
 
         }
+
+        [HttpPost("EnviarEmail")]
+        public async Task<IActionResult> SendEmail(String correo)
+        {
+
+            try
+            {
+                UsuarioPassword dataUsuario = await _usuarioPstRepository.RecuperacionContraseña(correo);
+
+                if(dataUsuario == null)
+                {
+                    throw new Exception();
+                }
+                else
+                {
+                    string subject = "Cambio de contraseña";
+                    EnviarCorreo(dataUsuario.correopst,subject,dataUsuario.idusuariopst);
+                    
+
+                    return Ok(new
+                    {
+                       StatusCode(200).StatusCode,
+                       Valor = "correo enviado satisfactoriamente",
+                    });
+
+                }
+
+                
+            }
+            catch(Exception e)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    Valor = "El correo no se pudo enviar",
+                    Mensaje = e.Message
+                });
+            }
+            
+        }
+
+        [HttpPost("CambioContraseña")]
+        public async Task<IActionResult> UpdatePassword(String password, String id )
+        {
+            try
+            {
+                var result = await _usuarioPstRepository.UpdatePassword(password,id);
+
+                if(result != true)
+                {
+                    throw new Exception();
+                }
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    Valor = "Contraseña cambiada satisfactoriamente"
+                });
+            }
+            catch (Exception e)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    Valor = "La contraseña no pudo ser modificada",
+                    Mensaje = e.Message
+                });
+            }
+
+        }
+
+        private async void EnviarCorreo(String correousuario, String subject, int id)
+        {
+            var idEncripted = Encriptacion(id);
+
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress(this.Configuration.GetValue<string>("Email:Name"), this.Configuration.GetValue<string>("Email:User")));
+            message.To.Add(new MailboxAddress("", correousuario));
+            message.Subject = subject;
+
+            var builder = new BodyBuilder();
+            
+            builder.HtmlBody = String.Format("<html <a>https://main--starlit-gumdrop-e2c328.netlify.app/recovery/{0}</a> </html>", idEncripted);
+            message.Body = builder.ToMessageBody();
+            using (var client = new SmtpClient())
+            {
+                await client.ConnectAsync(this.Configuration.GetValue<string>("Email:Server"), this.Configuration.GetValue<int>("Email:Port"), MailKit.Security.SecureSocketOptions.StartTls);
+                await client.AuthenticateAsync(this.Configuration.GetValue<string>("Email:User"), this.Configuration.GetValue<string>("Email:Password"));
+                await client.SendAsync(message);
+                client.Disconnect(true);
+            }
+
+        }
+
+        private String Encriptacion (int id)
+        {
+            SHA1 encriptedId = SHA1.Create();
+            byte[] hashbyte = encriptedId.ComputeHash(Encoding.UTF8.GetBytes(id.ToString()));
+            String hashString = BitConverter.ToString(hashbyte).Replace("-", "").ToLower();
+            String idsh1 = hashString;
+            return idsh1;
+        }
+
+
+
+
     }
 }
