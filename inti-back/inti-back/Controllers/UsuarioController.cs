@@ -103,7 +103,7 @@ namespace inti_back.Controllers
                 var borrado = await _usuarioPstRepository.DeleteUsuarioPst(id);
                 if (borrado == false)
                 {
-                   throw new Exception();
+                    throw new Exception();
                 }
                 return Ok(new
                 {
@@ -111,7 +111,7 @@ namespace inti_back.Controllers
                     StatusCode(204).StatusCode
                 });
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return Ok(new
                 {
@@ -162,7 +162,7 @@ namespace inti_back.Controllers
                 var response = await _usuarioPstRepository.GetResponseCaracterizacion(id);
                 return Ok(response);
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return Ok(new
                 {
@@ -195,7 +195,8 @@ namespace inti_back.Controllers
         [HttpGet("SelectorDeNorma")]
         public async Task<IActionResult> GetNormaTecnica(int id)
         {
-            try{
+            try
+            {
                 var response = await _usuarioPstRepository.GetNormaTecnica(id);
 
                 if (response == null)
@@ -208,7 +209,8 @@ namespace inti_back.Controllers
                 return Ok(response);
 
             }
-            catch(Exception) {
+            catch (Exception)
+            {
                 return Ok(new
                 {
                     StatusCode(200).StatusCode,
@@ -310,17 +312,17 @@ namespace inti_back.Controllers
                 var response = await _usuarioPstRepository.GetActividad(idActividad, idAsesor);
                 return Ok(response);
             }
-            catch(Exception)
+            catch (Exception)
             {
-               
-              return Ok(new
+
+                return Ok(new
                 {
-                   StatusCode(200).StatusCode,
-                   valor = "la actividad no se ha encontrado"
+                    StatusCode(200).StatusCode,
+                    valor = "la actividad no se ha encontrado"
                 });
-               
+
             }
-            
+
         }
 
         [HttpPost("actividades")]
@@ -352,7 +354,7 @@ namespace inti_back.Controllers
             try
             {
                 var resp = await _usuarioPstRepository.UpdateActividad(actividades);
-                if(resp == true)
+                if (resp == true)
                 {
                     return Ok(new
                     {
@@ -362,10 +364,10 @@ namespace inti_back.Controllers
                 }
                 else
                 {
-                    throw new Exception(); 
+                    throw new Exception();
                 }
             }
-            catch(Exception)
+            catch (Exception)
             {
                 return Ok(new
                 {
@@ -382,7 +384,7 @@ namespace inti_back.Controllers
             try
             {
                 var borrado = await _usuarioPstRepository.DeleteActividad(id, idAsesor);
-                if(borrado == false)
+                if (borrado == false)
                 {
                     throw new Exception();
                 }
@@ -394,9 +396,10 @@ namespace inti_back.Controllers
             }
             catch (Exception)
             {
-                return Ok(new{
+                return Ok(new
+                {
                     StatusCode(200).StatusCode,
-                   valor = "la actividad no se ha encontrado"
+                    valor = "la actividad no se ha encontrado"
                 });
             }
         }
@@ -473,7 +476,7 @@ namespace inti_back.Controllers
         }
 
         [HttpPost("registrarPSTxAsesor")]
-        public async Task<IActionResult> RegistrarPSTxAsesor([FromBody] PSTxAsesorCreate pst_Asesor)
+        public async Task<IActionResult> RegistrarPSTxAsesor([FromBody] PST_AsesorUpdate pst_Asesor)
         {
             try
             {
@@ -494,6 +497,7 @@ namespace inti_back.Controllers
 
         }
 
+<<<<<<< HEAD
         [HttpPost("EnviarEmail")]
         public async Task<IActionResult> SendEmail(String correo)
         {
@@ -552,10 +556,22 @@ namespace inti_back.Controllers
                 });
             }
             catch (Exception e)
+=======
+        [HttpGet("ListarAsesor")]
+        public async Task<IActionResult> GetAllAsesor()
+        {
+            try
+            {
+                return Ok(await _usuarioPstRepository.ListAsesor());
+
+            }
+            catch (Exception)
+>>>>>>> 693eb5d001e19f3d4e582134ea13194e77c11822
             {
                 return Ok(new
                 {
                     StatusCode(200).StatusCode,
+<<<<<<< HEAD
                     Valor = "La contraseña no pudo ser modificada",
                     Mensaje = e.Message
                 });
@@ -598,5 +614,13 @@ namespace inti_back.Controllers
 
 
 
+=======
+                    valor = "Error al momento de obtener el listado de asesores"
+                });
+            }
+        }
+
+        
+>>>>>>> 693eb5d001e19f3d4e582134ea13194e77c11822
     }
 }

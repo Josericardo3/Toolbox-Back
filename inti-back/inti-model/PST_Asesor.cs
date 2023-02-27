@@ -10,7 +10,7 @@ namespace inti_model
     {
         public int idusuariopst { get; set; }
         public String? rnt { get; set; }
-        public String? nombrepst { get; set; }
+        public String? Razonsocial { get; set; }
         public String? asesorasignado { get; set; }
         public String? estadoatencion { get; set; }
         public int idtabla { get; set; }

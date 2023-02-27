@@ -33,9 +33,16 @@ namespace inti_repository
         Task<bool> UpdateActividad(ActividadesAsesor actividades);
         Task<bool> DeleteActividad(int id, int idAsesor);
         Task<bool> RegistrarAsesor(Usuario objasesor);
-        Task<bool> RegistrarPSTxAsesor(PSTxAsesorCreate objPST_Asesor);
+        Task<bool> RegistrarPSTxAsesor(PST_AsesorUpdate objPST_Asesor);
         Task<bool> UpdateAsesor(UsuarioUpdate objAsesor);
+<<<<<<< HEAD
         Task<UsuarioPassword> RecuperacionContraseña(String correo);
         Task<bool> UpdatePassword(String password, String id);
+=======
+        Task<IEnumerable<Usuario>> ListAsesor();
+     
+
+
+>>>>>>> 693eb5d001e19f3d4e582134ea13194e77c11822
     }
 }
