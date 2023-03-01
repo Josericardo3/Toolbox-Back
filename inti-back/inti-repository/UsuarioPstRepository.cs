@@ -107,7 +107,7 @@ namespace inti_repository
             else
             {
 
-                sql = @"SELECT Idusuario as Idusuariopst,nit,password,correo as correopst FROM Usuario WHERE rnt = @user AND password = SHA1(@Password) AND correo = @Correopst";
+                sql = @"SELECT Idusuario as Idusuariopst,password,correo as correopst FROM Usuario WHERE rnt = @user AND password = SHA1(@Password) AND correo = @Correopst";
                 itipousuario = 2;
             }
             UsuarioPstLogin objUsuarioLogin = new UsuarioPstLogin();
@@ -530,16 +530,16 @@ and  ma.estado=1
 
         public async Task<bool> RegistrarAsesor(Usuario objasesor)
         {
-
+            
             var db = dbConnection();
-            var insertAsesor = @"INSERT INTO Usuario(rnt,nit,correo,telefono,nombre,password,activo,tipousuario) Values (@rnt,@nit,@correo,@telefono,@nombre,SHA1(@Password),1,2)";
-            var result = await db.ExecuteAsync(insertAsesor, new { objasesor.rnt, objasesor.nit, objasesor.correo, objasesor.telefono, objasesor.nombre, objasesor.password });
+            var insertAsesor = @"INSERT INTO Usuario(rnt,correo,nombre ,password, activo) Values (@rnt,@correo,@nombre, SHA1(@password),1)";
+            var result = await db.ExecuteAsync(insertAsesor, new { objasesor.rnt, objasesor.correo, objasesor.nombre, password = 123 });
 
             if (result > 0)
             {
 
 
-                var sqlobtenerasesor = @"SELECT Idusuario as Idusuariopst,nit,password,correo as correopst FROM Usuario WHERE rnt = @user AND password = SHA1(@Password) AND correo = @Correopst";
+                var sqlobtenerasesor = @"SELECT Idusuario as Idusuariopst,password,correo as correopst FROM Usuario WHERE rnt = @user AND correo = @Correopst";
 
                 UsuarioPstLogin objUsuarioLogin = new UsuarioPstLogin();
                 objUsuarioLogin = db.QueryFirstOrDefault<UsuarioPstLogin>(sqlobtenerasesor, new { user = objasesor.rnt, Password = objasesor.password, Correopst = objasesor.correo });
@@ -552,7 +552,6 @@ and  ma.estado=1
             return result > 0;
 
         }
-
 
 
         public async Task<bool> RegistrarPSTxAsesor(PSTxAsesorCreate objPST_Asesor)
@@ -573,12 +572,10 @@ and  ma.estado=1
             var db = dbConnection();
             var sql = @"UPDATE Usuario 
                         SET rnt = @rnt,
-                            nit = @nit,
                             correo = @correo,
-                            telefono = @telefono,
                             nombre = @nombre
                             WHERE idUsuario = @idUsuario and activo=1";
-            var result = await db.ExecuteAsync(sql, new { objAsesor.rnt, objAsesor.nit, objAsesor.correo, objAsesor.telefono, objAsesor.nombre, objAsesor.idUsuario });
+            var result = await db.ExecuteAsync(sql, new { objAsesor.rnt, objAsesor.correo,  objAsesor.nombre, objAsesor.idUsuario });
             return result > 0;
         }
 
@@ -586,7 +583,7 @@ and  ma.estado=1
         public async Task<IEnumerable<Usuario>> ListAsesor()
         {
             var db = dbConnection();
-            var queryUsuario = @"SELECT idUsuario,rnt,nit,correo,telefono,nombre FROM Usuario where activo = 1 and tipousuario=2";
+            var queryUsuario = @"SELECT idUsuario,rnt,correo,nombre FROM Usuario where activo = 1 ";
             var dataUsuario = await db.QueryAsync<Usuario>(queryUsuario, new { });
 
             return dataUsuario;
