@@ -593,7 +593,14 @@ namespace inti_back.Controllers
             }
 
         }
-
+        private String Encriptacion(int id)
+        {
+            SHA1 encriptedId = SHA1.Create();
+            byte[] hashbyte = encriptedId.ComputeHash(Encoding.UTF8.GetBytes(id.ToString()));
+            String hashString = BitConverter.ToString(hashbyte).Replace("-", "").ToLower();
+            String idsh1 = hashString;
+            return idsh1;
+        }
 
 
     }
