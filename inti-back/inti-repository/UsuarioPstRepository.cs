@@ -1,6 +1,7 @@
 using Dapper;
 using Google.Protobuf;
 using inti_model;
+using Microsoft.AspNetCore.Mvc;
 using MySql.Data.MySqlClient;
 using Newtonsoft;
 using Newtonsoft.Json;
@@ -8,6 +9,8 @@ using System.Collections.Immutable;
 using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json.Serialization;
 using static Org.BouncyCastle.Bcpg.Attr.ImageAttrib;
 
@@ -401,11 +404,21 @@ and not item=0
 
         }
 
-        public async Task<bool> RegistrarEmpleadoPst(EmpleadoPst empleado)
+        public async Task<bool> RegistrarEmpleadoPst(int id, String correo, String rnt)
         {
             var db = dbConnection();
-            var insertEmpleado = @"INSERT INTO empleadospst(nombre,correo,rol) Values (@nombre,@correo,@rol)";
-            var result = await db.ExecuteAsync(insertEmpleado, new { empleado.nombre, empleado.correo, empleado.rol });
+            var queryUsuario = @"Select * from usuariospst where idusuariopst = @id and activo = true";
+            UsuarioPst dataUsuario = await db.QueryFirstAsync<UsuarioPst>(queryUsuario, new { id= id});
+
+            if (dataUsuario == null) throw new Exception();
+
+            // registrar empleado
+
+            var sql = @"INSERT INTO usuariospst(nit,rnt,idcategoriarnt,idsubcategoriarnt,nombrepst,razonsocialpst,correopst,telefonopst,nombrerepresentantelegal,correorepresentantelegal,telefonorepresentantelegal,idtipoidentificacion,identificacionrepresentantelegal,iddepartamento,idmunicipio,nombreresponsablesostenibilidad,correoresponsablesostenibilidad,telefonoresponsablesostenibilidad,password,idtipoavatar) 
+                        VALUES (@Nit,@Rnt,@idCategoriaRnt,@idSubCategoriaRnt,@NombrePst,@RazonSocialPst,@CorreoPst,@TelefonoPst,@NombreRepresentanteLegal,@CorreoRepresentanteLegal,@TelefonoRepresentanteLegal,@idTipoIdentificacion,@IdentificacionRepresentanteLegal,@idDepartamento,@idMunicipio,@NombreResponsableSostenibilidad,@CorreoResponsableSostenibilidad,@TelefonoResponsableSostenibilidad, SHA1(@Password),@idTipoAvatar) ";
+            var result = await db.ExecuteAsync(sql, new { dataUsuario.Nit, Rnt = rnt, dataUsuario.idCategoriaRnt, dataUsuario.idSubCategoriaRnt, dataUsuario.NombrePst, dataUsuario.RazonSocialPst, CorreoPst = correo, dataUsuario.TelefonoPst, dataUsuario.NombreRepresentanteLegal, dataUsuario.CorreoRepresentanteLegal, dataUsuario.TelefonoRepresentanteLegal, dataUsuario.idTipoIdentificacion, dataUsuario.IdentificacionRepresentanteLegal, dataUsuario.idDepartamento, dataUsuario.idMunicipio, dataUsuario.NombreResponsableSostenibilidad, dataUsuario.CorreoResponsableSostenibilidad, dataUsuario.TelefonoResponsableSostenibilidad, Password = 123, dataUsuario.idTipoAvatar });
+
+
             return result > 0;
 
         }
@@ -554,18 +567,47 @@ and  ma.estado=1
         }
 
 
-        public async Task<bool> RegistrarPSTxAsesor(PSTxAsesorCreate objPST_Asesor)
+
+        public async Task<bool> RegistrarPSTxAsesor(PST_AsesorUpdate obj)
         {
 
+            PSTxAsesorCreate objPST_Asesor = new PSTxAsesorCreate();
+            objPST_Asesor.idusuario = obj.idUsuario;
+            objPST_Asesor.idusuariopst = obj.idusuariopst;
             var db = dbConnection();
-            var insertAsesor = @"INSERT INTO pst_asesor(idusuario,idusuariopst,activo) Values (@idusuario,@idusuariopst,1)";
-            var result = await db.ExecuteAsync(insertAsesor, new { objPST_Asesor.idusuario, objPST_Asesor.idusuariopst });
+            var queryPSTxAsesor = @"SELECT idusuariopst FROM pst_asesor where idusuariopst=@idusuariopst and activo = 1";
+            var dataPSTxAsesor = await db.QueryAsync<PST_Asesor>(queryPSTxAsesor, new { objPST_Asesor.idusuariopst });
+            var result = 0;
+            var conteo = dataPSTxAsesor.Count();
+            if (conteo > 0) {
+
+                var sql = @"UPDATE pst_asesor 
+                        SET idusuario = @idusuario
+                            
+                            WHERE idusuariopst = @idusuariopst
+                           
+                            and activo=1";
+                 result = await db.ExecuteAsync(sql, new { objPST_Asesor.idusuario, objPST_Asesor.idusuariopst });
+               
+            }
+            else
+            {
+                var insertAsesor = @"INSERT INTO pst_asesor(idusuario,idusuariopst,activo) Values (@idusuario,@idusuariopst,1)";
+                 result = await db.ExecuteAsync(insertAsesor, new { objPST_Asesor.idusuario, objPST_Asesor.idusuariopst });
+
+                var insertAtencionPST = @"INSERT INTO atencion_usuariopst(idusuariopst,estado) Values (@idusuariopst,1)";
+                result = await db.ExecuteAsync(insertAtencionPST, new {objPST_Asesor.idusuariopst });
+
+            }
+
 
 
 
             return result > 0;
 
         }
+
+       
 
         public async Task<bool> UpdateAsesor(UsuarioUpdate objAsesor)
         {
@@ -578,7 +620,24 @@ and  ma.estado=1
             var result = await db.ExecuteAsync(sql, new { objAsesor.rnt, objAsesor.correo,  objAsesor.nombre, objAsesor.idUsuario });
             return result > 0;
         }
+        public async Task<UsuarioPassword> RecuperacionContraseña(String correo)
+        {
 
+            var db = dbConnection();
+            var queryUsuario = @"SELECT idusuariopst, correopst from usuariospst where correopst=@correo and activo=1";
+            UsuarioPassword dataUsusario = await db.QueryFirstOrDefaultAsync<UsuarioPassword>(queryUsuario, new { correo = correo });
+            return dataUsusario;
+
+        }
+
+        public async Task<bool> UpdatePassword(String password, String id)
+        {
+            var db = dbConnection();
+            var sql = @"UPDATE usuariospst 
+                        SET password = SHA1(@Password)  WHERE SHA1(idusuariopst) = @id and activo=1";
+            var result = await db.ExecuteAsync(sql, new { Password = password , id = id });
+            return result > 0;
+        }
 
         public async Task<IEnumerable<Usuario>> ListAsesor()
         {
@@ -587,6 +646,73 @@ and  ma.estado=1
             var dataUsuario = await db.QueryAsync<Usuario>(queryUsuario, new { });
 
             return dataUsuario;
+
+        }
+
+
+
+        public async Task<ResponseArchivoListaChequeo> GetResponseArchivoListaChequeo(int idnorma, int idusuario, int idValorTituloListaChequeo, int idValorSeccionListaChequeo, int idValordescripcionCalificacion)
+        {
+            var db = dbConnection();
+            var queryTitulo = @"Select * from maestro where idtabla = @idtabla and item=1";
+            var dataTitulo = await db.QueryFirstOrDefaultAsync<Maestro>(queryTitulo, new { idtabla = idValorTituloListaChequeo });
+
+            var querySeccion = @"Select * from maestro where idtabla = @idtabla";
+            var dataSeccion =  db.Query<Maestro>(querySeccion, new { idtabla = idValorSeccionListaChequeo }).ToList();
+
+            var querydescCalificacion = @"Select * from maestro where idtabla = @idtabla";
+            var datadescCalificacion = db.Query<Maestro>(querydescCalificacion, new { idtabla = idValordescripcionCalificacion }).ToList();
+
+            var sql = @"SELECT idusuariopst,nit,rnt,idcategoriarnt,idsubcategoriarnt,nombrepst,razonsocialpst,correopst,telefonopst,nombrerepresentantelegal,correorepresentantelegal,telefonorepresentantelegal,idtipoidentificacion,identificacionrepresentantelegal,iddepartamento,idmunicipio,nombreresponsablesostenibilidad,correoresponsablesostenibilidad,telefonoresponsablesostenibilidad,password,idtipoavatar,activo FROM usuariospst WHERE idusuariopst = @IdUsuarioPst AND activo = TRUE ";
+            var datausuario  = db.QueryFirstOrDefault<UsuarioPst>(sql, new { IdUsuarioPst = idusuario });
+
+           var queryCalificacion = @"
+SELECT d.tituloprincipal as Numeral,
+d.tituloespecifico as tituloRequisito,d.Requisito,  
+d.Evidencia,r.valor as calificado , r.observacion
+
+FROM intidb.diagnosticodinamico dd
+
+inner join intidb.Diagnostico d on dd.idnormatecnica=d.idnormatecnica
+and dd.numeralprincipal=d.idgrupocampo
+and dd.idtituloespecifico=d.idcampo
+
+inner join intidb.respuestadiagnostico r 
+on dd.numeralespecifico=r.numeralespecifico
+and dd.idnormatecnica=r.idnormatecnica
+
+where r.idnormatecnica=@idnormatecnica
+and r.idusuario=@idusuario
+and dd.activo=1
+and d.activo=1";
+
+            var datacalificacion = db.Query<CalifListaChequeo>(queryCalificacion, new { idnormatecnica= idnorma, idusuario= idusuario }).ToList();
+
+            ResponseArchivoListaChequeo responseListaChequeo = new ResponseArchivoListaChequeo();
+
+            responseListaChequeo.Titulo = dataTitulo.descripcion;
+            responseListaChequeo.seccion1 = dataSeccion.Where(x => x.item==1).FirstOrDefault().descripcion;
+            responseListaChequeo.seccion2 = dataSeccion.Where(x => x.item == 2).FirstOrDefault().descripcion;
+            responseListaChequeo.seccion3 = dataSeccion.Where(x => x.item == 3).FirstOrDefault().descripcion;
+            responseListaChequeo.usuario =  datausuario;
+            responseListaChequeo.calificacion = datacalificacion;
+            responseListaChequeo.DescripcionCalificacionCumple = datadescCalificacion.Where(x => x.item == 1).FirstOrDefault().descripcion;
+            responseListaChequeo.DescripcionCalificacionCumpleParcialmente = datadescCalificacion.Where(x => x.item == 2).FirstOrDefault().descripcion;
+            responseListaChequeo.DescripcionCalificacionNoCumple= datadescCalificacion.Where(x => x.item == 3).FirstOrDefault().descripcion;
+            responseListaChequeo.DescripcionCalificacionNoAplica= datadescCalificacion.Where(x => x.item == 4).FirstOrDefault().descripcion;
+
+            responseListaChequeo.NumeroRequisitoNA = "0";
+            responseListaChequeo.NumeroRequisitoNC = "116";
+            responseListaChequeo.NumeroRequisitoCP = "0";
+            responseListaChequeo.NumeroRequisitoC = "0";
+
+            responseListaChequeo.TotalNumeroRequisito = "116";
+            responseListaChequeo.PorcentajeNA = "0";
+            responseListaChequeo.PorcentajeNC = "100";
+            responseListaChequeo.PorcentajeCP = "0";
+            responseListaChequeo.PorcentajeC = "0";
+
+            return responseListaChequeo;
 
         }
 
