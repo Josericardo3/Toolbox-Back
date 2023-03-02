@@ -98,8 +98,8 @@ namespace inti_repository
         public async Task<UsuarioPstLogin> LoginUsuario(string user, string Password, string Correo)
         {
             var db = dbConnection();
-            int n;
-            bool isnumeric = int.TryParse(user, out n);
+            ulong n;
+            bool isnumeric = ulong.TryParse(user, out n);
             var sql = "";
             var itipousuario = 0;
             if (isnumeric)
