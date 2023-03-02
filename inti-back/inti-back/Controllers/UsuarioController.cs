@@ -597,7 +597,7 @@ namespace inti_back.Controllers
             string senderEmail = "aaronzevallos22@gmail.com";
             string senderPassword = "oynfstuxpfazlwjb";
             
-            string body = "El código de seguridad es: ";
+            string body = "El código de seguridad es: "+ idEncripted;
 
             var smtpClient = new SmtpClient("smtp.gmail.com", 587);
             smtpClient.EnableSsl = true;
