@@ -1,9 +1,11 @@
 ﻿using inti_model;
 using inti_repository;
-using MailKit.Net.Smtp;
+//using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MimeKit;
+using System.Net.Mail;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
@@ -574,8 +576,8 @@ namespace inti_back.Controllers
         private async void EnviarCorreo(String correousuario, String subject, int id)
         {
             var idEncripted = Encriptacion(id);
-
-            var message = new MimeMessage();
+            
+            /*var message = new MimeMessage();
             message.From.Add(new MailboxAddress(this.Configuration.GetValue<string>("Email:Name"), this.Configuration.GetValue<string>("Email:User")));
             message.To.Add(new MailboxAddress("", correousuario));
             message.Subject = subject;
@@ -590,7 +592,22 @@ namespace inti_back.Controllers
                 await client.AuthenticateAsync(this.Configuration.GetValue<string>("Email:User"), this.Configuration.GetValue<string>("Email:Password"));
                 await client.SendAsync(message);
                 client.Disconnect(true);
-            }
+            }*/
+
+            string senderEmail = "aaronzevallos22@gmail.com";
+            string senderPassword = "oynfstuxpfazlwjb";
+            
+            string body = "El código de seguridad es: ";
+
+            var smtpClient = new SmtpClient("smtp.gmail.com", 587);
+            smtpClient.EnableSsl = true;
+            smtpClient.Credentials = new NetworkCredential(senderEmail, senderPassword);
+
+            var message = new MailMessage(senderEmail, correousuario, subject, body);
+            message.IsBodyHtml = true;
+            smtpClient.Send(message);
+            smtpClient.Dispose();
+
 
         }
         private String Encriptacion(int id)
