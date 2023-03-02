@@ -10,7 +10,7 @@ namespace inti_model
     {
         public String? Titulo { get; set; }
         public String? seccion1 { get; set; }
-        public UsuarioPst usuario { get; set; }
+        public UsuarioPstArchivoDiagnostico usuario { get; set; }
         public String? seccion2 { get; set; }
         public String? DescripcionCalificacionCumple { get; set; }
         public String? DescripcionCalificacionCumpleParcialmente { get; set; }
@@ -31,7 +31,7 @@ namespace inti_model
 
         public ResponseArchivoListaChequeo()
         {
-            this.usuario = new UsuarioPst();
+            this.usuario = new UsuarioPstArchivoDiagnostico();
             this.calificacion = new List<CalifListaChequeo>();
         }
     }

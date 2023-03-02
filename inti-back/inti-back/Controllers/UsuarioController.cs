@@ -642,5 +642,29 @@ namespace inti_back.Controllers
 
         }
 
+
+        [HttpGet("ListaDiagnostico")]
+        public async Task<IActionResult> GetResponseArchivoDiagnostico(int idnorma, int idusuariopst)
+        {
+            string ValorMaestroValorTituloListaChequeo = this.Configuration.GetValue<string>("ValorMaestro:ValorTituloListaChequeo");
+            string ValorMaestroValorListaChequeo = this.Configuration.GetValue<string>("ValorMaestro:ValorSeccionListaChequeo");
+            string ValorMaestroValordescripcionCalificacion = this.Configuration.GetValue<string>("ValorMaestro:ValordescripcionCalificacion");
+
+            try
+            {
+                var response = await _usuarioPstRepository.GetResponseArchivoDiagnostico(idnorma, idusuariopst, Convert.ToInt32(ValorMaestroValorTituloListaChequeo), Convert.ToInt32(ValorMaestroValorListaChequeo), Convert.ToInt32(ValorMaestroValordescripcionCalificacion));
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "Error al momento de obtener el archivo"
+                });
+            }
+
+        }
+
     }
 }

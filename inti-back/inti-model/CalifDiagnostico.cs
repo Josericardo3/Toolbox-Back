@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace inti_model
 {
-    public class CalifListaChequeo
+    public class CalifDiagnostico
     {
         public String? Numeral { get; set; }
         public String? tituloRequisito { get; set; }
@@ -17,5 +17,6 @@ namespace inti_model
         public int idnormatecnica { get; set; }
         public int idusuario { get; set; }
         public String? valorcalificado { get; set; }
+        public String? Numeralprincipal { get; set; }
     }
 }
