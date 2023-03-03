@@ -9,6 +9,7 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Collections.Specialized;
 
 namespace inti_back.Controllers
 {
@@ -515,14 +516,20 @@ namespace inti_back.Controllers
                 else
                 {
                     string subject = "Cambio de contraseña";
-                    EnviarCorreo(dataUsuario.correopst,subject,dataUsuario.idusuariopst);
+                    var estado = EnviarCorreo(dataUsuario.correopst,subject,dataUsuario.idusuariopst);
                     
-
-                    return Ok(new
+                    if(estado == 0)
                     {
-                       StatusCode(200).StatusCode,
-                       Valor = "correo enviado satisfactoriamente",
-                    });
+                        throw new Exception();
+                    }
+                    else
+                    {
+                        return Ok(new
+                        {
+                            StatusCode(200).StatusCode,
+                            Valor = "correo enviado satisfactoriamente",
+                        });
+                    }
 
                 }
 
@@ -573,42 +580,32 @@ namespace inti_back.Controllers
             return Ok(await _usuarioPstRepository.ListAsesor());
         }
 
-        private async void EnviarCorreo(String correousuario, String subject, int id)
+        private int EnviarCorreo(String correousuario, String subject, int id)
         {
-            var idEncripted = Encriptacion(id);
-            
-            /*var message = new MimeMessage();
-            message.From.Add(new MailboxAddress(this.Configuration.GetValue<string>("Email:Name"), this.Configuration.GetValue<string>("Email:User")));
-            message.To.Add(new MailboxAddress("", correousuario));
-            message.Subject = subject;
-
-            var builder = new BodyBuilder();
-            
-            builder.HtmlBody = String.Format("<html <a>https://main--starlit-gumdrop-e2c328.netlify.app/recovery/{0}</a> </html>", idEncripted);
-            message.Body = builder.ToMessageBody();
-            using (var client = new SmtpClient())
+            try
             {
-                await client.ConnectAsync(this.Configuration.GetValue<string>("Email:Server"), this.Configuration.GetValue<int>("Email:Port"), MailKit.Security.SecureSocketOptions.StartTls);
-                await client.AuthenticateAsync(this.Configuration.GetValue<string>("Email:User"), this.Configuration.GetValue<string>("Email:Password"));
-                await client.SendAsync(message);
-                client.Disconnect(true);
-            }*/
+                var idEncripted = Encriptacion(id);
 
-            string senderEmail = "aaronzevallos22@gmail.com";
-            string senderPassword = "oynfstuxpfazlwjb";
-            
-            string body = "El código de seguridad es: "+ idEncripted;
+                string senderEmail = this.Configuration.GetValue<string>("Email:User");
+                string senderPassword = this.Configuration.GetValue<string>("Email:Password");
 
-            var smtpClient = new SmtpClient("smtp.gmail.com", 587);
-            smtpClient.EnableSsl = true;
-            smtpClient.Credentials = new NetworkCredential(senderEmail, senderPassword);
+                string body = "El código de seguridad es: " + idEncripted;
 
-            var message = new MailMessage(senderEmail, correousuario, subject, body);
-            message.IsBodyHtml = true;
-            smtpClient.Send(message);
-            smtpClient.Dispose();
+                var smtpClient = new SmtpClient(this.Configuration.GetValue<string>("Email:Server"), this.Configuration.GetValue<int>("Email:Port"));
+                smtpClient.EnableSsl = true;
+                smtpClient.Credentials = new NetworkCredential(senderEmail, senderPassword);
 
+                var message = new MailMessage(senderEmail, correousuario, subject, body);
+                message.IsBodyHtml = true;
+                smtpClient.Send(message);
+                smtpClient.Dispose();
 
+                return 1;
+            }
+            catch(Exception e)
+            {
+                return 0;
+            }
         }
         private String Encriptacion(int id)
         {
