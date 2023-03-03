@@ -1,6 +1,5 @@
 ﻿using inti_model;
 using inti_repository;
-//using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MimeKit;
@@ -51,7 +50,7 @@ namespace inti_back.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> InsertUsuarioPst([FromBody] UsuarioPst usuariopst)
+        public async Task<IActionResult> InsertUsuarioPst([FromBody] UsuarioPstPost usuariopst)
         {
 
             try
