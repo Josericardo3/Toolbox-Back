@@ -14,7 +14,7 @@ namespace inti_repository
     {
         Task<IEnumerable<UsuarioPst>> GetAllUsuariosPst();
         Task<UsuarioPst> GetUsuarioPst(int id);
-        Task<bool> InsertUsuarioPst(UsuarioPst usuariopst);
+        Task<bool> InsertUsuarioPst(UsuarioPstPost usuariopst);
         Task<String> UpdateUsuarioPst(UsuarioPstUpd usuariopst);
         Task<bool> DeleteUsuarioPst(int id);
         Task<ResponseCaracterizacion> GetResponseCaracterizacion(int id);
