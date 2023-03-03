@@ -58,20 +58,34 @@ namespace inti_back.Controllers
                 var create = await _usuarioPstRepository.InsertUsuarioPst(usuariopst);
                 if (usuariopst == null)
                 {
-                    return BadRequest();
+                    return Ok(new
+                    {
+                        StatusCode(404).StatusCode,
+                        Mensaje = "No se ingresaron correctamente los datos del usuario"
+                    });
                 }
                 if (!ModelState.IsValid)
                 {
-                    return BadRequest(ModelState);
+                    return Ok(new
+                    {
+                        StatusCode(200).StatusCode,
+                        Mensaje = "El modelo no es válido"
+                    });
                 }
                 return Ok(new
                 {
-                    StatusCode(201).StatusCode
+                    StatusCode(201).StatusCode,
+                    Valor = "El Usuario se registró correctamente"
                 });
             }
-            catch
+            catch (Exception e)
             {
-                return BadRequest();
+                return Ok(new
+                {
+                    StatusCode(404).StatusCode,
+                    Mensaje = e.Message,
+                    Valor = "No se ingresaron correctamente los datos del usuario"
+                });
             }
 
         }
@@ -81,7 +95,11 @@ namespace inti_back.Controllers
         {
             if (usuariopst == null)
             {
-                return BadRequest();
+                return Ok(new
+                {
+                    StatusCode(404).StatusCode,
+                    Mensaje = "No se ingresaron correctamente los datos del usuario"
+                });
             }
             else
             {
@@ -180,11 +198,19 @@ namespace inti_back.Controllers
 
             if (respuestaCaracterizacion == null)
             {
-                return BadRequest();
+                Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "la respuesta de caracterizacion no es correcta"
+                });
             }
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "El modelo de respuesta no es válido"
+                });
             }
 
             var create = await _usuarioPstRepository.InsertRespuestaCaracterizacion(respuestaCaracterizacion);
@@ -284,7 +310,8 @@ namespace inti_back.Controllers
                 var create = await _usuarioPstRepository.RegistrarEmpleadoPst(id,correo,rnt);
                 return Ok(new
                 {
-                    StatusCode(201).StatusCode
+                    StatusCode(201).StatusCode,
+                    valor = "El empleado se registró correctamente"
                 });
             }
             catch
@@ -298,7 +325,6 @@ namespace inti_back.Controllers
 
         }
 
-        //CRUD ACTIVIDADES DEL ASESOR
 
         [HttpGet("actividades")]
         public async Task<IActionResult> GetAllActividades(int idAsesor)
@@ -601,7 +627,7 @@ namespace inti_back.Controllers
 
                 return 1;
             }
-            catch(Exception e)
+            catch(Exception)
             {
                 return 0;
             }
