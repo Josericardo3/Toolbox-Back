@@ -39,7 +39,7 @@ namespace inti_repository
         Task<bool> UpdatePassword(String password, String id);
         Task<IEnumerable<Usuario>> ListAsesor();
         Task<ResponseArchivoListaChequeo> GetResponseArchivoListaChequeo(int idnorma, int idusuario, int idValorTituloListaChequeo, int idValorSeccionListaChequeo, int idValordescripcionCalificacion);
-
         Task<ResponseArchivoDiagnostico> GetResponseArchivoDiagnostico(int idnorma, int idusuario, int idValorTituloListaChequeo, int idValorSeccionListaChequeo, int idValordescripcionCalificacion);
+        Task<ResponseArchivoPlanMejora> GetResponseArchivoPlanMejora(int idnorma, int idusuario, int idValorTituloListaChequeo, int idValorSeccionListaChequeo, int idValordescripcionCalificacion);
     }
 }
