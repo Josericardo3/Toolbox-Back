@@ -720,7 +720,8 @@ where r.idnormatecnica=@idnormatecnica
 and r.idusuario=@idusuario
 and dd.activo=1
 and d.activo=1
-and ma.idtabla=4";
+and ma.idtabla=4
+order by d.idDiagnostico";
 
             var datacalificacion = db.Query<CalifListaChequeo>(queryCalificacion, new { idnormatecnica= idnorma, idusuario= idusuario }).ToList();
 
@@ -861,6 +862,9 @@ and ma.idtabla=4";
 
             var objasesor = dataUsuarioAsesor.Where(x=>x.IdUsuario== dataPSTxAsesor.idusuario).FirstOrDefault();
 
+            var queryRespuestaAnalisis = @"SELECT * FROM respuesta_analisis_asesor where idusuario=@idusuario and idnormatecnica = @idnorma";
+            var dataRespuestaAnalisis = db.Query<RespuestaAsesor>(queryRespuestaAnalisis, new { idusuario = idusuario, idnorma= idnorma }).FirstOrDefault();
+
             List<ConsolidadoDiagnostico>? listConsolidado = new List<ConsolidadoDiagnostico>();
             ConsolidadoDiagnostico objConsolidado = new ConsolidadoDiagnostico();
             foreach (var item in dataagrupaciondiagnostico)
@@ -875,6 +879,9 @@ and ma.idtabla=4";
                 listConsolidado.Add(objConsolidado);
             }
 
+            
+
+
             ResponseArchivoDiagnostico responseDiagnostico = new ResponseArchivoDiagnostico();
 
             responseDiagnostico.Titulo = dataTitulo.descripcion;
@@ -885,12 +892,19 @@ and ma.idtabla=4";
             responseDiagnostico.seccion5 = dataSeccion.Where(x => x.item == 4).FirstOrDefault().descripcion;
             responseDiagnostico.usuario = datausuario;
             responseDiagnostico.Agrupacion = dataagrupaciondiagnostico;
-            responseDiagnostico.usuarioNormaRespuesta = "El Prestador de Servicios Turisticos-PST " + datausuario.NombrePst + "  cumple en un " + "" +
-                "los requisitos de la norma " + dataNorma.norma;
+          
             responseDiagnostico.FechaInforme = DateTime.Now.ToString("dd 'de' MMMM 'de' yyyy");
             responseDiagnostico.NombreAsesor = objasesor.nombre;
             responseDiagnostico.Consolidado = listConsolidado;
-            
+            responseDiagnostico.cumpleTotal = listConsolidado.Sum(x=>Convert.ToInt32(x.cumple)) + "";
+            responseDiagnostico.cumpleParcialTotal = listConsolidado.Sum(x => Convert.ToInt32(x.cumpleParcial)) + "";
+            responseDiagnostico.noCumpleTotal = listConsolidado.Sum(x => Convert.ToInt32(x.noCumple)) + "";
+            responseDiagnostico.noAplicaTotal = listConsolidado.Sum(x => Convert.ToInt32(x.noAplica)) + "";
+            responseDiagnostico.porcCumpleTotal = (listConsolidado.Sum(x => Convert.ToInt32(x.porcCumple)) / listConsolidado.Count()) + "";
+            responseDiagnostico.usuarioNormaRespuesta = "El Prestador de Servicios Turisticos-PST " + datausuario.NombrePst + "  cumple en un " + responseDiagnostico.porcCumpleTotal + "%"+
+               "los requisitos de la norma " + dataNorma.norma;
+            responseDiagnostico.etapaInicial = responseDiagnostico.porcCumpleTotal;
+            responseDiagnostico.analisis = dataRespuestaAnalisis.respuestaanalisis;
             return responseDiagnostico;
 
         }
@@ -938,7 +952,8 @@ d.tituloespecifico as tituloRequisito,d.Requisito,
 d.Evidencia,r.valor as valorcalificado ,ma.descripcion as calificado,
 case r.valor when 1 then d.Predet_planmejoracumple1
 when 2 then d.Predet_planmejoracumpleparc1 when 3 then d.Predet_planmejoranocumple1
-when 4 then d.Predet_planmejoranoaplica1 end as observacion
+when 4 then d.Predet_planmejoranoaplica1 end as observacion,
+m.descripcion as duracion
 
 FROM intidb.diagnosticodinamico dd
 
@@ -952,14 +967,26 @@ and dd.idnormatecnica=r.idnormatecnica
 
 inner join intidb.maestro ma
 on r.valor=ma.item
+inner join intidb.maestro m
+on r.valor=m.item
 
 where r.idnormatecnica=@idnormatecnica
 and r.idusuario=@idusuario
 and dd.activo=1
 and d.activo=1
-and ma.idtabla=4";
+and ma.idtabla=4
+and m.idtabla=12";
 
-            var datacalificacion = db.Query<CalifListaChequeo>(queryCalificacion, new { idnormatecnica = idnorma, idusuario = idusuario }).ToList();
+            var datacalificacion = db.Query<CalifPlanMejora>(queryCalificacion, new { idnormatecnica = idnorma, idusuario = idusuario }).ToList();
+
+            var queryPSTxAsesor = @"SELECT idusuario FROM pst_asesor where idusuariopst=@idusuariopst and activo = 1";
+            var dataPSTxAsesor = db.Query<PST_Asesor>(queryPSTxAsesor, new { datausuario.IdUsuarioPst }).FirstOrDefault();
+
+
+            var queryUsuario = @"SELECT idUsuario,rnt,correo,nombre FROM Usuario where activo = 1 ";
+            var dataUsuarioAsesor = db.Query<Usuario>(queryUsuario, new { });
+
+            var objasesor = dataUsuarioAsesor.Where(x => x.IdUsuario == dataPSTxAsesor.idusuario).FirstOrDefault();
 
             ResponseArchivoPlanMejora responsePlanMejora = new ResponseArchivoPlanMejora();
 
@@ -971,6 +998,8 @@ and ma.idtabla=4";
             responsePlanMejora.DescripcionAccionCumpleParcialmente = datadescAccion.Where(x => x.item == 2).FirstOrDefault().descripcion;
             responsePlanMejora.DescripcionAccionCumple = datadescAccion.Where(x => x.item == 3).FirstOrDefault().descripcion;
             responsePlanMejora.calificacion = datacalificacion;
+            responsePlanMejora.FechaInforme = DateTime.Now.ToString("dd 'de' MMMM 'de' yyyy");
+            responsePlanMejora.NombreAsesor = objasesor.nombre;
             return responsePlanMejora;
 
         }

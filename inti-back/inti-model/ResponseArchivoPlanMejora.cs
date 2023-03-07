@@ -16,11 +16,14 @@ namespace inti_model
         public String? DescripcionAccionCumpleParcialmente { get; set; }
         public String? DescripcionAccionNoCumple { get; set; }
 
-        public List<CalifListaChequeo>? calificacion { get; set; }
+        public List<CalifPlanMejora>? calificacion { get; set; }
+
+        public String? NombreAsesor { get; set; }
+        public String? FechaInforme { get; set; }
         public ResponseArchivoPlanMejora()
         {
             this.usuario = new UsuarioPstArchivoDiagnostico();
-            this.calificacion = new List<CalifListaChequeo>();
+            this.calificacion = new List<CalifPlanMejora>();
 
         }
     }

@@ -25,6 +25,13 @@ namespace inti_model
 
         public String? seccion5 { get; set; }
         public String? usuarioNormaRespuesta { get; set; }
+
+        public String? noAplicaTotal { get; set; }
+        public String? noCumpleTotal { get; set; }
+        public String? cumpleParcialTotal { get; set; }
+        public String? cumpleTotal { get; set; }
+        public String? porcCumpleTotal { get; set; }
+
         public String? analisis { get; set; }
         public String? etapaInicial { get; set; }
         public String? etapaIntermedia { get; set; }
