@@ -36,9 +36,9 @@ namespace inti_model.usuario
 
         public string? IdentificacionRepresentanteLegal { get; set; }
 
-        public int idDepartamento { get; set; }
+        public string? Departamento { get; set; }
 
-        public int idMunicipio { get; set; }
+        public string? Municipio { get; set; }
 
         public string? NombreResponsableSostenibilidad { get; set; }
 
