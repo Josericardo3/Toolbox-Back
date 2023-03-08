@@ -7,6 +7,12 @@ using System.Text;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.OpenApi.Any;
+using inti_repository.usuario;
+using inti_repository.actividad;
+using inti_repository.caracterizacion;
+using inti_repository.diagnostico;
+using inti_repository.listachequeo;
+using inti_repository.validaciones;
 
 const String default_url = "http://{0}:{1};https://{2}:{3}"; 
 
@@ -77,6 +83,12 @@ builder.Services.AddCors(
 var MySqlConfiguration = new MySQLConfiguration(builder.Configuration.GetConnectionString("MySqlConnectionDev"));
 builder.Services.AddSingleton(MySqlConfiguration);
 builder.Services.AddScoped<IUsuarioPstRepository, UsuarioPstRepository>();
+builder.Services.AddScoped<IActividadRepository, ActividadRepository>();
+builder.Services.AddScoped<IAsesorRepository, AsesorRepository>();
+builder.Services.AddScoped<ICaracterizacionRepository, CaracterizacionRepository>();
+builder.Services.AddScoped<IDiagnosticoRepository, DiagnosticoRepository>();
+builder.Services.AddScoped<IListaChequeoRepository, ListaChequeoRepository>();
+builder.Services.AddScoped<IValidacionesRepository, ValidacionesRepository>();
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(options =>
