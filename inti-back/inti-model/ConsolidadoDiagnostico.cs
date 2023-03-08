@@ -8,8 +8,8 @@ namespace inti_model
 {
     public class ConsolidadoDiagnostico
     {
-        public String? requisito { get; set; }
-        public String? noAplica { get; set; }             
+        public String? tituloprincipal { get; set; }
+        public String? noAplica { get; set; }
         public String? noCumple { get; set; }
         public String? cumpleParcial { get; set; }
         public String? cumple { get; set; }

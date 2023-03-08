@@ -688,28 +688,5 @@ namespace inti_back.Controllers
 
         }
 
-        [HttpGet("PlanMejora")]
-        public async Task<IActionResult> GetResponseArchivoPlanMejora(int idnorma, int idusuariopst)
-        {
-            string ValorMaestroValorTituloListaChequeo = this.Configuration.GetValue<string>("ValorMaestro:ValorTituloListaChequeo");
-            string ValorMaestroValorListaChequeo = this.Configuration.GetValue<string>("ValorMaestro:ValorSeccionListaChequeo");
-            string ValorMaestroValordescripcionCalificacion = this.Configuration.GetValue<string>("ValorMaestro:ValordescripcionCalificacion");
-
-            try
-            {
-                var response = await _usuarioPstRepository.GetResponseArchivoPlanMejora(idnorma, idusuariopst, Convert.ToInt32(ValorMaestroValorTituloListaChequeo), Convert.ToInt32(ValorMaestroValorListaChequeo), Convert.ToInt32(ValorMaestroValordescripcionCalificacion));
-                return Ok(response);
-            }
-            catch (Exception)
-            {
-                return Ok(new
-                {
-                    StatusCode(200).StatusCode,
-                    valor = "Error al momento de obtener el archivo"
-                });
-            }
-
-        }
-
     }
 }
