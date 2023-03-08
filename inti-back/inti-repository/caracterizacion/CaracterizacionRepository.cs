@@ -29,8 +29,6 @@ namespace inti_repository.caracterizacion
 	                                c.categoriarnt ,
 	                                s.subcategoriarnt ,
 	                                t.tipoidentificacion ,
-	                                d.departamento ,
-	                                m.municipio ,
 	                                t2.avatar
                                 from
 	                                usuariospst u
@@ -40,10 +38,6 @@ namespace inti_repository.caracterizacion
 	                                s.idsubcategoriarnt = u.idsubcategoriarnt
                                 inner join tiposidentificacionrepresentantelegal t on
 	                                t.idtipoidentificacion = u.idtipoidentificacion
-                                inner JOIN departamentos d on
-	                                d.iddepartamento = u.iddepartamento
-                                inner join municipios m on
-	                                m.idmunicipio = u.idmunicipio
                                 inner JOIN tiposdeavatar t2 on
 	                                t2.idtipoavatar = u.idtipoavatar
                                 WHERE
@@ -99,17 +93,6 @@ namespace inti_repository.caracterizacion
                 var campolocal = fila.campo_local;
                 var nombre = dataUsuario[campolocal].ToString();
                 fila.values = nombre;
-
-            }
-            else if (fila.tipodedato == "checkbox" && fila.mensaje == "municipios")
-            {
-
-                var datosTablarelacionada = @"select idmunicipio, municipio, activo from municipios where activo=TRUE";
-                var responseTablarelacionada = db.Query<Municipios>(datosTablarelacionada).ToList();
-                foreach (Municipios i in responseTablarelacionada)
-                {
-                    fila.municipios.Add(i);
-                }
 
             }
             else if (fila.tipodedato == "norma")
