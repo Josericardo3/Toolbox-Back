@@ -4,13 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace inti_model
+namespace inti_model.caracterizacion
 {
-    public class NormaTecnica
+    public class ResponseNormaUsuario
     {
-        public int id { get; set; }
+        public int idUsuariopst { get; set; }
         public int idCategoriarnt { get; set; }
-        public string? norma { get; set; }
 
     }
 }
