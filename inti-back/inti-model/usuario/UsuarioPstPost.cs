@@ -49,10 +49,10 @@ namespace inti_model.usuario
         public string? IdentificacionRepresentanteLegal { get; set; }
 
         [Required(ErrorMessage = "Departamento es requerido")]
-        public int idDepartamento { get; set; }
+        public String? Departamento { get; set; }
 
         [Required(ErrorMessage = "Municipio es requerido")]
-        public int idMunicipio { get; set; }
+        public String? Municipio { get; set; }
 
         [Required(ErrorMessage = "NombreResponsableSostenibilidad es requerido")]
         public string? NombreResponsableSostenibilidad { get; set; }
