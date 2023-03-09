@@ -26,6 +26,11 @@ namespace inti_model.diagnostico
 
         public string? seccion5 { get; set; }
         public string? usuarioNormaRespuesta { get; set; }
+        public string? noAplicaTotal { get; set; }
+        public string? noCumpleTotal { get; set; }
+        public string? cumpleParcialTotal { get; set; }
+        public string? cumpleTotal { get; set; }
+        public string? porcCumpleTotal { get; set; }
         public string? analisis { get; set; }
         public string? etapaInicial { get; set; }
         public string? etapaIntermedia { get; set; }

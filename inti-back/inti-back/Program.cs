@@ -13,6 +13,7 @@ using inti_repository.caracterizacion;
 using inti_repository.diagnostico;
 using inti_repository.listachequeo;
 using inti_repository.validaciones;
+using inti_repository.planmejora;
 
 const String default_url = "http://{0}:{1};https://{2}:{3}"; 
 
@@ -89,6 +90,7 @@ builder.Services.AddScoped<ICaracterizacionRepository, CaracterizacionRepository
 builder.Services.AddScoped<IDiagnosticoRepository, DiagnosticoRepository>();
 builder.Services.AddScoped<IListaChequeoRepository, ListaChequeoRepository>();
 builder.Services.AddScoped<IValidacionesRepository, ValidacionesRepository>();
+builder.Services.AddScoped<IPlanMejoraRepository, PlanMejoraRepository>();
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(options =>

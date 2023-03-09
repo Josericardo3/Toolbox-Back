@@ -15,5 +15,6 @@ namespace inti_repository.caracterizacion
         Task<bool> UpdateAsesor(UsuarioUpdate objAsesor);
         Task<IEnumerable<Usuario>> ListAsesor();
         Task<IEnumerable<AsesorPst>> ListarPSTxAsesor(int idasesor, int idtablamaestro);
+        Task<bool> CrearRespuestaAsesor(RespuestaAsesor objRespuestaAsesor);
     }
 }

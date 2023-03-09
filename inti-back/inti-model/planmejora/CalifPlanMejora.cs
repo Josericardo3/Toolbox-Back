@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace inti_model.listachequeo
+namespace inti_model.planmejora
 {
-    public class CalifListaChequeo
+    public class CalifPlanMejora
     {
         public String? Numeral { get; set; }
         public String? tituloRequisito { get; set; }
@@ -17,5 +17,6 @@ namespace inti_model.listachequeo
         public int idnormatecnica { get; set; }
         public int idusuario { get; set; }
         public String? valorcalificado { get; set; }
+        public String? duracion { get; set; }
     }
 }

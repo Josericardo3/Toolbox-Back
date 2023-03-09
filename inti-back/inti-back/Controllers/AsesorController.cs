@@ -1,4 +1,4 @@
-﻿using inti_model.asesor;
+using inti_model.asesor;
 using inti_model.usuario;
 using inti_repository.caracterizacion;
 using Microsoft.AspNetCore.Mvc;
@@ -116,6 +116,29 @@ namespace inti_back.Controllers
         public async Task<IActionResult> GetAllAsesor()
         {
             return Ok(await _asesorRepository.ListAsesor());
+        }
+
+
+        [HttpPost("RespuestaAsesor")]
+        public async Task<IActionResult> RegistrarRespuestaAsesor([FromBody] RespuestaAsesor objRespuestaAsesor)
+        {
+            try
+            {
+                var create = await _asesorRepository.CrearRespuestaAsesor(objRespuestaAsesor);
+                return Ok(new
+                {
+                    StatusCode(201).StatusCode
+                });
+            }
+            catch
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "no se pudo registrar la respuesta del asesor asesor"
+                });
+            }
+
         }
 
     }
