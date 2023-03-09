@@ -173,7 +173,13 @@ namespace inti_repository.caracterizacion
 
         }
 
-
+        public async Task<bool> CrearRespuestaAsesor(RespuestaAsesor objRespuestaAsesor)
+        {
+            var db = dbConnection();
+            var sql = @"INSERT INTO respuesta_analisis_asesor(idusuario,idnormatecnica,respuestaanalisis) Values (@idusuario,@idnormatecnica,@respuestaanalisis)";
+            var result = await db.ExecuteAsync(sql, new { objRespuestaAsesor.idusuario, objRespuestaAsesor.idnormatecnica, objRespuestaAsesor.respuestaanalisis });
+            return result > 0;
+        }
 
     }
 }

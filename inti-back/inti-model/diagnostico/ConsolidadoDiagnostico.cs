@@ -8,7 +8,7 @@ namespace inti_model.diagnostico
 {
     public class ConsolidadoDiagnostico
     {
-        public string? tituloprincipal { get; set; }
+        public string? requisito { get; set; }
         public string? noAplica { get; set; }
         public string? noCumple { get; set; }
         public string? cumpleParcial { get; set; }

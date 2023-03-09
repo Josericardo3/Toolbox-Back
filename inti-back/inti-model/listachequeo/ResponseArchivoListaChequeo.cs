@@ -9,31 +9,31 @@ namespace inti_model.listachequeo
 {
     public class ResponseArchivoListaChequeo
     {
-        public string? Titulo { get; set; }
-        public string? seccion1 { get; set; }
+        public String? Titulo { get; set; }
+        public String? seccion1 { get; set; }
         public UsuarioPstArchivoDiagnostico usuario { get; set; }
-        public string? seccion2 { get; set; }
-        public string? DescripcionCalificacionCumple { get; set; }
-        public string? DescripcionCalificacionCumpleParcialmente { get; set; }
-        public string? DescripcionCalificacionNoCumple { get; set; }
-        public string? DescripcionCalificacionNoAplica { get; set; }
+        public String? seccion2 { get; set; }
+        public String? DescripcionCalificacionCumple { get; set; }
+        public String? DescripcionCalificacionCumpleParcialmente { get; set; }
+        public String? DescripcionCalificacionNoCumple { get; set; }
+        public String? DescripcionCalificacionNoAplica { get; set; }
 
         public List<CalifListaChequeo>? calificacion { get; set; }
-        public string? seccion3 { get; set; }
-        public string? NumeroRequisitoNA { get; set; }
-        public string? NumeroRequisitoNC { get; set; }
-        public string? NumeroRequisitoCP { get; set; }
-        public string? NumeroRequisitoC { get; set; }
-        public string? TotalNumeroRequisito { get; set; }
-        public string? PorcentajeNA { get; set; }
-        public string? PorcentajeNC { get; set; }
-        public string? PorcentajeCP { get; set; }
-        public string? PorcentajeC { get; set; }
+        public String? seccion3 { get; set; }
+        public String? NumeroRequisitoNA { get; set; }
+        public String? NumeroRequisitoNC { get; set; }
+        public String? NumeroRequisitoCP { get; set; }
+        public String? NumeroRequisitoC { get; set; }
+        public String? TotalNumeroRequisito { get; set; }
+        public String? PorcentajeNA { get; set; }
+        public String? PorcentajeNC { get; set; }
+        public String? PorcentajeCP { get; set; }
+        public String? PorcentajeC { get; set; }
 
         public ResponseArchivoListaChequeo()
         {
-            usuario = new UsuarioPstArchivoDiagnostico();
-            calificacion = new List<CalifListaChequeo>();
+            this.usuario = new UsuarioPstArchivoDiagnostico();
+            this.calificacion = new List<CalifListaChequeo>();
         }
     }
 }

@@ -118,5 +118,28 @@ namespace inti_back.Controllers
             return Ok(await _asesorRepository.ListAsesor());
         }
 
+
+        [HttpPost("RespuestaAsesor")]
+        public async Task<IActionResult> RegistrarRespuestaAsesor([FromBody] RespuestaAsesor objRespuestaAsesor)
+        {
+            try
+            {
+                var create = await _asesorRepository.CrearRespuestaAsesor(objRespuestaAsesor);
+                return Ok(new
+                {
+                    StatusCode(201).StatusCode
+                });
+            }
+            catch
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "no se pudo registrar la respuesta del asesor asesor"
+                });
+            }
+
+        }
+
     }
 }
