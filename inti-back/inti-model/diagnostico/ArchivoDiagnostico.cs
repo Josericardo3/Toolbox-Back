@@ -30,6 +30,7 @@ namespace inti_model.diagnostico
         public string? PorcentajeNC { get; set; }
         public string? PorcentajeCP { get; set; }
         public string? PorcentajeC { get; set; }
+        public string? PorcentajeCumpleNumero { get; set; }
         public List<CalifDiagnostico>? listacampos { get; set; }
         public ArchivoDiagnostico()
         {

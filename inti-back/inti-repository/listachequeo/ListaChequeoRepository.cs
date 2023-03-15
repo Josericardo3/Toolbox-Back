@@ -106,10 +106,10 @@ order by d.idDiagnostico";
             responseListaChequeo.NumeroRequisitoC = datacalificacion.Where(x => x.valorcalificado == "1").Count() + "";
 
             responseListaChequeo.TotalNumeroRequisito = datacalificacion.Count() + "";
-            responseListaChequeo.PorcentajeNA = ((Convert.ToInt32(responseListaChequeo.NumeroRequisitoNA) * 100) / Convert.ToInt32(responseListaChequeo.TotalNumeroRequisito)) + "";
-            responseListaChequeo.PorcentajeNC = ((Convert.ToInt32(responseListaChequeo.NumeroRequisitoNC) * 100) / Convert.ToInt32(responseListaChequeo.TotalNumeroRequisito)) + "";
-            responseListaChequeo.PorcentajeCP = ((Convert.ToInt32(responseListaChequeo.NumeroRequisitoCP) * 100) / Convert.ToInt32(responseListaChequeo.TotalNumeroRequisito)) + "";
-            responseListaChequeo.PorcentajeC = ((Convert.ToInt32(responseListaChequeo.NumeroRequisitoC) * 100) / Convert.ToInt32(responseListaChequeo.TotalNumeroRequisito)) + "";
+            responseListaChequeo.PorcentajeNA = ((Convert.ToInt32(responseListaChequeo.NumeroRequisitoNA) * 100) / Convert.ToInt32(responseListaChequeo.TotalNumeroRequisito)) + "%";
+            responseListaChequeo.PorcentajeNC = ((Convert.ToInt32(responseListaChequeo.NumeroRequisitoNC) * 100) / Convert.ToInt32(responseListaChequeo.TotalNumeroRequisito)) + "%";
+            responseListaChequeo.PorcentajeCP = ((Convert.ToInt32(responseListaChequeo.NumeroRequisitoCP) * 100) / Convert.ToInt32(responseListaChequeo.TotalNumeroRequisito)) + "%";
+            responseListaChequeo.PorcentajeC = ((Convert.ToInt32(responseListaChequeo.NumeroRequisitoC) * 100) / Convert.ToInt32(responseListaChequeo.TotalNumeroRequisito)) + "%";
 
             return responseListaChequeo;
 
@@ -209,10 +209,11 @@ and ma.idtabla=4";
                 item.NumeroRequisitoC = datacalificacion.Where(x => x.valorcalificado == "1").Count() + "";
 
                 item.TotalNumeroRequisito = datacalificacion.Count() + "";
-                item.PorcentajeNA = ((Convert.ToInt32(item.NumeroRequisitoNA) * 100) / Convert.ToInt32(item.TotalNumeroRequisito)) + "";
-                item.PorcentajeNC = ((Convert.ToInt32(item.NumeroRequisitoNC) * 100) / Convert.ToInt32(item.TotalNumeroRequisito)) + "";
-                item.PorcentajeCP = ((Convert.ToInt32(item.NumeroRequisitoCP) * 100) / Convert.ToInt32(item.TotalNumeroRequisito)) + "";
-                item.PorcentajeC = ((Convert.ToInt32(item.NumeroRequisitoC) * 100) / Convert.ToInt32(item.TotalNumeroRequisito)) + "";
+                item.PorcentajeNA = ((Convert.ToInt32(item.NumeroRequisitoNA) * 100) / Convert.ToInt32(item.TotalNumeroRequisito)) + "%";
+                item.PorcentajeNC = ((Convert.ToInt32(item.NumeroRequisitoNC) * 100) / Convert.ToInt32(item.TotalNumeroRequisito)) + "%";
+                item.PorcentajeCP = ((Convert.ToInt32(item.NumeroRequisitoCP) * 100) / Convert.ToInt32(item.TotalNumeroRequisito)) + "%";
+                item.PorcentajeC = ((Convert.ToInt32(item.NumeroRequisitoC) * 100) / Convert.ToInt32(item.TotalNumeroRequisito)) + "%";
+                item.PorcentajeCumpleNumero = ((Convert.ToInt32(item.NumeroRequisitoC) * 100) / Convert.ToInt32(item.TotalNumeroRequisito)) + "";
 
                 item.listacampos = datacalificacion;
             }
@@ -225,8 +226,8 @@ and ma.idtabla=4";
 
             var objasesor = dataUsuarioAsesor.Where(x => x.IdUsuario == dataPSTxAsesor.idusuario).FirstOrDefault();
 
-            var queryRespuestaAnalisis = @"SELECT * FROM respuesta_analisis_asesor where idusuario=@idusuario and idnormatecnica = @idnorma";
-            var dataRespuestaAnalisis = db.Query<RespuestaAsesor>(queryRespuestaAnalisis, new { idusuario = idusuario, idnorma = idnorma }).FirstOrDefault();
+            var queryRespuestaAnalisis = @"SELECT * FROM respuesta_analisis_asesor where idusuario=@idusuario and idnormatecnica = @idnorma and idusuariopst=@idusuariopst";
+            var dataRespuestaAnalisis = db.Query<RespuestaAsesor>(queryRespuestaAnalisis, new { idusuario = objasesor.IdUsuario, idnorma = idnorma, idusuariopst= idusuario }).FirstOrDefault();
 
             List<ConsolidadoDiagnostico>? listConsolidado = new List<ConsolidadoDiagnostico>();
             ConsolidadoDiagnostico objConsolidado = new ConsolidadoDiagnostico();
@@ -239,6 +240,7 @@ and ma.idtabla=4";
                 objConsolidado.cumpleParcial = item.NumeroRequisitoCP;
                 objConsolidado.noAplica = item.NumeroRequisitoNA;
                 objConsolidado.porcCumple = item.PorcentajeC;
+                objConsolidado.porcCumpleNumero = item.PorcentajeCumpleNumero;
                 listConsolidado.Add(objConsolidado);
             }
 
@@ -263,7 +265,7 @@ and ma.idtabla=4";
             responseDiagnostico.cumpleParcialTotal = listConsolidado.Sum(x => Convert.ToInt32(x.cumpleParcial)) + "";
             responseDiagnostico.noCumpleTotal = listConsolidado.Sum(x => Convert.ToInt32(x.noCumple)) + "";
             responseDiagnostico.noAplicaTotal = listConsolidado.Sum(x => Convert.ToInt32(x.noAplica)) + "";
-            responseDiagnostico.porcCumpleTotal = (listConsolidado.Sum(x => Convert.ToInt32(x.porcCumple)) / listConsolidado.Count()) + "";
+            responseDiagnostico.porcCumpleTotal = (listConsolidado.Sum(x => Convert.ToInt32(x.porcCumpleNumero)) / listConsolidado.Count()) + "%";
             responseDiagnostico.usuarioNormaRespuesta = "El Prestador de Servicios Turisticos-PST " + datausuario.NombrePst + "  cumple en un " + responseDiagnostico.porcCumpleTotal + "%" +
                "los requisitos de la norma " + dataNorma.norma;
             responseDiagnostico.etapaInicial = responseDiagnostico.porcCumpleTotal;
