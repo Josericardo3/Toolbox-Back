@@ -15,5 +15,6 @@ namespace inti_model.diagnostico
         public string? cumple { get; set; }
         public string? porcCumple { get; set; }
         public int idnormaTecnica { get; set; }
+        public string? porcCumpleNumero { get; set; }
     }
 }

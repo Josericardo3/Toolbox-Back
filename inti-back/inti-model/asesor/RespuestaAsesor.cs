@@ -11,5 +11,6 @@ namespace inti_model.asesor
         public int idnormatecnica { get; set; }
         public int idusuario { get; set; }
         public String? respuestaanalisis { get; set; }
+        public int idusuariopst { get; set; }
     }
 }
