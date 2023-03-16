@@ -51,6 +51,38 @@ namespace inti_repository.validaciones
 
         }
 
+        public async Task<bool> ValidarUsuarioCaracterizacion(int idUsuario)
+        {
+            var db = dbConnection();
+           
+            var dataUsuario = @"SELECT idusuariopst FROM respuestas  where idusuariopst=@idusuariopst";
+            var result = db.Query(dataUsuario, new { idusuariopst = idUsuario });
+
+            if (result.Count() > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public async Task<bool> ValidarUsuarioDiagnostico(int idUsuario)
+        {
+            var db = dbConnection();
+            var dataUsuario = @"SELECT idusuario FROM respuestadiagnostico where idusuario=@idusuario";
+            var result = db.Query(dataUsuario, new { idusuario = idUsuario });
+
+            if (result.Count() > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         public async Task<bool> UpdatePassword(string password, string id)
         {
             var db = dbConnection();

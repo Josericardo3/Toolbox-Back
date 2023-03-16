@@ -37,6 +37,22 @@ namespace inti_back.Controllers
 
         }
 
+        [HttpGet("UsuarioCaracterizacion/{idUsuarioPst}")]
+        public async Task<bool> ValidarUsuarioCaracterizacion(int idUsuarioPst)
+        {
+            bool validacion = await _validacionesRepository.ValidarUsuarioCaracterizacion(idUsuarioPst);
+            return validacion;
+
+        }
+
+        [HttpGet("UsuarioDiagnostico/{idUsuario}")]
+        public async Task<bool> ValidarUsuarioDiagnostico(int idUsuario)
+        {
+            bool validacion = await _validacionesRepository.ValidarUsuarioDiagnostico(idUsuario);
+            return validacion;
+
+        }
+
         [HttpPost("EnviarEmail")]
         public async Task<IActionResult> SendEmail(String correo)
         {
