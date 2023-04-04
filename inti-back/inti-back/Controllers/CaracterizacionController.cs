@@ -89,6 +89,26 @@ namespace inti_back.Controllers
             }
         }
 
+        [HttpGet("OrdenCaracterizacion")]
+        public async Task<IActionResult> GetOrdenCaracterizacion(int id)
+        {
+            try
+            {
+                var response = await _caracterizacionRepository.GetOrdenCaracterizacion(id);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "No se pudo completar la acción",
+                    ex.Message
+                });
+            }
+
+        }
+
 
     }
 }

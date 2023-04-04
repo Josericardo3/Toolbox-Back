@@ -13,5 +13,6 @@ namespace inti_repository.caracterizacion
         Task<ResponseCaracterizacion> GetResponseCaracterizacion(int id);
         Task<bool> InsertRespuestaCaracterizacion(RespuestaCaracterizacion respuestaCaracterizacion);
         Task<List<NormaTecnica>> GetNormaTecnica(int id);
+        Task<ResponseOrdenCaracterizacion> GetOrdenCaracterizacion(int id);
     }
 }
