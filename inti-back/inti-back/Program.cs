@@ -15,6 +15,7 @@ using inti_repository.listachequeo;
 using inti_repository.validaciones;
 using inti_repository.planmejora;
 using inti_repository.matrizlegal;
+using inti_repository.auditoria;
 
 const String default_url = "http://{0}:{1};https://{2}:{3}"; 
 
@@ -93,6 +94,7 @@ builder.Services.AddScoped<IListaChequeoRepository, ListaChequeoRepository>();
 builder.Services.AddScoped<IValidacionesRepository, ValidacionesRepository>();
 builder.Services.AddScoped<IPlanMejoraRepository, PlanMejoraRepository>();
 builder.Services.AddScoped<IMatrizLegalRepository, MatrizLegalRepository>();
+builder.Services.AddScoped<IAuditoriaRepository, AuditoriaRepository>();
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(options =>

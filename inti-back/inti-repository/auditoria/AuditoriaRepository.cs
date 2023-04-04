@@ -25,16 +25,15 @@ namespace inti_repository.auditoria
         }
 
 
-        public async Task<IEnumerable<Asesor>> ListarAuditor(int idPst)
+        public async Task<IEnumerable<Asesor>> ListarAuditor()
         {
             var db = dbConnection();
             var queryAsesor = @"
                 SELECT 
-                    NOMBRE,CORREO FROM Usuario a 
-                WHERE FK_ID_PST =@idPst 
-                AND ESTADO = TRUE;";
+                    nombre FROM Usuario  
+                Limit 5 ;";    
 
-            var dataAsesor = await db.QueryAsync<Asesor>(queryAsesor, new { idPst = idPst });
+            var dataAsesor = await db.QueryAsync<Asesor>(queryAsesor);
 
             return dataAsesor;
 

@@ -12,8 +12,8 @@ namespace inti_repository.auditoria
 {
     public interface IAuditoriaRepository
     {
-
-        Task<IEnumerable<Asesor>> ListarAuditor(int idPst);
+ 
+        Task<IEnumerable<Asesor>> ListarAuditor();
         Task<bool> InsertRespuestaAuditoria(RespuestaAuditoria respuestaAuditoria);
 
 

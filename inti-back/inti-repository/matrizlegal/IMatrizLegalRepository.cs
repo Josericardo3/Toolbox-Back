@@ -1,17 +1,15 @@
-﻿using inti_model.usuario;
+﻿using inti_model.matrizlegal;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-
-namespace inti_repository.usuario
+namespace inti_repository.matrizlegal
 {
-    public interface IUsuarioPstRepository
+    public interface IMatrizLegalRepository
     {
-        Task<IEnumerable<UsuarioPst>> GetAllUsuariosPst();
-        Task<UsuarioPst> GetUsuarioPst(int id);
-        Task<bool> InsertUsuarioPst(UsuarioPstPost usuariopst);
-        Task<string> UpdateUsuarioPst(UsuarioPstUpd usuariopst);
-        Task<bool> DeleteUsuarioPst(int id);
-        Task<UsuarioPstLogin> LoginUsuario(string usuario, string Password, string Correo);
-        Task<bool> RegistrarEmpleadoPst(int id, string correo, string rnt);
+        Task<IEnumerable<MatrizLegal>> GetMatrizLegal(string TipoLey, string Numero, string Anio);
 
     }
 }

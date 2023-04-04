@@ -19,10 +19,10 @@ namespace inti_back.Controllers
             Configuration = _configuration;
         }
 
-        [HttpGet("ListarAuditor/{idPst}")]
-        public async Task<IActionResult> GetAllAuditor(int idPst)
+        [HttpGet("ListarAuditor")]
+        public async Task<IActionResult> GetAllAuditor()
         {
-            return Ok(await _auditoriaRepository.ListarAuditor(idPst));
+            return Ok(await _auditoriaRepository.ListarAuditor());
         }
 
         [HttpPost("AuditoriaRespuesta")]
