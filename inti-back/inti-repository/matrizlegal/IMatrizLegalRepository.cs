@@ -9,7 +9,7 @@ namespace inti_repository.matrizlegal
 {
     public interface IMatrizLegalRepository
     {
-        Task<IEnumerable<MatrizLegal>> GetMatrizLegal(string TipoLey, string Numero, string Anio);
+        Task<IEnumerable<MatrizLegal>> GetMatrizLegal(int IdDoc);
 
     }
 }

@@ -1,34 +1,63 @@
-﻿using inti_repository.matrizlegal;
+﻿using inti_model.diagnostico;
+using inti_repository.diagnostico;
 using Microsoft.AspNetCore.Mvc;
 
 namespace inti_back.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class MatrizLegalController : Controller
+    public class DiagnosticoController : ControllerBase
     {
-        private readonly IMatrizLegalRepository _matrizlegalRepository;
+        private readonly IDiagnosticoRepository _diagnosticoRepository;
         private IConfiguration Configuration;
-        public MatrizLegalController(IMatrizLegalRepository matrizLegalRepository, IConfiguration _configuration)
+        public DiagnosticoController(IDiagnosticoRepository diagnosticoRepository, IConfiguration _configuration)
         {
-            _matrizlegalRepository = matrizLegalRepository;
+            _diagnosticoRepository = diagnosticoRepository;
             Configuration = _configuration;
         }
 
-        [HttpGet("MatrizLegal")]
-        public async Task<IActionResult> GetMatrizLegal(string tipoley, string numero, string anio)
+        [HttpPost("Diagnosticorespuesta")]
+        public async Task<IActionResult> InsertRespuestaDiagnostico(RespuestaDiagnostico respuestaDiagnostico)
         {
-            var response = await _matrizlegalRepository.GetMatrizLegal(tipoley, numero, anio);
 
-            if (response == null)
+            if (respuestaDiagnostico == null)
             {
-                Ok(new
+                return BadRequest();
+            }
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var create = await _diagnosticoRepository.InsertRespuestaDiagnostico(respuestaDiagnostico);
+            return Ok(new
+            {
+                StatusCode(201).StatusCode
+            });
+        }
+
+        [HttpGet("Diagnostico/{id}")]
+        public async Task<IActionResult> GetResponseDiagnostico(int id)
+        {
+            string ValorMaestroTituloFormulariodiagnostico = this.Configuration.GetValue<string>("ValorMaestro:TituloFormularioDiagnostisco");
+            string ValorMaestroDiagnostico = this.Configuration.GetValue<string>("ValorMaestro:Diagnostico");
+            try
+            {
+                var response = await _diagnosticoRepository.GetResponseDiagnostico(id, Convert.ToInt32(ValorMaestroTituloFormulariodiagnostico), Convert.ToInt32(ValorMaestroDiagnostico));
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                return Ok(new
                 {
                     StatusCode(200).StatusCode,
-                    valor = "la ley no se ha encontrado"
+                    valor = "Error al momento de obtener el formulario"
                 });
             }
-            return Ok(response);
         }
+
+
+
+
+
     }
 }
