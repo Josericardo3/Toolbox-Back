@@ -1,4 +1,5 @@
-﻿using inti_repository.matrizlegal;
+﻿using inti_model.matrizlegal;
+using inti_repository.matrizlegal;
 using Microsoft.AspNetCore.Mvc;
 
 namespace inti_back.Controllers
@@ -29,6 +30,47 @@ namespace inti_back.Controllers
                 });
             }
             return Ok(response);
+        }
+
+        [HttpPost("InsertLey")]
+        public async Task<IActionResult> InsertLey([FromBody] MatrizLegal oMatrizLegal)
+        {
+
+            try
+            {
+                var create = await _matrizlegalRepository.InsertLey(oMatrizLegal);
+                if (create == null)
+                {
+                    return Ok(new
+                    {
+                        StatusCode(404).StatusCode,
+                        Mensaje = "No se ingresaron correctamente los datos de la ley"
+                    });
+                }
+                if (!ModelState.IsValid)
+                {
+                    return Ok(new
+                    {
+                        StatusCode(200).StatusCode,
+                        Mensaje = "El modelo no es válido"
+                    });
+                }
+                return Ok(new
+                {
+                    StatusCode(201).StatusCode,
+                    Valor = "La ley se registró correctamente"
+                });
+            }
+            catch (Exception e)
+            {
+                return Ok(new
+                {
+                    StatusCode(404).StatusCode,
+                    Mensaje = e.Message,
+                    Valor = "No se ingresaron correctamente los datos de la ley"
+                });
+            }
+
         }
     }
 }

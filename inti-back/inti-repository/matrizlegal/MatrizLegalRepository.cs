@@ -27,5 +27,18 @@ namespace inti_repository.matrizlegal
                         a.ESTADO_INTERVENCION,a.DEPARTAMENTO, a.CIUDAD FROM MaeLegal a WHERE ID_DOCUMENTO =@IdDocumento AND Estado = TRUE ";
             return await db.QueryAsync<MatrizLegal>(sql, new { IdDocumento = IdDoc });
         }
+
+        public async Task<bool> InsertLey(MatrizLegal oMatrizLegal)
+        {
+            var db = dbConnection();
+            var sql = @"INSERT INTO MaeLegal(ID_TABLA,ID_DOCUMENTO,CATEGORIA,TIPO_NORMATIVIDAD,NUMERO,ANIO,EMISOR,DESCRIPCION,DOCS_ESPECIFICOS) 
+                        VALUES (13,@idDoc,@categoria,@tipoNorma,@numero,@anio,@emisor,@descripcion,@docsEspecificos) ";
+            var result = await db.ExecuteAsync(sql, new { idDoc = oMatrizLegal.ID_DOCUMENTO, categoria = oMatrizLegal.CATEGORIA, tipoNorma= oMatrizLegal.TIPO_NORMATIVIDAD, numero= oMatrizLegal.NUMERO, anio =oMatrizLegal.ANIO, emisor=oMatrizLegal.EMISOR, descripcion= oMatrizLegal.DESCRIPCION, docsEspecificos=oMatrizLegal.DOCS_ESPECIFICOS });
+           
+
+
+            return result > 0;
+        }
+
     }
 }

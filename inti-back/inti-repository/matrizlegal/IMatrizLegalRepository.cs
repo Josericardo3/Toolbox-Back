@@ -10,6 +10,7 @@ namespace inti_repository.matrizlegal
     public interface IMatrizLegalRepository
     {
         Task<IEnumerable<MatrizLegal>> GetMatrizLegal(int IdDoc);
+        Task<bool> InsertLey(MatrizLegal oMatrizLegal);
 
     }
 }
