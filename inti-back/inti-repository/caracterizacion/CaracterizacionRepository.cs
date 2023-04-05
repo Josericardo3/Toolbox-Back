@@ -134,7 +134,7 @@ namespace inti_repository.caracterizacion
             var db = dbConnection();
 
             ResponseOrdenCaracterizacion responseOrden = new ResponseOrdenCaracterizacion();
-            responseOrden.ID_CATEGORIA_RNT = id;
+            responseOrden.idCategoriarnt = id;
             var queryOrden = @"SELECT ID_ORDEN,FK_ID_CARACTERIZACION_DINAMICA FROM maeordencaracterizacion WHERE ESTADO = TRUE AND FK_ID_CATEGORIA_RNT = @id";
             var dataOrden = db.Query<CamposOrdenCaracterizacion>(queryOrden, new { id = id }).ToList();
 
