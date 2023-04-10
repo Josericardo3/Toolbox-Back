@@ -6,5 +6,6 @@ namespace inti_repository.diagnostico
     {
         Task<ResponseDiagnostico> GetResponseDiagnostico(int idnorma, int idValorTituloFormulariodiagnostico, int idValorMaestroDiagnostico);
         Task<bool> InsertRespuestaDiagnostico(RespuestaDiagnostico respuestaDiagnostico);
+        Task<bool> InsertRespuestaAnalisisAsesor(RespuestaAnalisisAsesor respuestaAnalisis);
     }
 }

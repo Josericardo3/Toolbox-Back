@@ -112,5 +112,13 @@ and not item=0
             return result > 0;
         }
 
+        public async Task<bool> InsertRespuestaAnalisisAsesor(RespuestaAnalisisAsesor respuestaAnalisis)
+        {
+            var db = dbConnection();
+            var dataRpta = @"INSERT INTO RespuestaAnalisisAsesor(FK_ID_NORMA,FK_ID_USUARIO,FK_ID_ASESOR,RESPUESTA_ANALISIS,ESTADO) VALUES(@FK_ID_NORMA,@FK_ID_USUARIO,@FK_ID_ASESOR,@RESPUESTA_ANALISIS,1)";
+            var insertRpta = await db.ExecuteAsync(dataRpta, new { respuestaAnalisis.FK_ID_NORMA, respuestaAnalisis.FK_ID_USUARIO, respuestaAnalisis.FK_ID_ASESOR, respuestaAnalisis.RESPUESTA_ANALISIS});
+            return insertRpta > 0;
+        }
+
     }
 }

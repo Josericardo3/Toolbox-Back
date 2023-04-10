@@ -55,9 +55,35 @@ namespace inti_back.Controllers
             }
         }
 
+        [HttpPost("AnalisisRespuestaAsesor")]
+        public async Task<IActionResult> InsertRespuestaAnalisisAsesor(RespuestaAnalisisAsesor respuestaAnalisis)
+        {
+            try
+            {
+                var response = await _diagnosticoRepository.InsertRespuestaAnalisisAsesor(respuestaAnalisis);
 
+                if (response == true)
+                {
+                    return Ok(response);
+                }
+                else
+                {
+                    throw new Exception();
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "No se pudo insertar la respuesta",
+                    mensaje = ex.Message
 
+                });
 
+            }
+
+        }
 
     }
 }
