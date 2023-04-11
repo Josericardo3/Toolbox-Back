@@ -8,8 +8,8 @@ namespace inti_model.caracterizacion
 {
     public class CamposOrdenCaracterizacion
     {
-        public int ID_ORDEN { get; set; }
-        public int FK_ID_CARACTERIZACION_DINAMICA { get; set; }
+        public int idorden { get; set; }
+        public int idcaracterizaciondinamica { get; set; }
 
     }
 }
