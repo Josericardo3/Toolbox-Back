@@ -19,11 +19,28 @@ namespace inti_back.Controllers
             Configuration = _configuration;
         }
 
+        [HttpGet("Auditoria")]
+        public async Task<IActionResult> GetResponseAuditoria(string TipoDoc)
+        {
+            var response = await _auditoriaRepository.GetResponseAuditoria(TipoDoc);
+
+            if (response == null)
+            {
+                Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "la ley no se ha encontrado"
+                });
+            }
+            return Ok(response);
+        }
+
         [HttpGet("ListarAuditor")]
         public async Task<IActionResult> GetAllAuditor()
         {
             return Ok(await _auditoriaRepository.ListarAuditor());
         }
+
 
         [HttpPost("AuditoriaRespuesta")]
         public async Task<IActionResult> InsertRespuestaAuditoria(RespuestaAuditoria respuestaAuditoria)

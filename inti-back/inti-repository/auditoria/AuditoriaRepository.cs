@@ -24,6 +24,14 @@ namespace inti_repository.auditoria
             return new MySqlConnection(_connectionString.ConnectionString);
         }
 
+        public async Task<IEnumerable<Auditoria>> GetResponseAuditoria(string tipo)
+
+        {
+            var db = dbConnection();
+            var sql = @"SELECT a.ID_AUDITORIA_DINAMICA, a.NOMBRE, a.TIPO_FORMULARIO, a.TIPO_DATO, a.DEPENDIENTE,a.TABLA_RELACIONADA,a.CAMPO_LOCAL, a.REQUERIDO,a.ESTADO FROM MaeAuditoriaDinamica a WHERE TIPO_FORMULARIO = @TipoAuditoria AND Estado = TRUE ";
+            return await db.QueryAsync<Auditoria>(sql, new { TipoAuditoria = tipo });
+        }
+
 
         public async Task<IEnumerable<Asesor>> ListarAuditor()
         {
@@ -48,6 +56,7 @@ namespace inti_repository.auditoria
             var result = await db.ExecuteAsync(sql, new { respuestaAuditoria.VALOR, respuestaAuditoria.FK_ID_USUARIO, respuestaAuditoria.ITEM, respuestaAuditoria.FK_ID_AUDITORIA, respuestaAuditoria.FK_ID_AUDITORIA_DINAMICA });
             return result > 0;
         }
+
 
     }
 }

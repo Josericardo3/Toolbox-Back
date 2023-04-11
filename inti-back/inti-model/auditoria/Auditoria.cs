@@ -11,7 +11,7 @@ namespace inti_model.auditoria
         public int ID_AUDITORIA_DINAMICA { get; set; }
         public string? NOMBRE { get; set; }
         public string? TIPO_FORMULARIO { get; set; }
-        public string? TIPO_DE_DATO { get; set; }
+        public string? TIPO_DATO { get; set; }
         public string? DEPENDIENTE { get; set; }
         public string? DESPLEGABLE_ID { get; set; }
         public string? TABLA_RELACIONADA { get; set; }
