@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using inti_model.matrizlegal;
 
 namespace inti_repository.auditoria
 {
@@ -15,6 +16,8 @@ namespace inti_repository.auditoria
  
         Task<IEnumerable<Asesor>> ListarAuditor();
         Task<bool> InsertRespuestaAuditoria(RespuestaAuditoria respuestaAuditoria);
+        Task<IEnumerable<Auditoria>> GetResponseAuditoria(string tipo);
+
 
 
     }
