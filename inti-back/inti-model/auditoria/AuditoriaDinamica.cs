@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace inti_model.auditoria
 {
-    public class Auditoria
+    public class AuditoriaDinamica
     {
         public int ID_AUDITORIA_DINAMICA { get; set; }
         public string? NOMBRE { get; set; }
@@ -20,7 +20,7 @@ namespace inti_model.auditoria
         public List<DesplegableAuditoria>? DESPLEGABLE { get; set; }
         public bool REQUERIDO { get; set; }
         public bool ESTADO { get; set; }
-        public Auditoria()
+        public AuditoriaDinamica()
         {
          
             DESPLEGABLE = new List<DesplegableAuditoria>();

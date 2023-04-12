@@ -8,11 +8,11 @@ namespace inti_model.auditoria
 {
     public class ResponseAuditoria
     {
-        public List<Auditoria>? CAMPOS { get; set; }
+        public List<AuditoriaDinamica>? CAMPOS { get; set; }
 
         public ResponseAuditoria()
         {
-            CAMPOS = new List<Auditoria>();
+            CAMPOS = new List<AuditoriaDinamica>();
         }
 
     }

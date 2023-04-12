@@ -32,7 +32,7 @@ namespace inti_repository.auditoria
         {
             var db = dbConnection();
             var sql = @"SELECT a.ID_AUDITORIA_DINAMICA, a.NOMBRE, a.TIPO_FORMULARIO, a.TIPO_DATO, a.DEPENDIENTE,a.TABLA_RELACIONADA,a.CAMPO_LOCAL, a.REQUERIDO,a.ESTADO FROM MaeAuditoriaDinamica a WHERE TIPO_FORMULARIO = @TipoAuditoria AND Estado = TRUE ";
-            var dataAuditoria = db.Query<Auditoria>(sql, new { TipoAuditoria = tipo }).ToList();
+            var dataAuditoria = db.Query<AuditoriaDinamica>(sql, new { TipoAuditoria = tipo }).ToList();
 
             ResponseAuditoria responseAuditoria = new ResponseAuditoria();
             var i = 0;
@@ -46,7 +46,7 @@ namespace inti_repository.auditoria
 
             return responseAuditoria;
         }
-        private async Task<ResponseAuditoria> tipoEvaluacion(Auditoria fila,  ResponseAuditoria responseAuditoria, MySqlConnection db)
+        private async Task<ResponseAuditoria> tipoEvaluacion(AuditoriaDinamica fila,  ResponseAuditoria responseAuditoria, MySqlConnection db)
         {
 
             if (fila.TIPO_DATO == "string" || fila.TIPO_DATO == "int" || fila.TIPO_DATO == "float" || fila.TIPO_DATO == "bool" || fila.TIPO_DATO == "double" || fila.TIPO_DATO == "number")
