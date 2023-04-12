@@ -1,8 +1,11 @@
 using Dapper;
+using inti_model;
 using inti_model.asesor;
 using inti_model.auditoria;
+using inti_model.caracterizacion;
 using inti_model.usuario;
 using MySql.Data.MySqlClient;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,12 +27,46 @@ namespace inti_repository.auditoria
             return new MySqlConnection(_connectionString.ConnectionString);
         }
 
-        public async Task<IEnumerable<Auditoria>> GetResponseAuditoria(string tipo)
+        public async Task<ResponseAuditoria> GetResponseAuditoria(string tipo)
 
         {
             var db = dbConnection();
             var sql = @"SELECT a.ID_AUDITORIA_DINAMICA, a.NOMBRE, a.TIPO_FORMULARIO, a.TIPO_DATO, a.DEPENDIENTE,a.TABLA_RELACIONADA,a.CAMPO_LOCAL, a.REQUERIDO,a.ESTADO FROM MaeAuditoriaDinamica a WHERE TIPO_FORMULARIO = @TipoAuditoria AND Estado = TRUE ";
-            return await db.QueryAsync<Auditoria>(sql, new { TipoAuditoria = tipo });
+            var dataAuditoria = db.Query<Auditoria>(sql, new { TipoAuditoria = tipo }).ToList();
+
+            ResponseAuditoria responseAuditoria = new ResponseAuditoria();
+            var i = 0;
+
+            while (i < dataAuditoria.Count())
+            {
+                var fila = dataAuditoria[i];
+                await tipoEvaluacion(fila, responseAuditoria, db);
+                i++;
+            }
+
+            return responseAuditoria;
+        }
+        private async Task<ResponseAuditoria> tipoEvaluacion(Auditoria fila,  ResponseAuditoria responseAuditoria, MySqlConnection db)
+        {
+
+            if (fila.TIPO_DATO == "string" || fila.TIPO_DATO == "int" || fila.TIPO_DATO == "float" || fila.TIPO_DATO == "bool" || fila.TIPO_DATO == "double" || fila.TIPO_DATO == "number")
+            { }
+            else if (fila.TIPO_DATO == "option" || fila.TIPO_DATO == "checkbox" || fila.TIPO_DATO == "radio") 
+            {
+
+                var desplegable = fila.ID_AUDITORIA_DINAMICA;               
+                var datosDesplegable = @"SELECT ID_DESPLEGABLE_AUDITORIA, FK_ID_AUDITORIA_DINAMICA, NOMBRE, ESTADO FROM MaeDesplegableAuditoria where ESTADO =TRUE AND FK_ID_AUDITORIA_DINAMICA = @id_desplegable";
+                var responseDesplegable = db.Query<DesplegableAuditoria>(datosDesplegable, new { id_desplegable = desplegable}).ToList();
+                foreach (DesplegableAuditoria i in responseDesplegable)
+                {
+
+                    fila.DESPLEGABLE.Add(i);
+
+                }
+            }
+                     
+            responseAuditoria.CAMPOS.Add(fila);
+            return responseAuditoria;
         }
 
 
@@ -56,7 +93,6 @@ namespace inti_repository.auditoria
             var result = await db.ExecuteAsync(sql, new { respuestaAuditoria.VALOR, respuestaAuditoria.FK_ID_USUARIO, respuestaAuditoria.ITEM, respuestaAuditoria.FK_ID_AUDITORIA, respuestaAuditoria.FK_ID_AUDITORIA_DINAMICA });
             return result > 0;
         }
-
 
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using inti_model.caracterizacion;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,9 +17,14 @@ namespace inti_model.auditoria
         public string? DESPLEGABLE_ID { get; set; }
         public string? TABLA_RELACIONADA { get; set; }
         public string? CAMPO_LOCAL { get; set; }
+        public List<DesplegableAuditoria>? DESPLEGABLE { get; set; }
         public bool REQUERIDO { get; set; }
         public bool ESTADO { get; set; }
-
+        public Auditoria()
+        {
+         
+            DESPLEGABLE = new List<DesplegableAuditoria>();
+        }
     }
 
 }

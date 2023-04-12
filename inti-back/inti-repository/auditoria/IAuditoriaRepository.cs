@@ -16,7 +16,8 @@ namespace inti_repository.auditoria
  
         Task<IEnumerable<Asesor>> ListarAuditor();
         Task<bool> InsertRespuestaAuditoria(RespuestaAuditoria respuestaAuditoria);
-        Task<IEnumerable<Auditoria>> GetResponseAuditoria(string tipo);
+        Task<ResponseAuditoria> GetResponseAuditoria(string tipo);
+
 
 
 
