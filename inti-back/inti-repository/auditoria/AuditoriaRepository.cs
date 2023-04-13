@@ -98,11 +98,11 @@ namespace inti_repository.auditoria
             var fecha = auditoria.FECHA_AUDITORIA.ToString("yyyy/MM/dd hh:mm:ss");
             var db = dbConnection();
 
-            var sql = @"INSERT INTO Auditoria (CODIGO, FECHA_AUDITORIA, PROCESO)
-                         VALUES (@CODIGO,@FECHA_AUDITORIA, @PROCESO)";
-            var dataAuditoria = await db.ExecuteAsync(sql, new { CODIGO = auditoria.CODIGO, FECHA_AUDITORIA = fecha, PROCESO = auditoria.PROCESO });
-            var query = @"SELECT * FROM Auditoria WHERE CODIGO = @CODIGO AND FECHA_AUDITORIA =@FECHA_AUDITORIA AND PROCESO =@PROCESO";
-            var data = await db.QueryFirstAsync<Auditoria>(query, new { CODIGO = auditoria.CODIGO, FECHA_AUDITORIA = fecha, PROCESO = auditoria.PROCESO });
+            var sql = @"INSERT INTO Auditoria (FK_ID_PST,CODIGO, FECHA_AUDITORIA, PROCESO)
+                         VALUES (@FK_ID_PST,@CODIGO,@FECHA_AUDITORIA, @PROCESO)";
+            var dataAuditoria = await db.ExecuteAsync(sql, new { FK_ID_PST = auditoria.FK_ID_PST,CODIGO = auditoria.CODIGO, FECHA_AUDITORIA = fecha, PROCESO = auditoria.PROCESO });
+            var query = @"SELECT * FROM Auditoria WHERE FK_ID_PST = @FK_ID_PST AND CODIGO = @CODIGO AND FECHA_AUDITORIA =@FECHA_AUDITORIA AND PROCESO =@PROCESO";
+            var data = await db.QueryFirstAsync<Auditoria>(query, new { FK_ID_PST = auditoria.FK_ID_PST, CODIGO = auditoria.CODIGO, FECHA_AUDITORIA = fecha, PROCESO = auditoria.PROCESO });
 
             return data;
         }
@@ -112,7 +112,7 @@ namespace inti_repository.auditoria
             var db = dbConnection();
             var queryAsesor = @"
                 SELECT 
-                    ID_AUDITORIA,CODIGO, FECHA_AUDITORIA,PROCESO FROM Auditoria  
+                    ID_AUDITORIA,FK_ID_PST,CODIGO, FECHA_AUDITORIA,PROCESO FROM Auditoria  
                 WHERE FK_ID_PST = @idpst AND ESTADO = true ;";
 
             var data = await db.QueryAsync<Auditoria>(queryAsesor, new {idpst = IdPst });
