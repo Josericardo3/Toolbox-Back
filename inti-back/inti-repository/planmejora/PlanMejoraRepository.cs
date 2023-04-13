@@ -33,28 +33,47 @@ namespace inti_repository.planmejora
             var datadescAccion = db.Query<Maestro>(querydescAccion, new { idtabla = 11 }).ToList();
 
             var sql = @"
-SELECT up.idusuariopst,up.nit,up.rnt,up.idcategoriarnt,c.categoriarnt,
-up.idsubcategoriarnt,sc.subcategoriarnt,mu.municipio,de.departamento,
-up.nombrepst,up.razonsocialpst,up.correopst,up.telefonopst,up.nombrerepresentantelegal
-,up.correorepresentantelegal,up.telefonorepresentantelegal,up.idtipoidentificacion,
-up.identificacionrepresentantelegal,up.departamento as idDepartamento,up.municipio as idMunicipio,
-up.nombreresponsablesostenibilidad,up.correoresponsablesostenibilidad,
-up.telefonoresponsablesostenibilidad,up.password,up.idtipoavatar,up.activo,
-'Inicial' as EtapaDiagnostico
-FROM usuariospst up
-
-inner join categoriasrnt c
-on up.idcategoriarnt = c.idcategoriarnt
-
-inner join subcategoriasrnt sc
-on up.idsubcategoriarnt = sc.idsubcategoriarnt
-
-inner join municipios mu
-on up.municipio = mu.idmunicipio
-
-inner join departamentos de
-on up.departamento = de.iddepartamento
-WHERE idusuariopst = @IdUsuarioPst AND up.activo = TRUE ";
+                SELECT 
+                    up.idusuariopst,
+                    up.nit,
+                    up.rnt,
+                    up.idcategoriarnt,
+                    c.categoriarnt,
+                    up.idsubcategoriarnt,
+                    sc.subcategoriarnt,
+                    mu.municipio,
+                    de.departamento,
+                    up.nombrepst,
+                    up.razonsocialpst,
+                    up.correopst,
+                    up.telefonopst,
+                    up.nombrerepresentantelegal,
+                    up.correorepresentantelegal,
+                    up.telefonorepresentantelegal,
+                    up.idtipoidentificacion,
+                    up.identificacionrepresentantelegal,
+                    up.departamento ,
+                    up.municipio ,
+                    up.nombreresponsablesostenibilidad,
+                    up.correoresponsablesostenibilidad,
+                    up.telefonoresponsablesostenibilidad,
+                    up.password,
+                    up.idtipoavatar,
+                    up.activo,
+                    'Inicial' AS EtapaDiagnostico
+                FROM
+                    usuariospst up
+                        INNER JOIN
+                    categoriasrnt c ON up.idcategoriarnt = c.idcategoriarnt
+                        INNER JOIN
+                    subcategoriasrnt sc ON up.idsubcategoriarnt = sc.idsubcategoriarnt
+                        INNER JOIN
+                    municipios mu ON up.municipio = mu.idmunicipio
+                        INNER JOIN
+                    departamentos de ON up.departamento = de.iddepartamento
+                WHERE
+                    idusuariopst = @IdUsuarioPst
+                        AND up.activo = TRUE";
             var datausuario = db.QueryFirstOrDefault<UsuarioPstArchivoDiagnostico>(sql, new { IdUsuarioPst = idusuario });
 
             var queryCalificacion = @"
