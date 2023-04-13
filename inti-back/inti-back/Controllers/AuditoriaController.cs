@@ -97,10 +97,10 @@ namespace inti_back.Controllers
             });
         }
 
-        [HttpGet("ListarAuditorias")]
-        public async Task<IActionResult> GetAllAuditorias()
+        [HttpGet("ListarAuditorias/{idpst}")]
+        public async Task<IActionResult> GetAllAuditorias(int idpst)
         {
-            return Ok(await _auditoriaRepository.ListarAuditorias());
+            return Ok(await _auditoriaRepository.ListarAuditorias(idpst));
         }
 
     }

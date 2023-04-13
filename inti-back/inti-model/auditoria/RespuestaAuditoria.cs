@@ -10,6 +10,7 @@ namespace inti_model.auditoria
     {
         public string? VALOR { get; set; }
         public int FK_ID_USUARIO { get; set; }
+        public int FK_ID_PST { get; set; }
         public int ITEM { get; set; }
         public int FK_ID_AUDITORIA { get; set; }
         public int FK_ID_AUDITORIA_DINAMICA { get; set; }

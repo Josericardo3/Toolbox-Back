@@ -17,7 +17,7 @@ namespace inti_repository.auditoria
         Task<bool> InsertRespuestaAuditoria(RespuestaAuditoria respuestaAuditoria);
         Task<Auditoria> InsertAuditoria(Auditoria auditoria);
         Task<ResponseAuditoria> GetResponseAuditoria(string tipo);
-        Task<IEnumerable<Auditoria>> ListarAuditorias();
+        Task<IEnumerable<Auditoria>> ListarAuditorias(int idPst);
 
 
     }

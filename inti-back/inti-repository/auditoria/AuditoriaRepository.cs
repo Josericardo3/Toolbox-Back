@@ -88,9 +88,9 @@ namespace inti_repository.auditoria
         {
             var db = dbConnection();
 
-            var sql = @"INSERT INTO RespuestaAuditoria (VALOR,FK_ID_USUARIO,ITEM, FK_ID_AUDITORIA, FK_ID_AUDITORIA_DINAMICA)
-                         VALUES (@VALOR,@FK_ID_USUARIO,@ITEM,@FK_ID_AUDITORIA,@FK_ID_AUDITORIA_DINAMICA)";
-            var result = await db.ExecuteAsync(sql, new { respuestaAuditoria.VALOR, respuestaAuditoria.FK_ID_USUARIO, respuestaAuditoria.ITEM, respuestaAuditoria.FK_ID_AUDITORIA, respuestaAuditoria.FK_ID_AUDITORIA_DINAMICA });
+            var sql = @"INSERT INTO RespuestaAuditoria (VALOR,FK_ID_PST,FK_ID_USUARIO,ITEM, FK_ID_AUDITORIA, FK_ID_AUDITORIA_DINAMICA)
+                         VALUES (@VALOR,@FK_ID_PST,@FK_ID_USUARIO,@ITEM,@FK_ID_AUDITORIA,@FK_ID_AUDITORIA_DINAMICA)";
+            var result = await db.ExecuteAsync(sql, new { respuestaAuditoria.VALOR, respuestaAuditoria.FK_ID_PST, respuestaAuditoria.FK_ID_USUARIO, respuestaAuditoria.ITEM, respuestaAuditoria.FK_ID_AUDITORIA, respuestaAuditoria.FK_ID_AUDITORIA_DINAMICA });
             return result > 0;
         }
         public async Task<Auditoria> InsertAuditoria(Auditoria auditoria)
@@ -107,15 +107,15 @@ namespace inti_repository.auditoria
             return data;
         }
 
-        public async Task<IEnumerable<Auditoria>> ListarAuditorias()
+        public async Task<IEnumerable<Auditoria>> ListarAuditorias(int IdPst)
         {
             var db = dbConnection();
             var queryAsesor = @"
                 SELECT 
                     ID_AUDITORIA,CODIGO, FECHA_AUDITORIA,PROCESO FROM Auditoria  
-                WHERE ESTADO = true ;";
+                WHERE FK_ID_PST = @idpst AND ESTADO = true ;";
 
-            var data = await db.QueryAsync<Auditoria>(queryAsesor);
+            var data = await db.QueryAsync<Auditoria>(queryAsesor, new {idpst = IdPst });
 
             return data;
 
