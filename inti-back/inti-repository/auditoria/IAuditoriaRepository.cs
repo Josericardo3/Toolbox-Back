@@ -7,18 +7,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using inti_model.matrizlegal;
 
 namespace inti_repository.auditoria
 {
     public interface IAuditoriaRepository
     {
- 
+
         Task<IEnumerable<Asesor>> ListarAuditor();
         Task<bool> InsertRespuestaAuditoria(RespuestaAuditoria respuestaAuditoria);
+        Task<Auditoria> InsertAuditoria(Auditoria auditoria);
         Task<ResponseAuditoria> GetResponseAuditoria(string tipo);
-
-
+        Task<IEnumerable<Auditoria>> ListarAuditorias();
 
 
     }

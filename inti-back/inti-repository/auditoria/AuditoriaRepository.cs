@@ -93,6 +93,32 @@ namespace inti_repository.auditoria
             var result = await db.ExecuteAsync(sql, new { respuestaAuditoria.VALOR, respuestaAuditoria.FK_ID_USUARIO, respuestaAuditoria.ITEM, respuestaAuditoria.FK_ID_AUDITORIA, respuestaAuditoria.FK_ID_AUDITORIA_DINAMICA });
             return result > 0;
         }
+        public async Task<Auditoria> InsertAuditoria(Auditoria auditoria)
+        {
+            var fecha = auditoria.FECHA_AUDITORIA.ToString("yyyy/MM/dd hh:mm:ss");
+            var db = dbConnection();
 
+            var sql = @"INSERT INTO Auditoria (CODIGO, FECHA_AUDITORIA, PROCESO)
+                         VALUES (@CODIGO,@FECHA_AUDITORIA, @PROCESO)";
+            var dataAuditoria = await db.ExecuteAsync(sql, new { CODIGO = auditoria.CODIGO, FECHA_AUDITORIA = fecha, PROCESO = auditoria.PROCESO });
+            var query = @"SELECT * FROM Auditoria WHERE CODIGO = @CODIGO AND FECHA_AUDITORIA =@FECHA_AUDITORIA AND PROCESO =@PROCESO";
+            var data = await db.QueryFirstAsync<Auditoria>(query, new { CODIGO = auditoria.CODIGO, FECHA_AUDITORIA = fecha, PROCESO = auditoria.PROCESO });
+
+            return data;
+        }
+
+        public async Task<IEnumerable<Auditoria>> ListarAuditorias()
+        {
+            var db = dbConnection();
+            var queryAsesor = @"
+                SELECT 
+                    ID_AUDITORIA,CODIGO, FECHA_AUDITORIA,PROCESO FROM Auditoria  
+                WHERE ESTADO = true ;";
+
+            var data = await db.QueryAsync<Auditoria>(queryAsesor);
+
+            return data;
+
+        }
     }
 }
