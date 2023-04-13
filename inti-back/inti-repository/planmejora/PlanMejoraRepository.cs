@@ -41,8 +41,6 @@ namespace inti_repository.planmejora
                     c.categoriarnt,
                     up.idsubcategoriarnt,
                     sc.subcategoriarnt,
-                    mu.municipio,
-                    de.departamento,
                     up.nombrepst,
                     up.razonsocialpst,
                     up.correopst,
@@ -67,10 +65,6 @@ namespace inti_repository.planmejora
                     categoriasrnt c ON up.idcategoriarnt = c.idcategoriarnt
                         INNER JOIN
                     subcategoriasrnt sc ON up.idsubcategoriarnt = sc.idsubcategoriarnt
-                        INNER JOIN
-                    municipios mu ON up.municipio = mu.idmunicipio
-                        INNER JOIN
-                    departamentos de ON up.departamento = de.iddepartamento
                 WHERE
                     idusuariopst = @IdUsuarioPst
                         AND up.activo = TRUE";
