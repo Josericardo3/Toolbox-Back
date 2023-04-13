@@ -70,7 +70,7 @@ namespace inti_repository.listachequeo
                             INNER JOIN
                         subcategoriasrnt sc ON up.idsubcategoriarnt = sc.idsubcategoriarnt
                     WHERE
-                        idusuariopst = 15
+                        idusuariopst = @IdUsuarioPst
                             AND up.activo = TRUE ";
             var datausuario = db.QueryFirstOrDefault<UsuarioPstArchivoDiagnostico>(sql, new { IdUsuarioPst = idusuario });
 
