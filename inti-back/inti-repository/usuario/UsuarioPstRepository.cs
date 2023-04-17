@@ -1,6 +1,7 @@
 using Dapper;
 using inti_model;
 using inti_model.usuario;
+using Microsoft.IdentityModel.Tokens;
 using MySql.Data.MySqlClient;
 
 namespace inti_repository.usuario
@@ -133,11 +134,14 @@ namespace inti_repository.usuario
             listPermiso = listPermiso.Where(x => x.idusuariopst == id && x.tipousuario == tipousuario).ToList();
             return listPermiso;
         }
-        public async Task<bool> RegistrarEmpleadoPst(int id, string correo, string rnt)
+        public async Task<int> RegistrarEmpleadoPst(int id, string correo, string rnt)
         {
             var db = dbConnection();
+
+
+
             var queryUsuario = @"Select * from usuariospst where idusuariopst = @id and activo = true";
-            UsuarioPst dataUsuario = await db.QueryFirstAsync<UsuarioPst>(queryUsuario, new { id });
+            UsuarioPst dataUsuario = await db.QueryFirstAsync<UsuarioPst>(queryUsuario, new { id, correo });
 
             if (dataUsuario == null) throw new Exception();
 
@@ -145,7 +149,19 @@ namespace inti_repository.usuario
                         VALUES (@Nit,@Rnt,@idCategoriaRnt,@idSubCategoriaRnt,@NombrePst,@RazonSocialPst,@CorreoPst,@TelefonoPst,@NombreRepresentanteLegal,@CorreoRepresentanteLegal,@TelefonoRepresentanteLegal,@idTipoIdentificacion,@IdentificacionRepresentanteLegal,@Departamento,@Municipio,@NombreResponsableSostenibilidad,@CorreoResponsableSostenibilidad,@TelefonoResponsableSostenibilidad, SHA1(@Password),@idTipoAvatar) ";
             var result = await db.ExecuteAsync(sql, new { dataUsuario.Nit, Rnt = rnt, dataUsuario.idCategoriaRnt, dataUsuario.idSubCategoriaRnt, dataUsuario.NombrePst, dataUsuario.RazonSocialPst, CorreoPst = correo, dataUsuario.TelefonoPst, dataUsuario.NombreRepresentanteLegal, dataUsuario.CorreoRepresentanteLegal, dataUsuario.TelefonoRepresentanteLegal, dataUsuario.idTipoIdentificacion, dataUsuario.IdentificacionRepresentanteLegal, dataUsuario.Departamento, dataUsuario.Municipio, dataUsuario.NombreResponsableSostenibilidad, dataUsuario.CorreoResponsableSostenibilidad, dataUsuario.TelefonoResponsableSostenibilidad, Password = 123, dataUsuario.idTipoAvatar });
 
-            return result > 0; 
+            var queryEmpleado = @"Select * from usuariospst where correopst = @correo and rnt = @rnt and activo = true";
+            var dataEmpleado = await db.QueryFirstAsync<UsuarioPst>(queryEmpleado, new { correo=correo, rnt=rnt });
+
+            if(dataEmpleado == null)
+            {
+                throw new Exception();
+            }
+            else
+            {
+                return dataEmpleado.IdUsuarioPst;
+            }
+
+            
 
         }
 

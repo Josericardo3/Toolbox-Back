@@ -11,7 +11,7 @@ namespace inti_repository.usuario
         Task<string> UpdateUsuarioPst(UsuarioPstUpd usuariopst);
         Task<bool> DeleteUsuarioPst(int id);
         Task<UsuarioPstLogin> LoginUsuario(string usuario, string Password, string Correo);
-        Task<bool> RegistrarEmpleadoPst(int id, string correo, string rnt);
+        Task<int> RegistrarEmpleadoPst(int id, string correo, string rnt);
 
     }
 }

@@ -4,6 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using inti_model.usuario;
 using inti_repository.usuario;
+using inti_repository.validaciones;
+using System.Security.Cryptography;
+using System.Net.Mail;
+using System.Net;
+using System.Text;
 
 namespace inti_back.Controllers
 {
@@ -13,6 +18,7 @@ namespace inti_back.Controllers
     {
 
         private readonly IUsuarioPstRepository _usuarioPstRepository;
+        public readonly IValidacionesRepository _validacionesRepository;
         TokenConfiguration objTokenConf = new TokenConfiguration();
         private IConfiguration Configuration;
         public UsuarioController(IUsuarioPstRepository usuarioPstRepository, IConfiguration _configuration)
@@ -167,21 +173,69 @@ namespace inti_back.Controllers
             try
             {
                 var create = await _usuarioPstRepository.RegistrarEmpleadoPst(id,correo,rnt);
-                return Ok(new
+                if (create != null)
                 {
-                    StatusCode(201).StatusCode,
-                    valor = "El empleado se registró correctamente"
-                });
+                    EnviarCorreo(correo, "Cambio de contraseña", create);
+                    return Ok(new
+                    {
+                        StatusCode(201).StatusCode,
+                        valor = "El empleado se registró correctamente"
+                    });
+
+                }
+                else
+                {
+                    throw new Exception();
+                }
+                
             }
-            catch
+            catch(Exception ex)
             {
                 return Ok(new
                 {
                     StatusCode(200).StatusCode,
-                    valor = "no se pudo registrar el usuario"
+                    valor = "no se pudo registrar el usuario",
+                    ex.Message
                 });
             }
+            
 
         }
+
+        private int EnviarCorreo(String correousuario, String subject, int id)
+        {
+            try
+            {
+                var idEncripted = Encriptacion(id);
+
+                string senderEmail = this.Configuration.GetValue<string>("Email:User");
+                string senderPassword = this.Configuration.GetValue<string>("Email:Password");
+
+                string body = "El código de seguridad es: " + idEncripted;
+
+                var smtpClient = new SmtpClient(this.Configuration.GetValue<string>("Email:Server"), this.Configuration.GetValue<int>("Email:Port"));
+                smtpClient.EnableSsl = true;
+                smtpClient.Credentials = new NetworkCredential(senderEmail, senderPassword);
+                var message = new MailMessage(senderEmail, correousuario, subject, body);
+                message.IsBodyHtml = true;
+                smtpClient.Send(message);
+                smtpClient.Dispose();
+
+                return 1;
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+        }
+        private String Encriptacion(int id)
+        {
+            SHA1 encriptedId = SHA1.Create();
+            byte[] hashbyte = encriptedId.ComputeHash(Encoding.UTF8.GetBytes(id.ToString()));
+            String hashString = BitConverter.ToString(hashbyte).Replace("-", "").ToLower();
+            String idsh1 = hashString;
+            return idsh1;
+        }
+
     }
 }

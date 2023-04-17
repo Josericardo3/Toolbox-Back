@@ -7,6 +7,7 @@ using System.Net.Mail;
 using System.Net;
 using System.Text;
 using System.Security.Cryptography;
+using inti_model;
 
 namespace inti_back.Controllers
 {
@@ -68,8 +69,8 @@ namespace inti_back.Controllers
                 else
                 {
                     string subject = "Cambio de contraseña";
+                    
                     var estado = EnviarCorreo(dataUsuario.correopst, subject, dataUsuario.idusuariopst);
-
                     if (estado == 0)
                     {
                         throw new Exception();
@@ -128,6 +129,7 @@ namespace inti_back.Controllers
         }
 
 
+        
         private int EnviarCorreo(String correousuario, String subject, int id)
         {
             try
@@ -163,6 +165,6 @@ namespace inti_back.Controllers
             String idsh1 = hashString;
             return idsh1;
         }
-
+        
     }
 }
