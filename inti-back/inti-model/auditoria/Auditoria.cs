@@ -17,9 +17,11 @@ namespace inti_model.auditoria
         public string? OBJETIVO { get; set; }
         public string? ALCANCE { get; set; }
         public string? CRITERIO { get; set; }
-        public DateTime REUNION_APERTURA { get; set; }
-        public DateTime REUNION_CIERRE { get; set; }
-        public DateTime FECHA_AUDITORIA { get; set; }
+        public string? FECHA_REUNION_APERTURA { get; set; }
+        public string? HORA_REUNION_APERTURA { get; set; }
+        public string? FECHA_REUNION_CIERRE { get; set; }
+        public string? HORA_REUNION_CIERRE { get; set; }
+        public string FECHA_AUDITORIA { get; set; }
         public string? OBSERVACIONES { get; set; }
         public string? PROCESO { get; set; }
 
