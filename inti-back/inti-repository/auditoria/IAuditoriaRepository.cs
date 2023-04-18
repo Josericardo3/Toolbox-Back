@@ -1,5 +1,6 @@
 ﻿
 using inti_model.auditoria;
+using inti_model.usuario;
 using inti_model.asesor;
 using inti_model.caracterizacion;
 using System;
@@ -13,10 +14,12 @@ namespace inti_repository.auditoria
     public interface IAuditoriaRepository
     {
 
-        Task<IEnumerable<Asesor>> ListarAuditor();
-        Task<bool> InsertRespuestaAuditoria(RespuestaAuditoria respuestaAuditoria);
-        Task<Auditoria> InsertAuditoria(Auditoria auditoria);
-        Task<ResponseAuditoria> GetResponseAuditoria(string tipo);
+        Task<IEnumerable<Usuario>> ListarAuditor(string rnt);
+        Task<Auditoria> GetAuditoria(int id);
+        Task<bool> InsertAuditoria(Auditoria auditoria);
+        Task<bool> UpdateAuditoria(Auditoria auditoria);
+
+        Task<ResponseAuditoria> GetResponseAuditoria(string tipo, int idAuditoria);
         Task<IEnumerable<Auditoria>> ListarAuditorias(int idPst);
 
 

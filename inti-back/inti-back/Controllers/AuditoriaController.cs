@@ -20,9 +20,9 @@ namespace inti_back.Controllers
         }
 
         [HttpGet("Auditoria")]
-        public async Task<IActionResult> GetResponseAuditoria(string TipoDoc)
+        public async Task<IActionResult> GetResponseAuditoria(string TipoDoc, int IdAuditoria)
         {
-            var response = await _auditoriaRepository.GetResponseAuditoria(TipoDoc);
+            var response = await _auditoriaRepository.GetResponseAuditoria(TipoDoc, IdAuditoria);
 
             if (response == null)
             {
@@ -35,10 +35,10 @@ namespace inti_back.Controllers
             return Ok(response);
         }
 
-        [HttpGet("ListarAuditor")]
-        public async Task<IActionResult> GetAllAuditor()
+        [HttpGet("ListarAuditor/{rnt}")]
+        public async Task<IActionResult> GetAllAuditor(string rnt)
         {
-            return Ok(await _auditoriaRepository.ListarAuditor());
+            return Ok(await _auditoriaRepository.ListarAuditor(rnt));
         }
         [HttpPost("InsertAuditoria")]
         public async Task<IActionResult> InsertAuditoria([FromBody] Auditoria auditoria)
@@ -77,31 +77,68 @@ namespace inti_back.Controllers
 
         }
 
-
-        [HttpPost("AuditoriaRespuesta")]
-        public async Task<IActionResult> InsertRespuestaAuditoria(RespuestaAuditoria respuestaAuditoria)
+        [HttpPost("UpdateAuditoria")]
+        public async Task<IActionResult> UpdateAuditoria([FromBody] Auditoria auditoria)
         {
 
-            if (respuestaAuditoria == null)
+            try
             {
-                return BadRequest();
+                var create = await _auditoriaRepository.UpdateAuditoria(auditoria);
+                if (create == null)
+                {
+                    return Ok(new
+                    {
+                        StatusCode(404).StatusCode,
+                        Mensaje = "No se ingresaron correctamente los datos de la auditoria"
+                    });
+                }
+                if (!ModelState.IsValid)
+                {
+                    return Ok(new
+                    {
+                        StatusCode(200).StatusCode,
+                        Mensaje = "El modelo no es válido"
+                    });
+                }
+                return Ok(create);
             }
-            if (!ModelState.IsValid)
+            catch (Exception e)
             {
-                return BadRequest(ModelState);
+                return Ok(new
+                {
+                    StatusCode(404).StatusCode,
+                    Mensaje = e.Message,
+                    Valor = "No se ingresaron correctamente los datos de la auditoría"
+                });
             }
-            var create = await _auditoriaRepository.InsertRespuestaAuditoria(respuestaAuditoria);
-            return Ok(new
-            {
-                StatusCode(201).StatusCode
-            });
+
         }
+
 
         [HttpGet("ListarAuditorias/{idpst}")]
         public async Task<IActionResult> GetAllAuditorias(int idpst)
         {
             return Ok(await _auditoriaRepository.ListarAuditorias(idpst));
         }
+
+        [HttpGet("Auditoria/{id}")]
+        public async Task<IActionResult> GetAuditoria(int id)
+        {
+            try
+            {
+                var response = await _auditoriaRepository.GetAuditoria(id);
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "la auditoría no se ha encontrado"
+                });
+            }
+        }
+
 
     }
 }

@@ -12,8 +12,28 @@ namespace inti_model.auditoria
         public int ID_AUDITORIA { get; set; }
         public int FK_ID_PST { get; set; }
         public string? CODIGO { get; set; }
+        public string? AUDITOR_LIDER { get; set; }
+        public string? EQUIPO_AUDITOR { get; set; }
+        public string? OBJETIVO { get; set; }
+        public string? ALCANCE { get; set; }
+        public string? CRITERIO { get; set; }
+        public DateTime REUNION_APERTURA { get; set; }
+        public DateTime REUNION_CIERRE { get; set; }
         public DateTime FECHA_AUDITORIA { get; set; }
+        public string? OBSERVACIONES { get; set; }
         public string? PROCESO { get; set; }
+
+        public List<AuditoriaConformidad> CONFORMIDADES { get; set; }
+        public List<AuditoriaProceso> PROCESOS { get; set; }
+        public List<AuditoriaRequisito> REQUISITOS { get; set; }
+
+        public Auditoria()
+        {
+
+            CONFORMIDADES = new List<AuditoriaConformidad>();
+            PROCESOS = new List<AuditoriaProceso>();
+            REQUISITOS = new List<AuditoriaRequisito>();
+        }
 
     }
 
