@@ -120,10 +120,10 @@ namespace inti_repository.auditoria
             var sql = @"SELECT 
                         ID_AUDITORIA,CODIGO,FECHA_AUDITORIA,AUDITOR_LIDER,EQUIPO_AUDITOR,OBJETIVO,ALCANCE,CRITERIO,
             REUNION_APERTURA,REUNION_CIERRE, OBSERVACIONES,FK_ID_PST,PROCESO,ESTADO
-            FROM Auditoria  WHERE ID_AUDITORIA= @IdAuditoria AND activo = TRUE ";
+            FROM Auditoria  WHERE ID_AUDITORIA= @IdAuditoria AND ESTADO = TRUE ";
             Auditoria data = await db.QueryFirstOrDefaultAsync<Auditoria>(sql, new { IdAuditoria = id });
-            var sqlProceso = @"select ID_PROCESO_AUDITORIA, FK_ID_AUDITORIA,FECHA, HORA, PROCESO_DESCRIPCION,
-            LIDER_PROCESO,CARGO_LIDER,NORMAS_AUDITAR, AUDITOR,AUDITADOS,DOCUMENTOS_REFERENCIA,ESTADO from AuditoriaProceso where activo=TRUE AND FK_ID_AUDITORIA = @IdAuditoria";
+            var sqlProceso = @"select ID_PROCESO_AUDITORIA, FK_ID_AUDITORIA,FECHA, PROCESO_DESCRIPCION,
+            LIDER_PROCESO,CARGO_LIDER,NORMAS_AUDITAR, AUDITOR,AUDITADOS,DOCUMENTOS_REFERENCIA,ESTADO from AuditoriaProceso where ESTADO=TRUE AND FK_ID_AUDITORIA = @IdAuditoria";
             var dataProceso = db.Query<AuditoriaProceso>(sqlProceso, new { IdAuditoria = id }).ToList();
             foreach (AuditoriaProceso i in dataProceso)
             {           
@@ -131,11 +131,19 @@ namespace inti_repository.auditoria
 
             }
 
-            var sqlConformidad = @"select ID_CONFORMIDAD_AUDITORIA,FK_ID_AUDITORIA,FK_ID_PROCESO,DESCRIPCION,NTC,LEGALES,ESTADO from AuditoriaConformidad where activo=TRUE AND FK_ID_AUDITORIA = @IdAuditoria";
+            var sqlConformidad = @"select ID_CONFORMIDAD_AUDITORIA,FK_ID_AUDITORIA,FK_ID_PROCESO,DESCRIPCION,NTC,LEGALES,ESTADO from AuditoriaConformidad where ESTADO=TRUE AND FK_ID_AUDITORIA = @IdAuditoria";
             var dataConformidad = db.Query<AuditoriaConformidad>(sqlConformidad, new { IdAuditoria = id }).ToList();
             foreach (AuditoriaConformidad i in dataConformidad)
             {
                 data.CONFORMIDADES.Add(i);
+
+            }
+
+            var sqlRequisito = @"select ID_REQUISITO,FK_ID_PROCESO,FK_ID_AUDITORIA, REQUISITO, EVIDENCIA, PREGUNTA,HALLAZGO, OBSERVACION,ESTADO from AuditoriaRequisito where ESTADO=TRUE AND FK_ID_AUDITORIA = @IdAuditoria";
+            var dataRequisito = db.Query<AuditoriaRequisito>(sqlRequisito, new { IdAuditoria = id }).ToList();
+            foreach (AuditoriaRequisito i in dataRequisito)
+            {
+                data.REQUISITOS.Add(i);
 
             }
             return data;
