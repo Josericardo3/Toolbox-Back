@@ -8,10 +8,9 @@ namespace inti_model.asesor
 {
     public class Asesor
     {
-        public int ID_ASESOR { get; set; }
-        public string? RNT { get; set; }
-        public string? CORREO { get; set; }
-        public string? NOMBRE { get; set; }
-        public string? NIT { get; set; }
+        public int idUsuario { get; set; }
+        public string? rnt { get; set; }
+        public string? correo { get; set; }
+        public string? nombre { get; set; }
     }
 }

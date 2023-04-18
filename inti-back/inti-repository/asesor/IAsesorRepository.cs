@@ -10,10 +10,10 @@ namespace inti_repository.caracterizacion
 {
     public interface IAsesorRepository
     {
-        Task<bool> RegistrarAsesor(Usuario objasesor);
+        Task<int> RegistrarAsesor(Asesor objasesor);
         Task<bool> RegistrarPSTxAsesor(AsesorPstUpdate objPST_Asesor);
         Task<bool> UpdateAsesor(UsuarioUpdate objAsesor);
-        Task<IEnumerable<Usuario>> ListAsesor();
+        Task<IEnumerable<Asesor>> ListAsesor();
         Task<IEnumerable<AsesorPst>> ListarPSTxAsesor(int idasesor, int idtablamaestro);
         Task<bool> CrearRespuestaAsesor(RespuestaAsesor objRespuestaAsesor);
     }

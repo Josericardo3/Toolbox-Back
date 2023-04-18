@@ -175,7 +175,12 @@ namespace inti_back.Controllers
                 var create = await _usuarioPstRepository.RegistrarEmpleadoPst(id,correo,rnt);
                 if (create != null)
                 {
-                    EnviarCorreo(correo, "Cambio de contraseña", create);
+                    Envio envio = new Envio(Configuration);
+                    var send = envio.EnviarCorreo(correo, "Cambio de contraseña", create);
+                    if(send == 0)
+                    {
+                        throw new Exception();
+                    }
                     return Ok(new
                     {
                         StatusCode(201).StatusCode,
@@ -200,41 +205,6 @@ namespace inti_back.Controllers
             }
             
 
-        }
-
-        private int EnviarCorreo(String correousuario, String subject, int id)
-        {
-            try
-            {
-                var idEncripted = Encriptacion(id);
-
-                string senderEmail = this.Configuration.GetValue<string>("Email:User");
-                string senderPassword = this.Configuration.GetValue<string>("Email:Password");
-
-                string body = "El código de seguridad es: " + idEncripted;
-
-                var smtpClient = new SmtpClient(this.Configuration.GetValue<string>("Email:Server"), this.Configuration.GetValue<int>("Email:Port"));
-                smtpClient.EnableSsl = true;
-                smtpClient.Credentials = new NetworkCredential(senderEmail, senderPassword);
-                var message = new MailMessage(senderEmail, correousuario, subject, body);
-                message.IsBodyHtml = true;
-                smtpClient.Send(message);
-                smtpClient.Dispose();
-
-                return 1;
-            }
-            catch (Exception)
-            {
-                return 0;
-            }
-        }
-        private String Encriptacion(int id)
-        {
-            SHA1 encriptedId = SHA1.Create();
-            byte[] hashbyte = encriptedId.ComputeHash(Encoding.UTF8.GetBytes(id.ToString()));
-            String hashString = BitConverter.ToString(hashbyte).Replace("-", "").ToLower();
-            String idsh1 = hashString;
-            return idsh1;
         }
 
     }

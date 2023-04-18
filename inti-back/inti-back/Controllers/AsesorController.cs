@@ -2,6 +2,7 @@ using inti_model.asesor;
 using inti_model.usuario;
 using inti_repository.caracterizacion;
 using Microsoft.AspNetCore.Mvc;
+using inti_repository;
 
 
 namespace inti_back.Controllers
@@ -39,22 +40,30 @@ namespace inti_back.Controllers
         }
 
         [HttpPost("Asesor")]
-        public async Task<IActionResult> RegistrarAsesor([FromBody] Usuario asesor)
+        public async Task<IActionResult> RegistrarAsesor([FromBody] Asesor asesor)
         {
             try
             {
                 var create = await _asesorRepository.RegistrarAsesor(asesor);
+                Envio envio = new Envio(Configuration);
+                var send = envio.EnviarCorreo(asesor.correo, "Cambio de contraseña", create);
+
+                if(send == 0)
+                {
+                    throw new Exception();
+                }
                 return Ok(new
                 {
                     StatusCode(201).StatusCode
                 });
             }
-            catch
+            catch(Exception ex)
             {
                 return Ok(new
                 {
                     StatusCode(200).StatusCode,
-                    valor = "no se pudo registrar los datos del asesor"
+                    valor = "no se pudo registrar los datos del asesor",
+                    ex.Message
                 });
             }
 

@@ -23,7 +23,7 @@ namespace inti_repository.caracterizacion
             return new MySqlConnection(_connectionString.ConnectionString);
         }
 
-        public async Task<bool> RegistrarAsesor(Usuario objasesor)
+        public async Task<int> RegistrarAsesor(Asesor objasesor)
         {
 
             var db = dbConnection();
@@ -34,16 +34,28 @@ namespace inti_repository.caracterizacion
             {
 
 
-                var sqlobtenerasesor = @"SELECT Idusuario as Idusuariopst,password,correo as correopst FROM Usuario WHERE rnt = @user AND correo = @Correopst";
+                var sqlobtenerasesor = @"SELECT idUsuario as IdUsuarioPst,password,correo as correopst FROM Usuario WHERE rnt = @user AND correo = @Correopst";
 
                 UsuarioPstLogin objUsuarioLogin = new UsuarioPstLogin();
-                objUsuarioLogin = db.QueryFirstOrDefault<UsuarioPstLogin>(sqlobtenerasesor, new { user = objasesor.rnt, Password = objasesor.password, Correopst = objasesor.correo });
+                objUsuarioLogin = db.QueryFirstOrDefault<UsuarioPstLogin>(sqlobtenerasesor, new { user = objasesor.rnt, Password = 123, Correopst = objasesor.correo });
 
                 var insertPermisoAsesor = @"INSERT INTO permiso(idtabla,item,idusuariopst,estado,tipousuario) Values (1,2,@result,1,2)";
                 var resultPermiso = await db.ExecuteAsync(insertPermisoAsesor, new { result = objUsuarioLogin.IdUsuarioPst });
 
+                if (sqlobtenerasesor != null)
+                {
+                    return objUsuarioLogin.IdUsuarioPst;
+                }
+                else
+                {
+                    throw new Exception();
+                }
             }
-            return result > 0;
+            else
+            {
+                throw new Exception();
+            }
+
         }
 
         public async Task<IEnumerable<AsesorPst>> ListarPSTxAsesor(int idasesor, int idtablamaestro)
@@ -163,11 +175,11 @@ namespace inti_repository.caracterizacion
             var result = await db.ExecuteAsync(sql, new { objAsesor.rnt, objAsesor.correo, objAsesor.nombre, objAsesor.idUsuario });
             return result > 0;
         }
-        public async Task<IEnumerable<Usuario>> ListAsesor()
+        public async Task<IEnumerable<Asesor>> ListAsesor()
         {
             var db = dbConnection();
             var queryUsuario = @"SELECT idUsuario,rnt,correo,nombre FROM Usuario where activo = 1 ";
-            var dataUsuario = await db.QueryAsync<Usuario>(queryUsuario, new { });
+            var dataUsuario = await db.QueryAsync<Asesor>(queryUsuario, new { });
 
             return dataUsuario;
 
