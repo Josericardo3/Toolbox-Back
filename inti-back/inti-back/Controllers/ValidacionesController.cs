@@ -25,9 +25,9 @@ namespace inti_back.Controllers
         }
 
         [HttpGet("Correo/{correo}")]
-        public bool ValidarRegistroCorreo(String correo)
+        public async Task<bool> ValidarRegistroCorreo(String correo)
         {
-            bool validacion = _validacionesRepository.ValidarRegistroCorreo(correo);
+            bool validacion = await _validacionesRepository.ValidarRegistroCorreo(correo);
             return validacion;
 
         }
