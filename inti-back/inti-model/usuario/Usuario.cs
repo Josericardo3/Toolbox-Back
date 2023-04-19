@@ -15,6 +15,7 @@ namespace inti_model.usuario
         public string? password { get; set; }
         public string? rnt { get; set; }
         public string? nit { get; set; }
+        public string? cargo { get; set; }
 
     }
 }

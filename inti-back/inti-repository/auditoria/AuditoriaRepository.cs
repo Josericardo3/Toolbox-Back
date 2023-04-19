@@ -75,7 +75,7 @@ namespace inti_repository.auditoria
             var db = dbConnection();
             var queryAsesor = @"
                 SELECT 
-                    nombre FROM Usuario  
+                   idUsuario, nombre,cargo,rnt FROM Usuario  
                 WHERE rnt = @rnt AND activo = true ;";    
 
             var dataAsesor = await db.QueryAsync<Usuario>(queryAsesor, new { rnt = rnt});
@@ -85,18 +85,36 @@ namespace inti_repository.auditoria
         }
         public async Task<bool> InsertAuditoria(Auditoria auditoria)
         {
-            var fechaAuditoria = auditoria.FECHA_AUDITORIA.ToString("yyyy/MM/dd hh:mm:ss");
-            var fechaApertura = auditoria.FECHA_AUDITORIA.ToString("yyyy/MM/dd hh:mm:ss");
-            var fechaCierre = auditoria.FECHA_AUDITORIA.ToString("yyyy/MM/dd hh:mm:ss");
 
             var db = dbConnection();
 
-            var sql = @"INSERT INTO Auditoria (FECHA_AUDITORIA,AUDITOR_LIDER,EQUIPO_AUDITOR,OBJETIVO,ALCANCE,CRITERIO,REUNION_APERTURA,REUNION_CIERRE,OBSERVACIONES,FK_ID_PST,PROCESO)
-                         VALUES (@FECHA_AUDITORIA,@AUDITOR_LIDER,@EQUIPO_AUDITOR,@OBJETIVO,@ALCANCE,@CRITERIO,@REUNION_APERTURA, @REUNION_CIERRE,@OBSERVACIONES,@FK_ID_PST, @PROCESO)";
-            var dataAuditoria = await db.ExecuteAsync(sql, new { FECHA_AUDITORIA = fechaAuditoria, AUDITOR_LIDER = auditoria.AUDITOR_LIDER, EQUIPO_AUDITOR = auditoria.EQUIPO_AUDITOR, OBJETIVO=auditoria.OBJETIVO,
-                ALCANCE= auditoria.ALCANCE, CRITERIO = auditoria.CRITERIO, REUNION_APERTURA = auditoria.REUNION_APERTURA, REUNION_CIERRE = auditoria.REUNION_CIERRE,
+            var sql = @"INSERT INTO Auditoria (FECHA_AUDITORIA,AUDITOR_LIDER,EQUIPO_AUDITOR,OBJETIVO,ALCANCE,CRITERIO,FECHA_REUNION_APERTURA,HORA_REUNION_APERTURA,FECHA_REUNION_CIERRE,HORA_REUNION_CIERRE,OBSERVACIONES,FK_ID_PST,PROCESO)
+                         VALUES (@FECHA_AUDITORIA,@AUDITOR_LIDER,@EQUIPO_AUDITOR,@OBJETIVO,@ALCANCE,@CRITERIO,@REUNION_APERTURA,@HORA_APERTURA, @REUNION_CIERRE,@HORA_CIERRE,@OBSERVACIONES,@FK_ID_PST, @PROCESO)";
+            var dataAuditoria = await db.ExecuteAsync(sql, new { FECHA_AUDITORIA = auditoria.FECHA_AUDITORIA, AUDITOR_LIDER = auditoria.AUDITOR_LIDER, EQUIPO_AUDITOR = auditoria.EQUIPO_AUDITOR, OBJETIVO=auditoria.OBJETIVO,
+                ALCANCE= auditoria.ALCANCE, CRITERIO = auditoria.CRITERIO, REUNION_APERTURA = auditoria.FECHA_REUNION_APERTURA, HORA_APERTURA =auditoria.HORA_REUNION_APERTURA,
+                HORA_CIERRE = auditoria.HORA_REUNION_CIERRE, REUNION_CIERRE = auditoria.FECHA_REUNION_CIERRE,
                 OBSERVACIONES = auditoria.OBSERVACIONES, FK_ID_PST = auditoria.FK_ID_PST, PROCESO = auditoria.PROCESO });
 
+            var queryAuditoria = @"SELECT LAST_INSERT_ID() FROM Auditoria limit 1;";
+            var idAuditoria = await db.QueryFirstAsync<int>(queryAuditoria);
+
+            auditoria.ID_AUDITORIA = idAuditoria;
+
+            if (auditoria.PROCESOS != null)
+            {
+                foreach (var proceso in auditoria.PROCESOS)
+                {
+                    proceso.FK_ID_AUDITORIA = auditoria.ID_AUDITORIA;
+                    if (proceso.ID_PROCESO_AUDITORIA > 0)
+                    {
+                        UpdateProceso(proceso);
+                    }
+                    else
+                    {
+                        InsertProceso(proceso);
+                    }
+                }
+            }
             return dataAuditoria > 0;
         }
 
@@ -151,9 +169,7 @@ namespace inti_repository.auditoria
 
         public async Task<bool> UpdateAuditoria(Auditoria auditoria)
         {
-            var fechaAuditoria = auditoria.FECHA_AUDITORIA.ToString("yyyy/MM/dd hh:mm:ss");
-            var fechaApertura = auditoria.FECHA_AUDITORIA.ToString("yyyy/MM/dd hh:mm:ss");
-            var fechaCierre = auditoria.FECHA_AUDITORIA.ToString("yyyy/MM/dd hh:mm:ss");
+
 
             var db = dbConnection();
 
@@ -164,8 +180,10 @@ namespace inti_repository.auditoria
                     OBJETIVO = @OBJETIVO,
                     ALCANCE= @ALCANCE,
                     CRITERIO = @CRITERIO,
-                    REUNION_APERTURA = @REUNION_APERTURA,
-                    REUNION_CIERRE = @REUNION_CIERRE,
+                    FECHA_REUNION_APERTURA = @FECHA_REUNION_APERTURA,
+                    HORA_REUNION_APERTURA = @HORA_REUNION_APERTURA,
+                    FECHA_REUNION_CIERRE = @FECHA_REUNION_CIERRE,
+                    HORA_REUNION_CIERRE = @HORA_REUNION_CIERRE,
                     OBSERVACIONES = @OBSERVACIONES,
                     FK_ID_PST = @FK_ID_PST,
                     PROCESO= @PROCESO
@@ -173,14 +191,16 @@ namespace inti_repository.auditoria
 
             var dataAuditoria = await db.ExecuteAsync(sql, new
             {
-                FECHA_AUDITORIA = fechaAuditoria,
+                FECHA_AUDITORIA = auditoria.FECHA_AUDITORIA,
                 AUDITOR_LIDER = auditoria.AUDITOR_LIDER,
                 EQUIPO_AUDITOR = auditoria.EQUIPO_AUDITOR,
                 OBJETIVO = auditoria.OBJETIVO,
                 ALCANCE = auditoria.ALCANCE,
                 CRITERIO = auditoria.CRITERIO,
-                REUNION_APERTURA = auditoria.REUNION_APERTURA,
-                REUNION_CIERRE = auditoria.REUNION_CIERRE,
+                FECHA_REUNION_APERTURA = auditoria.FECHA_REUNION_APERTURA,
+                HORA_REUNION_APERTURA = auditoria.HORA_REUNION_APERTURA,
+                FECHA_REUNION_CIERRE = auditoria.FECHA_REUNION_CIERRE,
+                HORA_REUNION_CIERRE = auditoria.HORA_REUNION_CIERRE,
                 OBSERVACIONES = auditoria.OBSERVACIONES,
                 FK_ID_PST = auditoria.FK_ID_PST,
                 PROCESO = auditoria.PROCESO,
@@ -188,60 +208,16 @@ namespace inti_repository.auditoria
             });
             if (auditoria.PROCESOS != null)
             {
-                string sqlUProceso;
-                int dataP;
                 foreach (var proceso in auditoria.PROCESOS)
                 {
-                    var fechaproceso = proceso.FECHA.ToString("yyyy/MM/dd hh:mm:ss");
-                    if (proceso.ID_PROCESO_AUDITORIA>0)
+                    if (proceso.ID_PROCESO_AUDITORIA > 0)
                     {
-                     sqlUProceso = @"UPDATE AuditoriaProceso SET
-                     FECHA= @FECHA,
-                    PROCESO_DESCRIPCION = @PROCESO_DESCRIPCION,
-                    LIDER_PROCESO = @LIDER_PROCESO,
-                    CARGO_LIDER= @CARGO_LIDER,
-                    NORMAS_AUDITAR = @NORMAS_AUDITAR,
-                    AUDITOR = @AUDITOR,
-                    AUDITADOS = @AUDITADOS,
-                    DOCUMENTOS_REFERENCIA = @DOCUMENTOS_REFERENCIA
-                    WHERE ID_PROCESO_AUDITORIA = @ID_PROCESO_AUDITORIA";
-
-                        dataP = await db.ExecuteAsync(sqlUProceso, new
-                        {
-                            FECHA = fechaproceso,
-                            PROCESO_DESCRIPCION= proceso.PROCESO_DESCRIPCION,
-                            LIDER_PROCESO = proceso.LIDER_PROCESO,
-                            CARGO_LIDER = proceso.CARGO_LIDER,
-                            NORMAS_AUDITAR = proceso.NORMAS_AUDITAR,
-                            AUDITOR = proceso.AUDITOR,
-                            AUDITADOS = proceso.AUDITADOS,
-                            DOCUMENTOS_REFERENCIA = proceso.DOCUMENTOS_REFERENCIA,
-                            ID_PROCESO_AUDITORIA = proceso.ID_PROCESO_AUDITORIA
-                        });
+                        UpdateProceso(proceso);
                     }
                     else
                     {
-                        sqlUProceso = @"INSERT INTO AuditoriaProceso (FK_ID_AUDITORIA,FECHA,PROCESO_DESCRIPCION,
-                        LIDER_PROCESO,CARGO_LIDER,NORMAS_AUDITAR,AUDITOR,AUDITADOS,DOCUMENTOS_REFERENCIA) VALUES(
-                        @FK_ID_AUDITORIA,@FECHA,@PROCESO_DESCRIPCION,
-                        @LIDER_PROCESO,@CARGO_LIDER,@NORMAS_AUDITAR,@AUDITOR,@AUDITADOS,@DOCUMENTOS_REFERENCIA)";
-
-                        dataP = await db.ExecuteAsync(sqlUProceso, new
-                        {
-                            FK_ID_AUDITORIA = auditoria.ID_AUDITORIA,
-                            FECHA = fechaproceso,
-                            PROCESO_DESCRIPCION = proceso.PROCESO_DESCRIPCION,
-                            LIDER_PROCESO = proceso.LIDER_PROCESO,
-                            CARGO_LIDER = proceso.CARGO_LIDER,
-                            NORMAS_AUDITAR = proceso.NORMAS_AUDITAR,
-                            AUDITOR = proceso.AUDITOR,
-                            AUDITADOS = proceso.AUDITADOS,
-                            DOCUMENTOS_REFERENCIA = proceso.DOCUMENTOS_REFERENCIA,
-                        });
-
+                        InsertProceso(proceso);
                     }
-
-                  
                 }
             }
             if (auditoria.REQUISITOS != null)
@@ -258,10 +234,83 @@ namespace inti_repository.auditoria
                     }
                 }
             }
-    
+            if (auditoria.CONFORMIDADES != null)
+            {
+                foreach (var conformidad in auditoria.CONFORMIDADES)
+                {
+                    if (conformidad.ID_CONFORMIDAD_AUDITORIA > 0)
+                    {
+                        UpdateConformidad(conformidad);
+                    }
+                    else
+                    {
+                        InsertConformidad(conformidad);
+                    }
+                }
+            }
+
             return dataAuditoria > 0;
         }
 
+
+        public async Task<bool> InsertProceso(AuditoriaProceso proceso)
+        {
+
+            var db = dbConnection();
+
+            var sql = @"INSERT INTO AuditoriaProceso (FK_ID_AUDITORIA,FECHA,HORA,PROCESO_DESCRIPCION,
+                       NORMAS_AUDITAR,AUDITOR,AUDITADOS) VALUES(@FK_ID_AUDITORIA,@FECHA,@HORA,@PROCESO_DESCRIPCION,
+                       @NORMAS_AUDITAR,@AUDITOR,@AUDITADOS)";
+            var data = await db.ExecuteAsync(sql, new
+            {
+                FK_ID_AUDITORIA = proceso.FK_ID_AUDITORIA,
+                FECHA = proceso.FECHA,
+                HORA = proceso.HORA,
+                PROCESO_DESCRIPCION = proceso.PROCESO_DESCRIPCION,
+                NORMAS_AUDITAR = proceso.NORMAS_AUDITAR,
+                AUDITOR = proceso.AUDITOR,
+                AUDITADOS = proceso.AUDITADOS
+             
+            });
+
+
+
+            return data > 0;
+        }
+        public async Task<bool> UpdateProceso(AuditoriaProceso proceso)
+        {
+
+            var db = dbConnection();
+
+            var sql = @"UPDATE AuditoriaProceso SET
+                     FECHA= @FECHA,
+                     HORA= @HORA,
+                    PROCESO_DESCRIPCION = @PROCESO_DESCRIPCION,
+                    LIDER_PROCESO = @LIDER_PROCESO,
+                    CARGO_LIDER= @CARGO_LIDER,
+                    NORMAS_AUDITAR = @NORMAS_AUDITAR,
+                    AUDITOR = @AUDITOR,
+                    AUDITADOS = @AUDITADOS,
+                    DOCUMENTOS_REFERENCIA = @DOCUMENTOS_REFERENCIA
+                    WHERE ID_PROCESO_AUDITORIA = @ID_PROCESO_AUDITORIA";
+            var data = await db.ExecuteAsync(sql, new
+            {
+                FK_ID_AUDITORIA = proceso.FK_ID_AUDITORIA,
+                FECHA = proceso.FECHA,
+                HORA = proceso.HORA,
+                PROCESO_DESCRIPCION = proceso.PROCESO_DESCRIPCION,
+                LIDER_PROCESO = proceso.LIDER_PROCESO,
+                CARGO_LIDER = proceso.CARGO_LIDER,
+                NORMAS_AUDITAR = proceso.NORMAS_AUDITAR,
+                AUDITOR = proceso.AUDITOR,
+                AUDITADOS = proceso.AUDITADOS,
+                DOCUMENTOS_REFERENCIA = proceso.DOCUMENTOS_REFERENCIA,
+                ID_PROCESO_AUDITORIA= proceso.ID_PROCESO_AUDITORIA
+
+            });
+
+            return data > 0;
+        }
         public async Task<bool> InsertRequisito(AuditoriaRequisito requisito)
         {
      
@@ -310,6 +359,48 @@ namespace inti_repository.auditoria
             return data > 0;
         }
 
+
+        public async Task<bool> InsertConformidad(AuditoriaConformidad conformidad)
+        {
+
+            var db = dbConnection();
+
+            var sql = @"INSERT INTO AuditoriaConformidad (FK_ID_AUDITORIA,FK_ID_PROCESO,DESCRIPCION,NTC,LEGALES)
+                         VALUES (@FK_ID_AUDITORIA,@FK_ID_PROCESO,@DESCRIPCION,@NTC,@LEGALES)";
+            var data = await db.ExecuteAsync(sql, new
+            {
+                FK_ID_AUDITORIA = conformidad.FK_ID_AUDITORIA,
+                FK_ID_PROCESO = conformidad.FK_ID_PROCESO,
+                DESCRIPCION = conformidad.DESCRIPCION,
+                NTC = conformidad.NTC,
+                LEGALES = conformidad.LEGALES
+
+            });
+
+            return data > 0;
+        }
+        public async Task<bool> UpdateConformidad(AuditoriaConformidad conformidad)
+        {
+
+            var db = dbConnection();
+
+            var sql = @"UPDATE AuditoriaConformidad SET 
+                DESCRIPCION = @DESCRIPCION,
+                NTC = @NTC,
+                LEGALES = @LEGALES
+                        WHERE ID_CONFORMIDAD_AUDITORIA = @ID_CONFORMIDAD_AUDITORIA";
+            var data = await db.ExecuteAsync(sql, new
+            {
+
+                DESCRIPCION = conformidad.DESCRIPCION,
+                NTC = conformidad.NTC,
+                LEGALES = conformidad.LEGALES,
+                ID_CONFORMIDAD_AUDITORIA = conformidad.ID_CONFORMIDAD_AUDITORIA
+
+            });
+
+            return data > 0;
+        }
 
     }
 }

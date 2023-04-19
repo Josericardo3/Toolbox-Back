@@ -11,7 +11,7 @@ namespace inti_model.auditoria
     {
         public int ID_PROCESO_AUDITORIA { get; set; }
         public int FK_ID_AUDITORIA { get; set; }
-        public DateTime FECHA { get; set; }
+        public string? FECHA { get; set; }
         public string? HORA { get; set; }
         public string? PROCESO_DESCRIPCION { get; set; }
         public string? LIDER_PROCESO { get; set; }
