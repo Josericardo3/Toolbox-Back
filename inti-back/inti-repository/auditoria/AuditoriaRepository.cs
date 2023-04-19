@@ -137,10 +137,10 @@ namespace inti_repository.auditoria
             var db = dbConnection();
             var sql = @"SELECT 
                         ID_AUDITORIA,CODIGO,FECHA_AUDITORIA,AUDITOR_LIDER,EQUIPO_AUDITOR,OBJETIVO,ALCANCE,CRITERIO,
-            REUNION_APERTURA,REUNION_CIERRE, OBSERVACIONES,FK_ID_PST,PROCESO,ESTADO
+            FECHA_REUNION_APERTURA,HORA_REUNION_APERTURA,FECHA_REUNION_CIERRE,HORA_REUNION_CIERRE, OBSERVACIONES,FK_ID_PST,PROCESO,ESTADO
             FROM Auditoria  WHERE ID_AUDITORIA= @IdAuditoria AND ESTADO = TRUE ";
             Auditoria data = await db.QueryFirstOrDefaultAsync<Auditoria>(sql, new { IdAuditoria = id });
-            var sqlProceso = @"select ID_PROCESO_AUDITORIA, FK_ID_AUDITORIA,FECHA, PROCESO_DESCRIPCION,
+            var sqlProceso = @"select ID_PROCESO_AUDITORIA, FK_ID_AUDITORIA,FECHA,HORA, PROCESO_DESCRIPCION,
             LIDER_PROCESO,CARGO_LIDER,NORMAS_AUDITAR, AUDITOR,AUDITADOS,DOCUMENTOS_REFERENCIA,ESTADO from AuditoriaProceso where ESTADO=TRUE AND FK_ID_AUDITORIA = @IdAuditoria";
             var dataProceso = db.Query<AuditoriaProceso>(sqlProceso, new { IdAuditoria = id }).ToList();
             foreach (AuditoriaProceso i in dataProceso)
