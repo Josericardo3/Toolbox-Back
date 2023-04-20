@@ -137,11 +137,11 @@ namespace inti_repository.auditoria
             var db = dbConnection();
             var sql = @"SELECT 
                         ID_AUDITORIA,CODIGO,FECHA_AUDITORIA,AUDITOR_LIDER,EQUIPO_AUDITOR,OBJETIVO,ALCANCE,CRITERIO,
-            REUNION_APERTURA,REUNION_CIERRE, OBSERVACIONES,FK_ID_PST,PROCESO,ESTADO
+            FECHA_REUNION_APERTURA,HORA_REUNION_APERTURA,FECHA_REUNION_CIERRE,HORA_REUNION_CIERRE, OBSERVACIONES,FK_ID_PST,PROCESO,ESTADO
             FROM Auditoria  WHERE ID_AUDITORIA= @IdAuditoria AND ESTADO = TRUE ";
             Auditoria data = await db.QueryFirstOrDefaultAsync<Auditoria>(sql, new { IdAuditoria = id });
-            var sqlProceso = @"select ID_PROCESO_AUDITORIA, FK_ID_AUDITORIA,FECHA, PROCESO_DESCRIPCION,
-            LIDER_PROCESO,CARGO_LIDER,NORMAS_AUDITAR, AUDITOR,AUDITADOS,DOCUMENTOS_REFERENCIA,ESTADO from AuditoriaProceso where ESTADO=TRUE AND FK_ID_AUDITORIA = @IdAuditoria";
+            var sqlProceso = @"select ID_PROCESO_AUDITORIA, FK_ID_AUDITORIA,FECHA,HORA, PROCESO_DESCRIPCION,
+            LIDER_PROCESO,CARGO_LIDER,NORMAS_AUDITAR, AUDITOR,AUDITADOS,DOCUMENTOS_REFERENCIA, OBSERVACION_REQUISITO, OBSERVACION_CONFORMIDAD,ESTADO from AuditoriaProceso where ESTADO=TRUE AND FK_ID_AUDITORIA = @IdAuditoria";
             var dataProceso = db.Query<AuditoriaProceso>(sqlProceso, new { IdAuditoria = id }).ToList();
             foreach (AuditoriaProceso i in dataProceso)
             {           
@@ -157,7 +157,7 @@ namespace inti_repository.auditoria
 
             }
 
-            var sqlRequisito = @"select ID_REQUISITO,FK_ID_PROCESO,FK_ID_AUDITORIA, REQUISITO, EVIDENCIA, PREGUNTA,HALLAZGO, OBSERVACION,ESTADO from AuditoriaRequisito where ESTADO=TRUE AND FK_ID_AUDITORIA = @IdAuditoria";
+            var sqlRequisito = @"select ID_REQUISITO,FK_ID_PROCESO,FK_ID_AUDITORIA, REQUISITO, EVIDENCIA, PREGUNTA,HALLAZGO, ESTADO from AuditoriaRequisito where ESTADO=TRUE AND FK_ID_AUDITORIA = @IdAuditoria";
             var dataRequisito = db.Query<AuditoriaRequisito>(sqlRequisito, new { IdAuditoria = id }).ToList();
             foreach (AuditoriaRequisito i in dataRequisito)
             {
@@ -273,8 +273,6 @@ namespace inti_repository.auditoria
              
             });
 
-
-
             return data > 0;
         }
         public async Task<bool> UpdateProceso(AuditoriaProceso proceso)
@@ -291,7 +289,9 @@ namespace inti_repository.auditoria
                     NORMAS_AUDITAR = @NORMAS_AUDITAR,
                     AUDITOR = @AUDITOR,
                     AUDITADOS = @AUDITADOS,
-                    DOCUMENTOS_REFERENCIA = @DOCUMENTOS_REFERENCIA
+                    DOCUMENTOS_REFERENCIA = @DOCUMENTOS_REFERENCIA,
+                    OBSERVACION_REQUISITO = @OBSERVACION_REQUISITO,
+                    OBSERVACION_CONFORMIDAD = @OBSERVACION_CONFORMIDAD
                     WHERE ID_PROCESO_AUDITORIA = @ID_PROCESO_AUDITORIA";
             var data = await db.ExecuteAsync(sql, new
             {
@@ -305,7 +305,9 @@ namespace inti_repository.auditoria
                 AUDITOR = proceso.AUDITOR,
                 AUDITADOS = proceso.AUDITADOS,
                 DOCUMENTOS_REFERENCIA = proceso.DOCUMENTOS_REFERENCIA,
-                ID_PROCESO_AUDITORIA= proceso.ID_PROCESO_AUDITORIA
+                OBSERVACION_REQUISITO = proceso.OBSERVACION_REQUISITO,
+                OBSERVACION_CONFORMIDAD = proceso.OBSERVACION_CONFORMIDAD,
+                ID_PROCESO_AUDITORIA = proceso.ID_PROCESO_AUDITORIA
 
             });
 
@@ -316,8 +318,8 @@ namespace inti_repository.auditoria
      
             var db = dbConnection();
 
-            var sql = @"INSERT INTO AuditoriaRequisito (FK_ID_PROCESO,FK_ID_AUDITORIA,REQUISITO,EVIDENCIA,PREGUNTA,HALLAZGO,OBSERVACION)
-                         VALUES (@FK_ID_PROCESO,@FK_ID_AUDITORIA,@REQUISITO,@EVIDENCIA,@PREGUNTA,@HALLAZGO,@OBSERVACION)";
+            var sql = @"INSERT INTO AuditoriaRequisito (FK_ID_PROCESO,FK_ID_AUDITORIA,REQUISITO,EVIDENCIA,PREGUNTA,HALLAZGO)
+                         VALUES (@FK_ID_PROCESO,@FK_ID_AUDITORIA,@REQUISITO,@EVIDENCIA,@PREGUNTA,@HALLAZGO)";
             var data = await db.ExecuteAsync(sql, new
             {
                 FK_ID_PROCESO = requisito.FK_ID_PROCESO,
@@ -325,9 +327,7 @@ namespace inti_repository.auditoria
                 REQUISITO = requisito.REQUISITO,
                 EVIDENCIA = requisito.EVIDENCIA,
                 PREGUNTA = requisito.PREGUNTA,
-                HALLAZGO = requisito.HALLAZGO,
-                OBSERVACION = requisito.OBSERVACION
-              
+                HALLAZGO = requisito.HALLAZGO              
             });
 
             return data > 0;
@@ -341,8 +341,7 @@ namespace inti_repository.auditoria
                         REQUISITO =@REQUISITO,
                         EVIDENCIA = @EVIDENCIA,
                         PREGUNTA = @PREGUNTA,
-                        HALLAZGO = @HALLAZGO,
-                        OBSERVACION = @OBSERVACION
+                        HALLAZGO = @HALLAZGO
                         WHERE ID_REQUISITO = @ID_REQUISITO";
             var data = await db.ExecuteAsync(sql, new
             {
@@ -351,7 +350,6 @@ namespace inti_repository.auditoria
                 EVIDENCIA = requisito.EVIDENCIA,
                 PREGUNTA = requisito.PREGUNTA,
                 HALLAZGO = requisito.HALLAZGO,
-                OBSERVACION = requisito.OBSERVACION,
                 ID_REQUISITO = requisito.ID_REQUISITO
 
             });

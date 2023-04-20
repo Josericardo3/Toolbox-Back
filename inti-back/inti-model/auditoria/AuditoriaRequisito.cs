@@ -16,7 +16,6 @@ namespace inti_model.auditoria
         public string? EVIDENCIA { get; set; }
         public string? PREGUNTA { get; set; }
         public string? HALLAZGO { get; set; }
-        public string? OBSERVACION { get; set; }
         public bool Estado { get; set; }
 
 
