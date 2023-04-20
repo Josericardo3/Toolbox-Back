@@ -9,6 +9,7 @@ namespace inti_model.usuario
     public class UsuarioPstLogin
     {
         public int IdUsuarioPst { get; set; }
+        public int IdAsesor { get; set; }
         public string? nit { get; set; }
         public string? Password { get; set; }
         public string? Correo { get; set; }
