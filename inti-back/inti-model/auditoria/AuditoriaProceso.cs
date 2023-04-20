@@ -20,8 +20,7 @@ namespace inti_model.auditoria
         public string? AUDITOR { get; set; }
         public string? AUDITADOS { get; set; }
         public string? DOCUMENTOS_REFERENCIA { get; set; }
-        public string? OBSERVACION_REQUISITO { get; set; }
-        public string? OBSERVACION_CONFORMIDAD { get; set; }
+        public string? CONCLUSION_CONFORMIDAD { get; set; }
         public bool ESTADO { get; set; }
 
     }
