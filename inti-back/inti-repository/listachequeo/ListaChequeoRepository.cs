@@ -5,6 +5,7 @@ using inti_model.listachequeo;
 using inti_model.usuario;
 using inti_model;
 using MySql.Data.MySqlClient;
+using Newtonsoft.Json.Schema;
 
 namespace inti_repository.listachequeo
 {
@@ -249,15 +250,25 @@ and ma.idtabla=4";
             var queryPSTxAsesor = @"SELECT idusuario FROM pst_asesor where idusuariopst=@idusuariopst and activo = 1";
             var dataPSTxAsesor = db.Query<PST_Asesor>(queryPSTxAsesor, new { datausuario.IdUsuarioPst }).FirstOrDefault();
 
-
-            var queryUsuario = @"SELECT idUsuario,rnt,correo,nombre FROM Usuario where activo = 1 ";
-            var dataUsuarioAsesor = db.Query<Usuario>(queryUsuario, new { });
-
-            var objasesor = dataUsuarioAsesor.Where(x => x.IdUsuario == dataPSTxAsesor.idusuario).FirstOrDefault();
-
+            Usuario objasesor = new Usuario();
+            if (dataPSTxAsesor == null || dataPSTxAsesor.Equals(DBNull.Value))
+            {
+                objasesor.nombre = "Sin asignar";
+            }
+            else
+            {
+                var queryUsuario = @"SELECT idUsuario,rnt,correo,nombre FROM Usuario where idUsuario=@idusuario and activo = 1 ";
+                var dataUsuarioAsesor = db.Query<Usuario>(queryUsuario, new { idusuario = dataPSTxAsesor.idusuario });
+                objasesor = dataUsuarioAsesor.Where(x => x.IdUsuario == dataPSTxAsesor.idusuario).FirstOrDefault();
+            }
+            
             var queryRespuestaAnalisis = @"SELECT * FROM respuesta_analisis_asesor where idusuario=@idusuario and idnormatecnica = @idnorma and idusuariopst=@idusuariopst";
-            var dataRespuestaAnalisis = db.Query<RespuestaAsesor>(queryRespuestaAnalisis, new { idusuario = objasesor.IdUsuario, idnorma = idnorma, idusuariopst= idusuario }).FirstOrDefault();
-
+            RespuestaAsesor dataRespuestaAnalisis = new RespuestaAsesor();
+            dataRespuestaAnalisis = db.Query<RespuestaAsesor>(queryRespuestaAnalisis, new { idusuario = objasesor.IdUsuario, idnorma = idnorma, idusuariopst= idusuario }).FirstOrDefault();
+            if (dataRespuestaAnalisis == null || dataRespuestaAnalisis.Equals(DBNull.Value))
+            {
+                dataRespuestaAnalisis.respuestaanalisis = "No aplica";
+            }
             List<ConsolidadoDiagnostico>? listConsolidado = new List<ConsolidadoDiagnostico>();
             ConsolidadoDiagnostico objConsolidado = new ConsolidadoDiagnostico();
             foreach (var item in dataagrupaciondiagnostico)
