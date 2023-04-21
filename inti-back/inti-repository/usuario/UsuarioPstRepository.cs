@@ -91,35 +91,89 @@ namespace inti_repository.usuario
         }
         public async Task<UsuarioPstLogin> LoginUsuario(string user, string Password, string Correo)
         {
-            var db = dbConnection();
-            ulong n;
-            bool isnumeric = ulong.TryParse(user, out n);
-            var sql = "";
-            var itipousuario = 0;
-            if (isnumeric)
-            {
-                sql = @"SELECT Idusuariopst,nit,password,correopst FROM usuariospst WHERE rnt = @user AND password = SHA1(@Password) AND correopst = @Correopst";
-                itipousuario = 1;
-            }
-            else
+            try
             {
 
-                sql = @"SELECT Idusuario as Idusuariopst,password,correo as correopst FROM Usuario WHERE rnt = @user AND password = SHA1(@Password) AND correo = @Correopst";
-                itipousuario = 2;
-            }
-            UsuarioPstLogin objUsuarioLogin = new UsuarioPstLogin();
-            objUsuarioLogin = db.QueryFirstOrDefault<UsuarioPstLogin>(sql, new { user, Password, Correopst = Correo });
+                var db = dbConnection();
+                ulong n;
+                bool isnumeric = ulong.TryParse(user, out n);
+                var sql = "";
+                var itipousuario = 0;
+                if (isnumeric)
+                {
+                    sql = @"
+                        SELECT 
+                            us.idusuariopst as IdUsuarioPst,
+                            us.nit,
+                            us.password,
+                            us.correopst,
+                            pa.idUsuario as idAsesor
+                        FROM
+                            usuariospst us
+                                INNER JOIN
+                            pst_asesor pa ON us.idusuariopst = pa.idusuariopst
+                        WHERE
+                            us.rnt = @user
+                                AND us.password = SHA1(@Password)
+                                AND us.correopst = @Correopst";
+                    itipousuario = 1;
+                }
+                else
+                {
+                    sql = @"SELECT Idusuario as Idusuariopst,password,correo as correopst FROM Usuario WHERE rnt = @user AND password = SHA1(@Password) AND correo = @Correopst";
+                    itipousuario = 2;
+                }
+                UsuarioPstLogin objUsuarioLogin = new UsuarioPstLogin();
+                objUsuarioLogin = db.QueryFirstOrDefault<UsuarioPstLogin>(sql, new { user, Password, Correopst = Correo });
+                if (objUsuarioLogin.idAsesor == 0)
+                {
+                    objUsuarioLogin.idAsesor = -1;
+                }
+                if (objUsuarioLogin != null)
+                {
+                    var objpermiso = ObtenerPermisosUsuario(objUsuarioLogin.IdUsuarioPst, itipousuario);
+                    objUsuarioLogin.Grupo = objpermiso.Where(x => x.idtabla == 1).ToList();
+                    objUsuarioLogin.SubGrupo = objpermiso.Where(x => x.idtabla == 2).ToList();
+                    objUsuarioLogin.permisoUsuario = objpermiso.Where(x => x.idtabla == 3).ToList();
+                }
 
-            if (objUsuarioLogin != null)
+                return await Task.FromResult<UsuarioPstLogin>(objUsuarioLogin);
+            }
+            catch 
             {
-                var objpermiso = ObtenerPermisosUsuario(objUsuarioLogin.IdUsuarioPst, itipousuario);
+                var db = dbConnection();
+                ulong n;
+                bool isnumeric = ulong.TryParse(user, out n);
+                var sql = "";
+                var itipousuario = 0;
+                if (isnumeric)
+                {
+                    sql = @"SELECT Idusuariopst,nit,password,correopst FROM usuariospst WHERE rnt = @user AND password = SHA1(@Password) AND correopst = @Correopst";
+                    itipousuario = 1;
+                }
+                else
+                {
 
-                objUsuarioLogin.Grupo = objpermiso.Where(x => x.idtabla == 1).ToList();
-                objUsuarioLogin.SubGrupo = objpermiso.Where(x => x.idtabla == 2).ToList();
-                objUsuarioLogin.permisoUsuario = objpermiso.Where(x => x.idtabla == 3).ToList();
+                    sql = @"SELECT Idusuario as Idusuariopst,password,correo as correopst FROM Usuario WHERE rnt = @user AND password = SHA1(@Password) AND correo = @Correopst";
+                    itipousuario = 2;
+                }
+                UsuarioPstLogin objUsuarioLogin = new UsuarioPstLogin();
+                objUsuarioLogin = db.QueryFirstOrDefault<UsuarioPstLogin>(sql, new { user, Password, Correopst = Correo });
+
+                if (objUsuarioLogin.idAsesor == 0 )
+                {
+                    objUsuarioLogin.idAsesor = -1;
+                }
+                if (objUsuarioLogin != null)
+                {
+                    var objpermiso = ObtenerPermisosUsuario(objUsuarioLogin.IdUsuarioPst, itipousuario);
+                    objUsuarioLogin.Grupo = objpermiso.Where(x => x.idtabla == 1).ToList();
+                    objUsuarioLogin.SubGrupo = objpermiso.Where(x => x.idtabla == 2).ToList();
+                    objUsuarioLogin.permisoUsuario = objpermiso.Where(x => x.idtabla == 3).ToList();
+                }
+
+                return await Task.FromResult<UsuarioPstLogin>(objUsuarioLogin);
             }
-
-            return await Task.FromResult<UsuarioPstLogin>(objUsuarioLogin);
         }
         public IEnumerable<Permiso> ObtenerPermisosUsuario(int id, int tipousuario)
         {
@@ -137,8 +191,6 @@ namespace inti_repository.usuario
         public async Task<int> RegistrarEmpleadoPst(int id, string correo, string rnt)
         {
             var db = dbConnection();
-
-
 
             var queryUsuario = @"Select * from usuariospst where idusuariopst = @id and activo = true";
             UsuarioPst dataUsuario = await db.QueryFirstAsync<UsuarioPst>(queryUsuario, new { id, correo });
