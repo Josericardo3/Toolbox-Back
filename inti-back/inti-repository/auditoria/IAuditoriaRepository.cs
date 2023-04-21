@@ -16,8 +16,14 @@ namespace inti_repository.auditoria
 
         Task<IEnumerable<Usuario>> ListarAuditor(string rnt);
         Task<Auditoria> GetAuditoria(int id);
-        Task<bool> InsertAuditoria(Auditoria auditoria);
-        Task<bool> UpdateAuditoria(Auditoria auditoria);
+
+        Task<bool> InsertPlanAuditoria(Auditoria auditoria);
+        Task<bool> UpdatePlanAuditoria(Auditoria auditoria);
+        Task<bool> InsertVerificacionAuditoria(AuditoriaProceso proceso);
+        Task<bool> UpdateVerificacionAuditoria(AuditoriaProceso proceso);
+        Task<bool> InsertInformeAuditoria(AuditoriaProceso proceso);
+        Task<bool> UpdateInformeAuditoria(AuditoriaProceso proceso);
+
 
         Task<ResponseAuditoria> GetResponseAuditoria(string tipo, int idAuditoria);
         Task<IEnumerable<Auditoria>> ListarAuditorias(int idPst);

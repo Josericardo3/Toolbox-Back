@@ -1,6 +1,6 @@
-﻿using inti_model.caracterizacion;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,7 +22,17 @@ namespace inti_model.auditoria
         public string? DOCUMENTOS_REFERENCIA { get; set; }
         public string? CONCLUSION_CONFORMIDAD { get; set; }
         public bool ESTADO { get; set; }
+        public List<AuditoriaRequisito> REQUISITOS { get; set; }
+        public List<AuditoriaConformidad> CONFORMIDADES { get; set; }
 
-    }
+
+        public AuditoriaProceso()
+        {
+
+            REQUISITOS = new List<AuditoriaRequisito>();
+            CONFORMIDADES = new List<AuditoriaConformidad>();
+
+        }
+}
 
 }

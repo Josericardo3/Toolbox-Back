@@ -11,7 +11,6 @@ namespace inti_model.auditoria
     {
         public int ID_REQUISITO { get; set; }
         public int FK_ID_PROCESO { get; set; }
-        public int FK_ID_AUDITORIA { get; set; }
         public string? REQUISITO { get; set; }
         public string? EVIDENCIA { get; set; }
         public string? PREGUNTA { get; set; }

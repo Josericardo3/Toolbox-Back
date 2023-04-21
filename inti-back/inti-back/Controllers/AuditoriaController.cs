@@ -40,13 +40,13 @@ namespace inti_back.Controllers
         {
             return Ok(await _auditoriaRepository.ListarAuditor(rnt));
         }
-        [HttpPost("InsertAuditoria")]
-        public async Task<IActionResult> InsertAuditoria([FromBody] Auditoria auditoria)
+        [HttpPost("InsertPlanAuditoria")]
+        public async Task<IActionResult> InsertPlanAuditoria([FromBody] Auditoria auditoria)
         {
 
             try
             {
-                var create = await _auditoriaRepository.InsertAuditoria(auditoria);
+                var create = await _auditoriaRepository.InsertPlanAuditoria(auditoria);
                 if (create == null)
                 {
                     return Ok(new
@@ -77,13 +77,159 @@ namespace inti_back.Controllers
 
         }
 
-        [HttpPost("UpdateAuditoria")]
-        public async Task<IActionResult> UpdateAuditoria([FromBody] Auditoria auditoria)
+        [HttpPost("UpdatePlanAuditoria")]
+        public async Task<IActionResult> UpdatePlanAuditoria([FromBody] Auditoria auditoria)
         {
 
             try
             {
-                var create = await _auditoriaRepository.UpdateAuditoria(auditoria);
+                var create = await _auditoriaRepository.UpdatePlanAuditoria(auditoria);
+                if (create == null)
+                {
+                    return Ok(new
+                    {
+                        StatusCode(404).StatusCode,
+                        Mensaje = "No se ingresaron correctamente los datos de la auditoria"
+                    });
+                }
+                if (!ModelState.IsValid)
+                {
+                    return Ok(new
+                    {
+                        StatusCode(200).StatusCode,
+                        Mensaje = "El modelo no es válido"
+                    });
+                }
+                return Ok(create);
+            }
+            catch (Exception e)
+            {
+                return Ok(new
+                {
+                    StatusCode(404).StatusCode,
+                    Mensaje = e.Message,
+                    Valor = "No se ingresaron correctamente los datos de la auditoría"
+                });
+            }
+
+        }
+        [HttpPost("InsertVerificacionAuditoria")]
+        public async Task<IActionResult> InsertVerificacionAuditoria([FromBody] AuditoriaProceso proceso)
+        {
+
+            try
+            {
+                var create = await _auditoriaRepository.InsertVerificacionAuditoria(proceso);
+                if (create == null)
+                {
+                    return Ok(new
+                    {
+                        StatusCode(404).StatusCode,
+                        Mensaje = "No se ingresaron correctamente los datos de la auditoria"
+                    });
+                }
+                if (!ModelState.IsValid)
+                {
+                    return Ok(new
+                    {
+                        StatusCode(200).StatusCode,
+                        Mensaje = "El modelo no es válido"
+                    });
+                }
+                return Ok(create);
+            }
+            catch (Exception e)
+            {
+                return Ok(new
+                {
+                    StatusCode(404).StatusCode,
+                    Mensaje = e.Message,
+                    Valor = "No se ingresaron correctamente los datos de la auditoría"
+                });
+            }
+
+        }
+
+        [HttpPost("UpdateVerificacionAuditoria")]
+        public async Task<IActionResult> UpdateVerificacionAuditoria([FromBody] AuditoriaProceso proceso)
+        {
+
+            try
+            {
+                var create = await _auditoriaRepository.UpdateVerificacionAuditoria(proceso);
+                if (create == null)
+                {
+                    return Ok(new
+                    {
+                        StatusCode(404).StatusCode,
+                        Mensaje = "No se ingresaron correctamente los datos de la auditoria"
+                    });
+                }
+                if (!ModelState.IsValid)
+                {
+                    return Ok(new
+                    {
+                        StatusCode(200).StatusCode,
+                        Mensaje = "El modelo no es válido"
+                    });
+                }
+                return Ok(create);
+            }
+            catch (Exception e)
+            {
+                return Ok(new
+                {
+                    StatusCode(404).StatusCode,
+                    Mensaje = e.Message,
+                    Valor = "No se ingresaron correctamente los datos de la auditoría"
+                });
+            }
+
+        }
+        [HttpPost("InsertInformeAuditoria")]
+        public async Task<IActionResult> InsertInformeAuditoria([FromBody] AuditoriaProceso proceso)
+        {
+
+            try
+            {
+                var create = await _auditoriaRepository.InsertInformeAuditoria(proceso);
+                if (create == null)
+                {
+                    return Ok(new
+                    {
+                        StatusCode(404).StatusCode,
+                        Mensaje = "No se ingresaron correctamente los datos de la auditoria"
+                    });
+                }
+                if (!ModelState.IsValid)
+                {
+                    return Ok(new
+                    {
+                        StatusCode(200).StatusCode,
+                        Mensaje = "El modelo no es válido"
+                    });
+                }
+                return Ok(create);
+            }
+            catch (Exception e)
+            {
+                return Ok(new
+                {
+                    StatusCode(404).StatusCode,
+                    Mensaje = e.Message,
+                    Valor = "No se ingresaron correctamente los datos de la auditoría"
+                });
+            }
+
+        }
+
+        [HttpPost("UpdateInformeAuditoria")]
+        public async Task<IActionResult> UpdateInformeAuditoria([FromBody] AuditoriaProceso proceso)
+        {
+
+            try
+            {
+                var create = await _auditoriaRepository.UpdateInformeAuditoria(proceso);
                 if (create == null)
                 {
                     return Ok(new

@@ -1,5 +1,4 @@
-﻿using inti_model.caracterizacion;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -25,16 +24,12 @@ namespace inti_model.auditoria
         public string? OBSERVACIONES { get; set; }
         public string? PROCESO { get; set; }
 
-        public List<AuditoriaConformidad> CONFORMIDADES { get; set; }
         public List<AuditoriaProceso> PROCESOS { get; set; }
-        public List<AuditoriaRequisito> REQUISITOS { get; set; }
+
 
         public Auditoria()
         {
-
-            CONFORMIDADES = new List<AuditoriaConformidad>();
             PROCESOS = new List<AuditoriaProceso>();
-            REQUISITOS = new List<AuditoriaRequisito>();
         }
 
     }
