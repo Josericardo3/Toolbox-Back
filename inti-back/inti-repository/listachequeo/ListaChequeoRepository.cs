@@ -265,10 +265,13 @@ and ma.idtabla=4";
             var queryRespuestaAnalisis = @"SELECT * FROM respuesta_analisis_asesor where idusuario=@idusuario and idnormatecnica = @idnorma and idusuariopst=@idusuariopst";
             RespuestaAsesor dataRespuestaAnalisis = new RespuestaAsesor();
             dataRespuestaAnalisis = db.Query<RespuestaAsesor>(queryRespuestaAnalisis, new { idusuario = objasesor.IdUsuario, idnorma = idnorma, idusuariopst= idusuario }).FirstOrDefault();
+            RespuestaAsesor dataRespuesta = new RespuestaAsesor();
             if (dataRespuestaAnalisis == null || dataRespuestaAnalisis.Equals(DBNull.Value))
             {
-                dataRespuestaAnalisis.respuestaanalisis = "No aplica";
+                dataRespuesta.respuestaanalisis = "No aplica";
+                dataRespuestaAnalisis = dataRespuesta;
             }
+
             List<ConsolidadoDiagnostico>? listConsolidado = new List<ConsolidadoDiagnostico>();
             ConsolidadoDiagnostico objConsolidado = new ConsolidadoDiagnostico();
             foreach (var item in dataagrupaciondiagnostico)

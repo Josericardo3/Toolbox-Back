@@ -106,12 +106,18 @@ and m.idtabla=12";
             var queryPSTxAsesor = @"SELECT idusuario FROM pst_asesor where idusuariopst=@idusuariopst and activo = 1";
             var dataPSTxAsesor = db.Query<PST_Asesor>(queryPSTxAsesor, new { datausuario.IdUsuarioPst }).FirstOrDefault();
 
+            Usuario objasesor = new Usuario();
 
-            var queryUsuario = @"SELECT idUsuario,rnt,correo,nombre FROM Usuario where activo = 1 ";
-            var dataUsuarioAsesor = db.Query<Usuario>(queryUsuario, new { });
-
-            var objasesor = dataUsuarioAsesor.Where(x => x.IdUsuario == dataPSTxAsesor.idusuario).FirstOrDefault();
-
+            if (dataPSTxAsesor == null || dataPSTxAsesor.Equals(DBNull.Value))
+            {
+                objasesor.nombre = "Sin asignar";
+            }
+            else
+            {
+                var queryUsuario = @"SELECT idUsuario,rnt,correo,nombre FROM Usuario where activo = 1 ";
+                var dataUsuarioAsesor = db.Query<Usuario>(queryUsuario, new { });
+                objasesor = dataUsuarioAsesor.Where(x => x.IdUsuario == dataPSTxAsesor.idusuario).FirstOrDefault();
+            }
             ResponseArchivoPlanMejora responsePlanMejora = new ResponseArchivoPlanMejora();
 
             responsePlanMejora.Titulo = dataTitulo.descripcion;
