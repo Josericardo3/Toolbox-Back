@@ -70,6 +70,7 @@ namespace inti_model.usuario
 
         [Required(ErrorMessage = "Avatar es requerido")]
         public int idTipoAvatar { get; set; }
+        public string logo { get; set; }
         public bool Activo { get; set; }
 
     }

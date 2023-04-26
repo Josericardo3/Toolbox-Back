@@ -1,4 +1,5 @@
 ﻿using inti_model.asesor;
+using inti_model.usuario;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,5 +15,10 @@ namespace inti_repository.actividad
         Task<bool> InsertActividad(ActividadesAsesor actividades);
         Task<bool> UpdateActividad(ActividadesAsesor actividades);
         Task<bool> DeleteActividad(int id, int idAsesor);
+        Task<IEnumerable<Usuario>> ListarResponsable(string rnt);
+        Task<bool> AsignarAvatar(UsuarioPst usuario);
+        Task<bool> AsignarLogo(UsuarioPst usuario);
+
+
     }
 }

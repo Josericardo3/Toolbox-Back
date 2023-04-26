@@ -1,4 +1,5 @@
 ﻿using inti_model.asesor;
+using inti_model.usuario;
 using inti_repository.actividad;
 using Microsoft.AspNetCore.Mvc;
 
@@ -118,6 +119,71 @@ namespace inti_back.Controllers
                     valor = "la actividad no se ha encontrado"
                 });
             }
+        }
+
+        [HttpGet("ListarResponsables/{rnt}")]
+        public async Task<IActionResult> GetAllAuditor(string rnt)
+        {
+            return Ok(await _actividadRepository.ListarResponsable(rnt));
+        }
+
+        [HttpPut("Avatar")]
+        public async Task<IActionResult> AsignarAvatar([FromBody] UsuarioPst usuario)
+        {
+            try
+            {
+                var resp = await _actividadRepository.AsignarAvatar(usuario);
+                if (resp == true)
+                {
+                    return Ok(new
+                    {
+                        Id = usuario.IdUsuarioPst,
+                        StatusCode(200).StatusCode
+                    });
+                }
+                else
+                {
+                    throw new Exception();
+                }
+            }
+            catch (Exception)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "no se pudo asignar el avatar"
+                });
+            }
+
+        }
+        [HttpPut("Logo")]
+        public async Task<IActionResult> AsignarLogo([FromBody] UsuarioPst usuario)
+        {
+            try
+            {
+                var resp = await _actividadRepository.AsignarLogo(usuario);
+                if (resp == true)
+                {
+                    return Ok(new
+                    {
+                        Id = usuario.IdUsuarioPst,
+                        StatusCode(200).StatusCode
+                    });
+                }
+                else
+                {
+                    throw new Exception();
+                }
+            }
+            catch (Exception)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "no se pudo cargar el logo"
+                });
+            }
+
         }
 
     }

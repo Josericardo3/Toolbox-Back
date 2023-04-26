@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using inti_model.asesor;
+using inti_model.usuario;
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
@@ -75,5 +76,37 @@ namespace inti_repository.actividad
             return result > 0;
         }
 
+
+        public async Task<IEnumerable<Usuario>> ListarResponsable(string rnt)
+        {
+            var db = dbConnection();
+            var queryAsesor = @"
+                SELECT 
+                   idUsuario, nombre,cargo,rnt FROM Usuario  
+                WHERE rnt = @rnt AND activo = true ;";
+
+            var dataAsesor = await db.QueryAsync<Usuario>(queryAsesor, new { rnt = rnt });
+
+            return dataAsesor;
+
+        }
+        public async Task<bool> AsignarAvatar(UsuarioPst usuario)
+        {
+            var db = dbConnection();
+            var sql = @"UPDATE usuariospst 
+                        SET idtipoavatar = @idAvatar
+                        WHERE idusuariopst = @id and activo = TRUE";
+            var result = await db.ExecuteAsync(sql, new { idAvatar = usuario.idTipoAvatar, id = usuario.IdUsuarioPst});
+            return result > 0;
+        }
+        public async Task<bool> AsignarLogo (UsuarioPst usuario)
+        {
+            var db = dbConnection();
+            var sql = @"UPDATE usuariospst 
+                        SET logo = @logo
+                        WHERE idusuariopst = @id and activo = TRUE";
+            var result = await db.ExecuteAsync(sql, new { logo = usuario.logo, id = usuario.IdUsuarioPst });
+            return result > 0;
+        }
     }
 }

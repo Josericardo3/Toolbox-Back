@@ -16,6 +16,7 @@ using inti_repository.validaciones;
 using inti_repository.planmejora;
 using inti_repository.matrizlegal;
 using inti_repository.auditoria;
+using inti_repository.general;
 
 const String default_url = "http://{0}:{1};https://{2}:{3}"; 
 
@@ -95,6 +96,7 @@ builder.Services.AddScoped<IValidacionesRepository, ValidacionesRepository>();
 builder.Services.AddScoped<IPlanMejoraRepository, PlanMejoraRepository>();
 builder.Services.AddScoped<IMatrizLegalRepository, MatrizLegalRepository>();
 builder.Services.AddScoped<IAuditoriaRepository, AuditoriaRepository>();
+builder.Services.AddScoped<IGeneralRepository, GeneralRepository>();
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(options =>
