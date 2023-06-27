@@ -1,12 +1,14 @@
 ﻿using Dapper;
 using inti_model.asesor;
 using inti_model.usuario;
+using inti_model.dboinput;
+using Microsoft.AspNetCore.Components.Routing;
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading.Tasks; 
 
 namespace inti_repository.caracterizacion
 {
@@ -23,102 +25,118 @@ namespace inti_repository.caracterizacion
             return new MySqlConnection(_connectionString.ConnectionString);
         }
 
-        public async Task<int> RegistrarAsesor(Asesor objasesor)
+        public async Task<int> RegistrarAsesor(InputAsesor objAsesor)
         {
 
             var db = dbConnection();
-            var insertAsesor = @"INSERT INTO Usuario(rnt,correo,nombre ,password, activo) Values (@rnt,@correo,@nombre, SHA1(@password),1)";
-            var result = await db.ExecuteAsync(insertAsesor, new { objasesor.rnt, objasesor.correo, objasesor.nombre, password = 123 });
-
-            if (result > 0)
+            var queryAsesor = @"INSERT INTO Asesor(RNT,CORREO,NOMBRE) VALUES(@RNT,@CORREO,@NOMBRE)";
+            var insertAsesor = await db.ExecuteAsync(queryAsesor, new { RNT = objAsesor.RNT, CORREO = objAsesor.CORREO, NOMBRE = objAsesor.NOMBRE});
+   
+            Asesor oAsesor = new Asesor();
+            Usuario oUser = new Usuario();
+            if (insertAsesor > 0)
             {
 
+                var sqlobtenerasesor = @"SELECT ID_ASESOR, RNT, CORREO, NOMBRE FROM Asesor WHERE RNT = @user AND CORREO = @Correo";
 
-                var sqlobtenerasesor = @"SELECT idUsuario as IdUsuarioPst,password,correo as correopst FROM Usuario WHERE rnt = @user AND correo = @Correopst";
+                oAsesor = db.QueryFirstOrDefault<Asesor>(sqlobtenerasesor, new { user = objAsesor.RNT, Correo = objAsesor.CORREO });
 
-                UsuarioPstLogin objUsuarioLogin = new UsuarioPstLogin();
-                objUsuarioLogin = db.QueryFirstOrDefault<UsuarioPstLogin>(sqlobtenerasesor, new { user = objasesor.rnt, Password = 123, Correopst = objasesor.correo });
 
-                var insertPermisoAsesor = @"INSERT INTO permiso(idtabla,item,idusuariopst,estado,tipousuario) Values (1,2,@result,1,2)";
-                var resultPermiso = await db.ExecuteAsync(insertPermisoAsesor, new { result = objUsuarioLogin.IdUsuarioPst });
+                var insertUsuario = @"INSERT INTO Usuario(FK_ID_ASESOR,RNT,ID_TIPO_USUARIO,CORREO,PASSWORD,ESTADO) Values (@FK_ID_ASESOR,@RNT,@ID_TIPO_USUARIO,@CORREO,SHA1(@PASSWORD),1)";
+                var result = await db.ExecuteAsync(insertUsuario, new { FK_ID_ASESOR = oAsesor.ID_ASESOR, objAsesor.RNT, ID_TIPO_USUARIO = 8, objAsesor.CORREO, password = 123 });
 
-                if (sqlobtenerasesor != null)
-                {
-                    return objUsuarioLogin.IdUsuarioPst;
-                }
-                else
-                {
-                    throw new Exception();
-                }
-            }
-            else
-            {
-                throw new Exception();
+                var queryusuario = @"SELECT LAST_INSERT_ID() FROM Usuario limit 1;";
+                var idusuario = await db.QueryFirstAsync<int>(queryusuario);
+
+
+
+
+                var insertPermisoAsesor = @"INSERT INTO MaePermiso(ID_TABLA,ITEM,FK_ID_USUARIO,ESTADO,TIPO_USUARIO) Values (1,8,@result,1,8)";
+                var resultPermiso = await db.ExecuteAsync(insertPermisoAsesor, new { result = idusuario });
+
             }
 
+            return oUser.ID_USUARIO;
         }
 
-        public async Task<IEnumerable<AsesorPst>> ListarPSTxAsesor(int idasesor, int idtablamaestro)
+        public async Task<IEnumerable<Asesor>> ListarPSTxAsesor(int idasesor, int idtablamaestro)
         {
             var db = dbConnection();
             var queryPSTAsesor = "";
-            IEnumerable<AsesorPst> dataPSTAsesor = new List<AsesorPst>();
+            IEnumerable<Asesor> dataPSTAsesor = new List<Asesor>();
 
             if (idasesor == 0)
-            {
+            { 
                 queryPSTAsesor = @"
-                    SELECT up.idusuariopst,up.rnt,up.nombrepst as Razonsocial,u.nombre as asesorasignado,ma.descripcion as estadoatencion  FROM intidb.usuariospst up
-
-                    left join pst_asesor pa
-                    on pa.idusuariopst = up.idusuariopst
-                    left join Usuario u
-                    on pa.idusuario = u.idUsuario
-                    left join atencion_usuariopst au
-                    on pa.idusuariopst = au.idusuariopst
-                    left join maestro ma
-                    on au.estado = ma.item
-                    where 
-
-                     pa.activo=1
-                    and up.activo=1
-                    and u.activo=1
-                    and ma.idtabla=@idtabla
-                    and  ma.estado=1
-
-                    union all
-
-                    SELECT idusuariopst,rnt,nombrepst,'no asignado'as asesorasignado, 'sin atencion' as estadoatencion FROM usuariospst
-                    where idusuariopst not in(select idusuariopst from pst_asesor)
-                    and activo=1";
-                dataPSTAsesor = await db.QueryAsync<AsesorPst>(queryPSTAsesor, new { idtabla = idtablamaestro });
+                      SELECT 
+                        ps.ID_PST,
+                        ps.RNT,
+                        ps.NOMBRE_PST AS RAZON_SOCIAL_PST,
+                        a.NOMBRE AS ASESOR_ASIGNADO,
+                        ma.descripcion AS ESTADO_ATENCION
+                    FROM
+                        Pst ps
+                            LEFT JOIN
+                        AsesorPst pa ON pa.FK_ID_PST = ps.ID_PST
+                            LEFT JOIN
+                        Asesor a ON pa.FK_ID_ASESOR = a.ID_ASESOR
+                            LEFT JOIN
+                        AtencionUsuarioPst au ON pa.FK_ID_PST = au.FK_ID_USUARIO
+                            LEFT JOIN
+                        MaeGeneral ma ON au.ESTADO = ma.ITEM
+                    WHERE
+                        pa.ESTADO = 1 AND ps.ESTADO = 1
+                            AND a.ESTADO = 1
+							AND ma.ID_TABLA = @ID_TABLA
+                            AND ma.ESTADO = 1 
+                    UNION ALL SELECT 
+                        FK_ID_USUARIO,
+                        RNT,
+                        NOMBRE_PST,
+                        'no asignado' AS ASESOR_ASIGNADO,
+                        'sin atencion' AS ESTADO_ATENCION
+                    FROM
+                        Pst
+                    WHERE
+                        FK_ID_USUARIO NOT IN (SELECT 
+                                FK_ID_USUARIO
+                            FROM
+                                AsesorPst)
+                            AND ESTADO = 1";
+                dataPSTAsesor = await db.QueryAsync<Asesor>(queryPSTAsesor, new { ID_TABLA = idtablamaestro });
             }
             else
             {
                 queryPSTAsesor = @"
-                    SELECT up.idusuariopst,up.rnt,up.nombrepst as Razonsocial,u.nombre as asesorasignado,ma.descripcion as estadoatencion  FROM intidb.usuariospst up
+                      SELECT 
+                        ps.ID_PST,
+	                    ps.RNT,
+                        ps.NOMBRE_PST AS RAZON_SOCIAL_PST,
+                        a.NOMBRE AS ASESOR_ASIGNADO,
+                        ma.descripcion AS ESTADO_ATENCION
+                    FROM
+                        Pst ps
+                            LEFT JOIN
+                        AsesorPst pa ON pa.FK_ID_PST = ps.ID_PST
+                            LEFT JOIN
+                        Asesor a ON pa.FK_ID_ASESOR = a.ID_ASESOR
+                            LEFT JOIN
+                        AtencionUsuarioPst au ON pa.FK_ID_PST = au.FK_ID_USUARIO
+                            LEFT JOIN
+                        MaeGeneral ma ON au.ESTADO = ma.ITEM
+                    WHERE
+							pa.FK_ID_ASESOR = @FK_ID_ASESOR
+                            AND  pa.ESTADO = 1
+                            AND ps.ESTADO = 1
+                            AND a.ESTADO = 1
+                            AND ma.ID_TABLA = @ID_TABLA
+                            AND ma.ESTADO = 1";
 
-                    left join pst_asesor pa
-                    on pa.idusuariopst = up.idusuariopst
-                    left join Usuario u
-                    on pa.idusuario = u.idUsuario
-                    left join atencion_usuariopst au
-                    on pa.idusuariopst = au.idusuariopst
-                    left join maestro ma
-                    on au.estado = ma.item
-                    where 
-                    pa.idusuario = @idusuario
-                    and pa.activo=1
-                    and up.activo=1
-                    and u.activo=1
-                    and ma.idtabla=@idtabla
-                    and  ma.estado=1
-                    ";
-
-                dataPSTAsesor = await db.QueryAsync<AsesorPst>(queryPSTAsesor, new { idusuario = idasesor, idtabla = idtablamaestro });
+                dataPSTAsesor = await db.QueryAsync<Asesor>(queryPSTAsesor, new { FK_ID_ASESOR = idasesor, ID_TABLA = idtablamaestro });
 
             }
 
-            dataPSTAsesor = dataPSTAsesor.OrderBy(x => x.idusuariopst);
+            dataPSTAsesor = dataPSTAsesor.OrderBy(x => x.ID_PST);
 
             return dataPSTAsesor;
 
@@ -128,38 +146,36 @@ namespace inti_repository.caracterizacion
         {
 
             AsesorPstCreate objPST_Asesor = new AsesorPstCreate();
-            objPST_Asesor.idusuario = obj.idUsuario;
-            objPST_Asesor.idusuariopst = obj.idusuariopst;
+            objPST_Asesor.ID_ASESOR = obj.ID_ASESOR;
+            objPST_Asesor.ID_PST = obj.ID_PST;
             var db = dbConnection();
-            var queryPSTxAsesor = @"SELECT idusuariopst FROM pst_asesor where idusuariopst=@idusuariopst and activo = 1";
-            var dataPSTxAsesor = await db.QueryAsync<AsesorPst>(queryPSTxAsesor, new { objPST_Asesor.idusuariopst });
+            var queryPSTxAsesor = @"
+                SELECT 
+                    FK_ID_PST
+                FROM
+                    AsesorPst
+                WHERE
+                    FK_ID_PST = @FK_ID_PST
+                        AND ESTADO = 1";
+            var dataPSTxAsesor = await db.QueryAsync<Asesor>(queryPSTxAsesor, new { FK_ID_PST = objPST_Asesor.ID_PST });
             var result = 0;
             var conteo = dataPSTxAsesor.Count();
             if (conteo > 0)
             {
 
-                var sql = @"UPDATE pst_asesor 
-                        SET idusuario = @idusuario
-                            
-                            WHERE idusuariopst = @idusuariopst
-                           
-                            and activo=1";
-                result = await db.ExecuteAsync(sql, new { objPST_Asesor.idusuario, objPST_Asesor.idusuariopst });
+                var sql = @"UPDATE AsesorPst 
+                            SET 
+                                ESTADO = 0
+                            WHERE FK_ID_PST = @FK_ID_PST
+                                AND ESTADO = 1";
+                result = await db.ExecuteAsync(sql, new { FK_ID_PST = objPST_Asesor.ID_PST });
 
             }
-            else
-            {
-                var insertAsesor = @"INSERT INTO pst_asesor(idusuario,idusuariopst,activo) Values (@idusuario,@idusuariopst,1)";
-                result = await db.ExecuteAsync(insertAsesor, new { objPST_Asesor.idusuario, objPST_Asesor.idusuariopst });
+            var insertAsesor = @"INSERT INTO AsesorPst (FK_ID_PST,FK_ID_ASESOR,ESTADO) VALUES (@FK_ID_PST,@FK_ID_ASESOR,1)";
+            result = await db.ExecuteAsync(insertAsesor, new { FK_ID_PST = objPST_Asesor.ID_PST, FK_ID_ASESOR = objPST_Asesor.ID_ASESOR });
 
-                var insertAtencionPST = @"INSERT INTO atencion_usuariopst(idusuariopst,estado) Values (@idusuariopst,1)";
-                result = await db.ExecuteAsync(insertAtencionPST, new { objPST_Asesor.idusuariopst });
-
-            }
-
-
-
-
+            var insertAtencionPST = @"INSERT INTO AtencionUsuarioPst (FK_ID_USUARIO,ESTADO) VALUES (@FK_ID_PST,1)";
+            result = await db.ExecuteAsync(insertAtencionPST, new {FK_ID_PST = objPST_Asesor.ID_PST });
             return result > 0;
 
         }
@@ -167,19 +183,37 @@ namespace inti_repository.caracterizacion
         public async Task<bool> UpdateAsesor(UsuarioUpdate objAsesor)
         {
             var db = dbConnection();
-            var sql = @"UPDATE Usuario 
-                        SET rnt = @rnt,
-                            correo = @correo,
-                            nombre = @nombre
-                            WHERE idUsuario = @idUsuario and activo=1";
-            var result = await db.ExecuteAsync(sql, new { objAsesor.rnt, objAsesor.correo, objAsesor.nombre, objAsesor.idUsuario });
-            return result > 0;
+            var sql = @"
+                UPDATE Asesor 
+                SET 
+                    RNT = @RNT,
+                    CORREO = @CORREO,
+                    NOMBRE = @NOMBRE
+                WHERE
+                    FK_ID_USUARIO = @ID_USUARIO AND ESTADO = 1";
+            var result = await db.ExecuteAsync(sql, new { objAsesor.RNT, objAsesor.CORREO, objAsesor.NOMBRE, objAsesor.ID_USUARIO });
+
+            var queryUsuario = @"
+                UPDATE Usuario
+                SET 
+                    RNT = @RNT,
+                    CORREO = @CORREO
+                WHERE
+                    ID_USUARIO = @ID_USUARIO AND ESTADO = 1";
+            var updUsuario = await db.ExecuteAsync(queryUsuario, new { objAsesor.RNT, objAsesor.CORREO, ID_USUARIO = objAsesor.ID_USUARIO });
+            return result >0 & updUsuario > 0;
         }
         public async Task<IEnumerable<Asesor>> ListAsesor()
         {
             var db = dbConnection();
-            var queryUsuario = @"SELECT idUsuario,rnt,correo,nombre FROM Usuario where activo = 1 ";
-            var dataUsuario = await db.QueryAsync<Asesor>(queryUsuario, new { });
+            var queryAsesor = @"
+                SELECT 
+                    ID_ASESOR, RNT, CORREO,NOMBRE
+                FROM
+                    Asesor
+                WHERE
+                    ESTADO = 1";
+            var dataUsuario = await db.QueryAsync<Asesor>(queryAsesor, new { });
 
             return dataUsuario;
 
@@ -188,8 +222,12 @@ namespace inti_repository.caracterizacion
         public async Task<bool> CrearRespuestaAsesor(RespuestaAsesor objRespuestaAsesor)
         {
             var db = dbConnection();
-            var sql = @"INSERT INTO respuesta_analisis_asesor(idusuario,idnormatecnica,respuestaanalisis,idusuariopst) Values (@idusuario,@idnormatecnica,@respuestaanalisis,@idusuariopst)";
-            var result = await db.ExecuteAsync(sql, new { objRespuestaAsesor.idusuario, objRespuestaAsesor.idnormatecnica, objRespuestaAsesor.respuestaanalisis, objRespuestaAsesor.idusuariopst});
+
+            var sql = @"INSERT INTO RespuestaAnalisisAsesor(FK_ID_USUARIO,FK_ID_NORMA,RESPUESTA_ANALISIS) Values (@FK_ID_USUARIO,@FK_ID_NORMA,@RESPUESTA_ANALISIS)";
+            var result = await db.ExecuteAsync(sql, new { objRespuestaAsesor.FK_ID_USUARIO, objRespuestaAsesor.FK_ID_NORMA, objRespuestaAsesor.RESPUESTA_ANALISIS });
+
+           
+
             return result > 0;
         }
 

@@ -9,6 +9,7 @@ namespace inti_model.auditoria
 {
     public class AuditoriaRequisito
     {
+        public int NUMERACION { get; set; }
         public int ID_REQUISITO { get; set; }
         public int FK_ID_PROCESO { get; set; }
         public string? REQUISITO { get; set; }

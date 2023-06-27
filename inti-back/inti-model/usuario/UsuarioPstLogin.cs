@@ -8,11 +8,10 @@ namespace inti_model.usuario
 {
     public class UsuarioPstLogin
     {
-        public int IdUsuarioPst { get; set; }
-        public int idAsesor { get; set; }
-        public string? nit { get; set; }
-        public string? Password { get; set; }
-        public string? Correo { get; set; }
+        public int ID_USUARIO { get; set; }
+        public string? NIT { get; set; }
+        public string? PASSWORD { get; set; }
+        public string? CORREO { get; set; }
         public string? HoraLogueo { get; set; }
         public string? TokenAcceso { get; set; }
         public string? TokenRefresco { get; set; }

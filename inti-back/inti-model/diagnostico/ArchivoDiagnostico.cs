@@ -8,33 +8,30 @@ namespace inti_model.diagnostico
 {
     public class ArchivoDiagnostico
     {
-        public int iddiagnosticodinamico { get; set; }
-        public int idnormatecnica { get; set; }
-        public string? numeralprincipal { get; set; }
+        public int FK_ID_NORMA { get; set; }
+        public String? NUMERAL_PRINCIPAL { get; set; }
+        public String? TITULO_PRINCIPAL { get; set; }
+        public int ESTADO { get; set; }
+        public String? TIPO_DATO { get; set; }
+        public String? CAMPO_LOCAL { get; set; }
+        public String? NOMBRE { get; set; }
+        public int EDITABLE { get; set; }
+        public String? N_REQUISITO_NA { get; set; }
+        public String? N_REQUISITO_NC { get; set; }
+        public String? N_REQUISITO_CP { get; set; }
+        public String? N_REQUISITO_C { get; set; }
+        public String? TOTAL_N_REQUISITO { get; set; }
+        public String? PORCENTAJE_NA { get; set; }
+        public String? PORCENTAJE_NC { get; set; }
+        public String? PORCENTAJE_CP { get; set; }
+        public String? PORCENTAJE_C { get; set; }
+        public String? PORCENTAJE_CUMPLE_NUMERO { get; set; }
+        
 
-        public string? tituloprincipal { get; set; }
-
-        public int activo { get; set; }
-        public string? tipodedato { get; set; }
-
-        public string? campo_local { get; set; }
-        public string? nombre { get; set; }
-        public int editable { get; set; }
-
-        public string? NumeroRequisitoNA { get; set; }
-        public string? NumeroRequisitoNC { get; set; }
-        public string? NumeroRequisitoCP { get; set; }
-        public string? NumeroRequisitoC { get; set; }
-        public string? TotalNumeroRequisito { get; set; }
-        public string? PorcentajeNA { get; set; }
-        public string? PorcentajeNC { get; set; }
-        public string? PorcentajeCP { get; set; }
-        public string? PorcentajeC { get; set; }
-        public string? PorcentajeCumpleNumero { get; set; }
-        public List<CalifDiagnostico>? listacampos { get; set; }
+        public List<CalifDiagnostico>? LISTA_CAMPOS { get; set; }
         public ArchivoDiagnostico()
         {
-            listacampos = new List<CalifDiagnostico>();
+            LISTA_CAMPOS = new List<CalifDiagnostico>();
 
         }
     }

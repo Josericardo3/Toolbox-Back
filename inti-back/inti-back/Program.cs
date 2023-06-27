@@ -14,9 +14,12 @@ using inti_repository.diagnostico;
 using inti_repository.listachequeo;
 using inti_repository.validaciones;
 using inti_repository.planmejora;
-using inti_repository.matrizlegal;
 using inti_repository.auditoria;
+using inti_repository.matrizlegal;
 using inti_repository.general;
+using inti_repository.noticia;
+using inti_back.Controllers;
+using Microsoft.AspNetCore.Mvc;
 
 const String default_url = "http://{0}:{1};https://{2}:{3}"; 
 
@@ -24,12 +27,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
+builder.Services.AddScoped<NoticiaController>();
+builder.Services.AddScoped<ActividadController>();
 
 //var port = int.Parse(Environment.GetEnvironmentVariable("INTI_BACK_PORT"));
 
 //var host = Environment.GetEnvironmentVariable("INTI_BACK_HOST");
 var env = Environment.GetEnvironmentVariable("INTI_BACK_ENV");
-var port = 8050;
+var port = 8054;
 var host = "0.0.0.0";
 String connectionString = env != "DEV" ? "MySqlConnectionDev" : "MySqlConnection";
 
@@ -94,9 +99,10 @@ builder.Services.AddScoped<IDiagnosticoRepository, DiagnosticoRepository>();
 builder.Services.AddScoped<IListaChequeoRepository, ListaChequeoRepository>();
 builder.Services.AddScoped<IValidacionesRepository, ValidacionesRepository>();
 builder.Services.AddScoped<IPlanMejoraRepository, PlanMejoraRepository>();
-builder.Services.AddScoped<IMatrizLegalRepository, MatrizLegalRepository>();
 builder.Services.AddScoped<IAuditoriaRepository, AuditoriaRepository>();
+builder.Services.AddScoped<IMatrizLegalRepository, MatrizLegalRepository>();
 builder.Services.AddScoped<IGeneralRepository, GeneralRepository>();
+builder.Services.AddScoped<INoticiaRepository, NoticiaRepository>();
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(options =>
@@ -119,15 +125,32 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-var configuration = new ConfigurationBuilder()
-    .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-    .Build();
-
+builder.Services.Configure<JsonOptions>(options =>
+{
+    options.JsonSerializerOptions.PropertyNamingPolicy = null;
+});
 
 
 
 var app = builder.Build();
+
+// obtenemos una instancia del NoticiaController para la tarea programada
+using(var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    
+    var controller = services.GetRequiredService<NoticiaController>();
+    var actividadServices = scope.ServiceProvider;
+
+    var actividadController = actividadServices.GetRequiredService<ActividadController>();
+
+    actividadController.StartTimer();
+
+    controller.StartTimer();
+
+    
+}
+
 
 
 

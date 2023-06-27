@@ -8,9 +8,9 @@ namespace inti_model.caracterizacion
 {
     public class RespuestaCaracterizacion
     {
-        public string? valor { get; set; }
-        public int idUsuarioPst { get; set; }
-        public int idCategoriaRnt { get; set; }
-        public int idCaracterizacion { get; set; }
+        public string? VALOR { get; set; }
+        public int FK_ID_USUARIO { get; set; }
+        public int FK_ID_CATEGORIA_RNT { get; set; }
+        public int FK_ID_CARACTERIZACION_DINAMICA { get; set; }
     }
 }

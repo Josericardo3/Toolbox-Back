@@ -9,7 +9,7 @@ namespace inti_back.Controllers
     public class CaracterizacionController : Controller
     {
         private readonly ICaracterizacionRepository _caracterizacionRepository;
-        
+
         public CaracterizacionController(ICaracterizacionRepository caracterizacionRepository)
         {
             _caracterizacionRepository = caracterizacionRepository;
@@ -23,18 +23,19 @@ namespace inti_back.Controllers
                 var response = await _caracterizacionRepository.GetResponseCaracterizacion(id);
                 return Ok(response);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return Ok(new
                 {
                     StatusCode(200).StatusCode,
-                    valor = "el usuario no se ha encontrado"
+                    valor = "el usuario no se ha encontrado",
+                    ex.Message
                 });
             }
         }
 
         [HttpPost("caracterizacion/respuesta")]
-        public async Task<IActionResult> InsertRespuestaCaracterizacion(RespuestaCaracterizacion respuestaCaracterizacion)
+        public async Task<IActionResult> InsertRespuestaCaracterizacion(List<RespuestaCaracterizacion> respuestaCaracterizacion)
         {
 
             if (respuestaCaracterizacion == null)
@@ -57,7 +58,8 @@ namespace inti_back.Controllers
             var create = await _caracterizacionRepository.InsertRespuestaCaracterizacion(respuestaCaracterizacion);
             return Ok(new
             {
-                StatusCode(201).StatusCode
+                StatusCode(201).StatusCode,
+                valor = "Registrado exitosamente"
             });
 
         }
@@ -94,7 +96,7 @@ namespace inti_back.Controllers
         {
             try
             {
-                var response = await _caracterizacionRepository.GetOrdenCaracterizacion(id);
+                var response = _caracterizacionRepository.GetOrdenCaracterizacion(id);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -108,7 +110,6 @@ namespace inti_back.Controllers
             }
 
         }
-
 
     }
 }

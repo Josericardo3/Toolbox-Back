@@ -8,9 +8,12 @@ namespace inti_model.asesor
 {
     public class RespuestaAsesor
     {
-        public int idnormatecnica { get; set; }
-        public int idusuario { get; set; }
-        public String? respuestaanalisis { get; set; }
-        public int idusuariopst { get; set; }
+        public int FK_ID_NORMA { get; set; }
+        public int FK_ID_USUARIO { get; set; }
+        public int FK_ID_ASESOR { get; set; }
+        public String? RESPUESTA_ANALISIS { get; set; }
+        public int ID_RESPUESTA { get; set; }
+
+
     }
 }

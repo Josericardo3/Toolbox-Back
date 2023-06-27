@@ -31,17 +31,17 @@ namespace inti_back.Controllers
                 var response = await _listachequeoRepository.GetResponseArchivoListaChequeo(idnorma, idusuariopst, Convert.ToInt32(ValorMaestroValorTituloListaChequeo), Convert.ToInt32(ValorMaestroValorListaChequeo), Convert.ToInt32(ValorMaestroValordescripcionCalificacion));
                 return Ok(response);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return Ok(new
                 {
                     StatusCode(200).StatusCode,
-                    valor = "Error al momento de obtener el archivo"
+                    valor = "Error al momento de obtener el archivo",
+                    ex.Message
                 });
             }
 
         }
-
 
         [HttpGet("ListaDiagnostico")]
         public async Task<IActionResult> GetResponseArchivoDiagnostico(int idnorma, int idusuariopst)
@@ -55,17 +55,17 @@ namespace inti_back.Controllers
                 var response = await _listachequeoRepository.GetResponseArchivoDiagnostico(idnorma, idusuariopst, Convert.ToInt32(ValorMaestroValorTituloListaChequeo), Convert.ToInt32(ValorMaestroValorListaChequeo), Convert.ToInt32(ValorMaestroValordescripcionCalificacion));
                 return Ok(response);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return Ok(new
                 {
                     StatusCode(200).StatusCode,
-                    valor = "Error al momento de obtener el archivo"
+                    valor = "Error al momento de obtener el archivo",
+                    ex.Message,
+                    ex.StackTrace
                 });
             }
         }
-
-
 
     }
 }

@@ -8,11 +8,11 @@ namespace inti_model
 {
     public class Permiso
     {
-        public int IdPermiso { get; set; }
-        public int idtabla { get; set; }
-        public int item { get; set; }
-        public String? descripcion { get; set; }
-        public int idusuariopst { get; set; }
-        public int tipousuario { get; set; }
+        public int ID_PERMISO { get; set; }
+        public int ID_TABLA { get; set; }
+        public int ITEM { get; set; }
+        public String? DESCRIPCION { get; set; }
+        public int FK_ID_USUARIO { get; set; }
+        public int TIPO_USUARIO { get; set; }
     }
 }

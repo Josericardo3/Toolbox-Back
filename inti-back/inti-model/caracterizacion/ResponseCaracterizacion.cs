@@ -8,12 +8,12 @@ namespace inti_model.caracterizacion
 {
     public class ResponseCaracterizacion
     {
-        public int id_user { get; set; }
-        public List<Caracterizacion>? campos { get; set; }
+        public int ID_USER { get; set; }
+        public List<Caracterizacion>? CAMPOS { get; set; }
 
         public ResponseCaracterizacion()
         {
-            campos = new List<Caracterizacion>();
+            CAMPOS = new List<Caracterizacion>();
         }
 
     }

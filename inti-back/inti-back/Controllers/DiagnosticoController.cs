@@ -17,10 +17,10 @@ namespace inti_back.Controllers
         }
 
         [HttpPost("Diagnosticorespuesta")]
-        public async Task<IActionResult> InsertRespuestaDiagnostico(RespuestaDiagnostico respuestaDiagnostico)
+        public async Task<IActionResult> InsertRespuestaDiagnostico(List<RespuestaDiagnostico> lstRespuestaDiagnostico)
         {
 
-            if (respuestaDiagnostico == null)
+            if (lstRespuestaDiagnostico == null)
             {
                 return BadRequest();
             }
@@ -28,9 +28,10 @@ namespace inti_back.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var create = await _diagnosticoRepository.InsertRespuestaDiagnostico(respuestaDiagnostico);
+            var create = await _diagnosticoRepository.InsertRespuestaDiagnostico(lstRespuestaDiagnostico);
             return Ok(new
             {
+                valor = "Registrado exitosamente",
                 StatusCode(201).StatusCode
             });
         }
@@ -45,12 +46,13 @@ namespace inti_back.Controllers
                 var response = await _diagnosticoRepository.GetResponseDiagnostico(id, Convert.ToInt32(ValorMaestroTituloFormulariodiagnostico), Convert.ToInt32(ValorMaestroDiagnostico));
                 return Ok(response);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return Ok(new
                 {
                     StatusCode(200).StatusCode,
-                    valor = "Error al momento de obtener el formulario"
+                    valor = "Error al momento de obtener el formulario",
+                    ex.Message
                 });
             }
         }
@@ -64,7 +66,12 @@ namespace inti_back.Controllers
 
                 if (response == true)
                 {
-                    return Ok(response);
+                    return Ok(new
+                    {
+                        StatusCode(200).StatusCode,
+                        valor = "Se insertó correctamente la respuesta",
+                        mensaje = response
+                    });
                 }
                 else
                 {

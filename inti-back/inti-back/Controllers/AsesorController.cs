@@ -1,8 +1,9 @@
 using inti_model.asesor;
 using inti_model.usuario;
+using inti_model.dboinput;
+using inti_repository;
 using inti_repository.caracterizacion;
 using Microsoft.AspNetCore.Mvc;
-using inti_repository;
 
 
 namespace inti_back.Controllers
@@ -40,30 +41,26 @@ namespace inti_back.Controllers
         }
 
         [HttpPost("Asesor")]
-        public async Task<IActionResult> RegistrarAsesor([FromBody] Asesor asesor)
+        public async Task<IActionResult> RegistrarAsesor([FromBody] InputAsesor asesor)
         {
             try
             {
                 var create = await _asesorRepository.RegistrarAsesor(asesor);
-                Envio envio = new Envio(Configuration);
-                var send = envio.EnviarCorreo(asesor.correo, "Cambio de contrase�a", create);
-
-                if(send == 0)
-                {
-                    throw new Exception();
-                }
+                Correos envio = new(Configuration);
+                String subject = "Cambio de contraseña";
+                envio.EnviarCambioContraseña(asesor.CORREO, subject, create);
                 return Ok(new
                 {
-                    StatusCode(201).StatusCode
+                    StatusCode(201).StatusCode,
+                    valor = "Se registr� correctamente el asesor"
                 });
             }
-            catch(Exception ex)
+            catch
             {
                 return Ok(new
                 {
                     StatusCode(200).StatusCode,
-                    valor = "no se pudo registrar los datos del asesor",
-                    ex.Message
+                    valor = "no se pudo registrar los datos del asesor"
                 });
             }
 
@@ -79,7 +76,7 @@ namespace inti_back.Controllers
                 {
                     return Ok(new
                     {
-                        Id = asesor.idUsuario,
+                        Id = asesor.ID_USUARIO,
                         StatusCode(200).StatusCode
                     });
                 }

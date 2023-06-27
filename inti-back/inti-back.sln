@@ -5,9 +5,14 @@ VisualStudioVersion = 17.4.33103.184
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "inti-back", "inti-back\inti-back.csproj", "{6F8C433D-9EDA-42EB-99A7-C710148CE347}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "inti-model", "inti-model\inti-model.csproj", "{FFB5790D-5576-4101-ADD4-E856D3D4F407}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "inti-model", "inti-model\inti-model.csproj", "{FFB5790D-5576-4101-ADD4-E856D3D4F407}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "inti-repository", "inti-repository\inti-repository.csproj", "{F22FAE7F-6F9A-419E-9BD1-7655BED77315}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "inti-repository", "inti-repository\inti-repository.csproj", "{F22FAE7F-6F9A-419E-9BD1-7655BED77315}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{16A4B5F6-9D17-480A-AB36-822B904C72E9}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

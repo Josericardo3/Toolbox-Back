@@ -1,5 +1,6 @@
 ﻿using inti_model.asesor;
 using inti_model.usuario;
+using inti_model.dboinput;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +11,11 @@ namespace inti_repository.caracterizacion
 {
     public interface IAsesorRepository
     {
-        Task<int> RegistrarAsesor(Asesor objasesor);
+        Task<int> RegistrarAsesor(InputAsesor objasesor);
         Task<bool> RegistrarPSTxAsesor(AsesorPstUpdate objPST_Asesor);
         Task<bool> UpdateAsesor(UsuarioUpdate objAsesor);
         Task<IEnumerable<Asesor>> ListAsesor();
-        Task<IEnumerable<AsesorPst>> ListarPSTxAsesor(int idasesor, int idtablamaestro);
+        Task<IEnumerable<Asesor>> ListarPSTxAsesor(int idasesor, int idtablamaestro);
         Task<bool> CrearRespuestaAsesor(RespuestaAsesor objRespuestaAsesor);
     }
 }

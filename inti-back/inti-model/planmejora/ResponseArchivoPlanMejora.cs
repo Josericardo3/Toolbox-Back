@@ -9,22 +9,19 @@ namespace inti_model.planmejora
 {
     public class ResponseArchivoPlanMejora
     {
-        public String? Titulo { get; set; }
-        public String? seccion1 { get; set; }
-        public UsuarioPstArchivoDiagnostico usuario { get; set; }
-
-        public String? DescripcionAccionCumple { get; set; }
-        public String? DescripcionAccionCumpleParcialmente { get; set; }
-        public String? DescripcionAccionNoCumple { get; set; }
-
-        public List<CalifPlanMejora>? calificacion { get; set; }
-
-        public String? NombreAsesor { get; set; }
-        public String? FechaInforme { get; set; }
+        public String? TITULO { get; set; }
+        public String? PRIMERA_SECCION { get; set; }
+        public UsuarioPstArchivoDiagnostico USUARIO { get; set; }
+        public String? DESCRIPCION_ACCION_CUMPLE { get; set; }
+        public String? DESCRIPCION_ACCION_CUMPLE_PARCIALMENTE { get; set; }
+        public String? DESCRIPCION_ACCION_NO_CUMPLE { get; set; }
+        public List<CalifPlanMejora>? DATA_CALIFICACION  { get; set; }
+        public String? NOMBRE_ASESOR { get; set; }
+        public String? FECHA_INFORME { get; set; }
         public ResponseArchivoPlanMejora()
         {
-            this.usuario = new UsuarioPstArchivoDiagnostico();
-            this.calificacion = new List<CalifPlanMejora>();
+            this.USUARIO = new UsuarioPstArchivoDiagnostico();
+            this.DATA_CALIFICACION = new List<CalifPlanMejora>();
 
         }
     }

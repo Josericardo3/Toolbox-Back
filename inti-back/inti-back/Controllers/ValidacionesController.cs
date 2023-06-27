@@ -7,7 +7,6 @@ using System.Net.Mail;
 using System.Net;
 using System.Text;
 using System.Security.Cryptography;
-using inti_model;
 using inti_repository;
 
 namespace inti_back.Controllers
@@ -25,32 +24,40 @@ namespace inti_back.Controllers
         }
 
         [HttpGet("Correo/{correo}")]
-        public async Task<bool> ValidarRegistroCorreo(String correo)
+        public bool ValidarRegistroCorreo(String correo)
         {
-            bool validacion = await _validacionesRepository.ValidarRegistroCorreo(correo);
+            bool validacion = _validacionesRepository.ValidarRegistroCorreo(correo);
             return validacion;
 
         }
         [HttpGet("Telefono/{telefono}")]
-        public async Task<bool> ValidarRegistroTelefono(String telefono)
+        public bool ValidarRegistroTelefono(String telefono)
         {
-            bool validacion = await _validacionesRepository.ValidarRegistroTelefono(telefono);
+            bool validacion =  _validacionesRepository.ValidarRegistroTelefono(telefono);
             return validacion;
 
         }
 
         [HttpGet("UsuarioCaracterizacion/{idUsuarioPst}")]
-        public async Task<bool> ValidarUsuarioCaracterizacion(int idUsuarioPst)
+        public bool ValidarUsuarioCaracterizacion(int idUsuarioPst)
         {
-            bool validacion = await _validacionesRepository.ValidarUsuarioCaracterizacion(idUsuarioPst);
+            bool validacion = _validacionesRepository.ValidarUsuarioCaracterizacion(idUsuarioPst);
             return validacion;
 
         }
 
         [HttpGet("UsuarioDiagnostico/{idUsuario}")]
-        public async Task<bool> ValidarUsuarioDiagnostico(int idUsuario)
+        public bool ValidarUsuarioDiagnostico(int idUsuario)
         {
-            bool validacion = await _validacionesRepository.ValidarUsuarioDiagnostico(idUsuario);
+            bool validacion =  _validacionesRepository.ValidarUsuarioDiagnostico(idUsuario);
+            return validacion;
+
+        }
+
+        [HttpGet("UsuarioRnt/{rnt}")]
+        public bool ValidarUsuarioRnt(string rnt)
+        {
+            bool validacion =  _validacionesRepository.ValidarUsuarioRnt(rnt);
             return validacion;
 
         }
@@ -70,8 +77,9 @@ namespace inti_back.Controllers
                 else
                 {
                     string subject = "Cambio de contraseña";
-                    Envio envio = new Envio(Configuration);
-                    var estado = envio.EnviarCorreo(dataUsuario.correopst, subject, dataUsuario.idusuariopst);
+                    Correos envio = new(Configuration); 
+                    var estado = envio.EnviarCambioContraseñaUsuario(dataUsuario.CORREO, subject, dataUsuario.ID_USUARIO,dataUsuario.ENCRIPTACION);
+                    
                     if (estado == 0)
                     {
                         throw new Exception();
@@ -100,7 +108,7 @@ namespace inti_back.Controllers
             }
 
         }
-
+       
         [HttpPost("CambioContraseña")]
         public async Task<IActionResult> UpdatePassword(String password, String id)
         {
@@ -128,6 +136,41 @@ namespace inti_back.Controllers
                 });
             }
         }
-        
+
+        [HttpPost("EnviarEmail/2")]
+        public async Task<IActionResult> SendEmail2(String correo)
+        {
+
+            try
+            {
+                string subject = "Registro Exitoso";
+                Correos envio = new(Configuration);
+                String cuerpo = envio.Registro();
+                var estado = envio.EnviarCorreoRegistro(correo, subject, cuerpo);
+                if (estado == 0)
+                {
+                    throw new Exception();
+                }
+                else
+                {
+                    return Ok(new
+                    {
+                        StatusCode(200).StatusCode,
+                        Valor = "correo enviado satisfactoriamente",
+                    });
+                }
+            }
+            catch (Exception e)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    Valor = "El correo no se pudo enviar",
+                    Mensaje = e.Message
+                });
+            }
+
+        }
+
     }
 }

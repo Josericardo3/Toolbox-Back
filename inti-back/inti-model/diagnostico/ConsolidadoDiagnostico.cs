@@ -8,13 +8,13 @@ namespace inti_model.diagnostico
 {
     public class ConsolidadoDiagnostico
     {
-        public string? requisito { get; set; }
-        public string? noAplica { get; set; }
-        public string? noCumple { get; set; }
-        public string? cumpleParcial { get; set; }
-        public string? cumple { get; set; }
-        public string? porcCumple { get; set; }
-        public int idnormaTecnica { get; set; }
-        public string? porcCumpleNumero { get; set; }
+        public string? REQUSITO { get; set; }
+        public string? NO_APLICA { get; set; }
+        public string? NO_CUMPLE { get; set; }
+        public string? CUMPLE_PARCIAL { get; set; }
+        public string? CUMPLE { get; set; }
+        public string? PORC_CUMPLE { get; set; }
+        public int ID_NORMA { get; set; }
+        public string? PORC_CUMPLE_NUMERO { get; set; }
     }
 }

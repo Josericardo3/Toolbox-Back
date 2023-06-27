@@ -9,65 +9,34 @@ namespace inti_model.usuario
 {
     public class ResponseUsuario
     {
-        public int idusuariopst { get; set; }
-        public string? Nit { get; set; }
-
-        public string? Rnt { get; set; }
-
-        public int idCategoriaRnt { get; set; }
-
-        public int idSubCategoriaRnt { get; set; }
-
-        public string? NombrePst { get; set; }
-
-        public string? RazonSocialPst { get; set; }
-
-        public string? CorreoPst { get; set; }
-
-        public string? TelefonoPst { get; set; }
-
-        public string? NombreRepresentanteLegal { get; set; }
-
-        public string? CorreoRepresentanteLegal { get; set; }
-
-        public string? TelefonoRepresentanteLegal { get; set; }
-
-        public int idTipoIdentificacion { get; set; }
-
-        public string? IdentificacionRepresentanteLegal { get; set; }
-
-        public string? Departamento { get; set; }
-
-        public string? Municipio { get; set; }
-
-        public string? NombreResponsableSostenibilidad { get; set; }
-
-        public string? CorreoResponsableSostenibilidad { get; set; }
-
-        public string? TelefonoResponsableSostenibilidad { get; set; }
-
-        public string? Password { get; set; }
-
-        public int idTipoAvatar { get; set; }
-
-        public bool Activo { get; set; }
-
-        public string? created { get; set; }
-
-        public string? categoriarnt { get; set; }
-
-        public string? subcategoriarnt { get; set; }
-
-        public string? tipoidentificacion { get; set; }
-
-        public string? departamento { get; set; }
-
-        public string? municipio { get; set; }
-
-        public string? avatar { get; set; }
-        public bool activo { get; set; }
-
-        public object this[string name]
+        public int FK_ID_USUARIO { get; set; }
+        public String? NIT { get; set; }
+        public String? RNT { get; set; }
+        public int FK_ID_CATEGORIA_RNT { get; set; }
+        public int FK_ID_SUB_CATEGORIA_RNT { get; set; }
+        public String? NOMBRE_PST { get; set; }
+        public String? RAZON_SOCIAL_PST { get; set; }
+        public String? CORREO_PST { get; set; }
+        public String? TELEFONO_PST { get; set; }
+        public String? NOMBRE_REPRESENTANTE_LEGAL { get; set; }
+        public String? CORREO_REPRESENTANTE_LEGAL { get; set; }
+        public String? TELEFONO_REPRESENTANTE_LEGAL { get; set; }
+        public int FK_ID_TIPO_IDENTIFICACION { get; set; }
+        public String? IDENTIFICACION_REPRESENTANTE_LEGAL { get; set; }
+        public String? DEPARTAMENTO { get; set; }
+        public String? MUNICIPIO { get; set; }
+        public String? NOMBRE_RESPONSABLE_SOSTENIBILIDAD { get; set; }
+        public String? CORREO_RESPONSABLE_SOSTENIBILIDAD { get; set; }
+        public String? TELEFONO_RESPONSABLE_SOSTENIBILIDAD { get; set; }
+        public int FK_ID_TIPO_AVATAR { get; set; }
+        public bool ESTADO { get; set; }
+        public String? CREATED { get; set; }
+        public String? CATEGORIA_RNT { get; set; }
+        public String? SUB_CATEGORIA_RNT { get; set; }
+        public String? TIPO_IDENTIFICACION { get; set; }
+        public String? AVATAR { get; set; }
+        public bool ACTIVO { get; set; }
+        public object this[String? name]
         {
             get
             {
@@ -77,7 +46,9 @@ namespace inti_model.usuario
                 foreach (var property in properties)
                 {
                     if (property.Name == name && property.CanRead)
+
                         return property.GetValue(this, null);
+
                 }
 
                 throw new ArgumentException("Can't find property");

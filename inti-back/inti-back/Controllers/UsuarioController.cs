@@ -5,10 +5,6 @@ using System.Text.Json;
 using inti_model.usuario;
 using inti_repository.usuario;
 using inti_repository.validaciones;
-using System.Security.Cryptography;
-using System.Net.Mail;
-using System.Net;
-using System.Text;
 
 namespace inti_back.Controllers
 {
@@ -18,36 +14,38 @@ namespace inti_back.Controllers
     {
 
         private readonly IUsuarioPstRepository _usuarioPstRepository;
-        public readonly IValidacionesRepository _validacionesRepository;
-        TokenConfiguration objTokenConf = new TokenConfiguration();
+        private readonly IValidacionesRepository _validacionesRepository;
+        TokenConfiguration objTokenConf = new();
         private IConfiguration Configuration;
-        public UsuarioController(IUsuarioPstRepository usuarioPstRepository, IConfiguration _configuration)
+        public UsuarioController(IUsuarioPstRepository usuarioPstRepository, IValidacionesRepository validacionesRepository, IConfiguration _configuration)
         {
             _usuarioPstRepository = usuarioPstRepository;
+            _validacionesRepository = validacionesRepository;
             Configuration = _configuration;
-        }
-
-
-        [HttpGet]
-        public async Task<IActionResult> GetAllUsuarios()
-        {
-            return Ok(await _usuarioPstRepository.GetAllUsuariosPst());
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUsuarioPst(int id)
         {
-            var response = await _usuarioPstRepository.GetUsuarioPst(id);
-
-            if (response == null)
+            try
             {
-                Ok(new
+                var response = await _usuarioPstRepository.GetUsuarioPst(id);
+                if (response == null)
+                {
+                    throw new Exception();
+                }
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
                 {
                     StatusCode(200).StatusCode,
-                    valor = "el usuario no se ha encontrado"
+                    Mensaje = "No se encontró el usuario",
+                    ex.Message
                 });
             }
-            return Ok(response);
+
         }
 
         [HttpPost]
@@ -57,26 +55,24 @@ namespace inti_back.Controllers
             try
             {
                 var create = await _usuarioPstRepository.InsertUsuarioPst(usuariopst);
-                if (usuariopst == null)
+                Correos envio = new(Configuration);
+                String Cuerpo = envio.Registro();
+                String Subject = "Se creó tu cuenta satisfactoriamente";
+                int result = envio.EnviarCorreoRegistro(usuariopst.CORREO_PST, Subject, Cuerpo);
+                String? mensaje = "";
+                if (result == 0)
                 {
-                    return Ok(new
-                    {
-                        StatusCode(404).StatusCode,
-                        Mensaje = "No se ingresaron correctamente los datos del usuario"
-                    });
+                    mensaje = "El correo no pudo enviarse correctamente";
                 }
-                if (!ModelState.IsValid)
+                else
                 {
-                    return Ok(new
-                    {
-                        StatusCode(200).StatusCode,
-                        Mensaje = "El modelo no es válido"
-                    });
+                    mensaje = "El correo se envió correctamente";
                 }
                 return Ok(new
                 {
                     StatusCode(201).StatusCode,
-                    Valor = "El Usuario se registró correctamente"
+                    Valor = "El Usuario se registró correctamente",
+                    mensaje
                 });
             }
             catch (Exception e)
@@ -93,23 +89,25 @@ namespace inti_back.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateUsuarioPst([FromBody] UsuarioPstUpd usuariopst)
         {
-            if (usuariopst == null)
-            {
-                return Ok(new
-                {
-                    StatusCode(404).StatusCode,
-                    Mensaje = "No se ingresaron correctamente los datos del usuario"
-                });
-            }
-            else
+            try
             {
                 await _usuarioPstRepository.UpdateUsuarioPst(usuariopst);
                 return Ok(new
                 {
-                    Id = usuariopst.IdUsuarioPst,
+                    Id = usuariopst.FK_ID_USUARIO,
                     StatusCode(200).StatusCode
                 });
             }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    StatusCode(404).StatusCode,
+                    Mensaje = "No se ingresaron correctamente los datos del usuario",
+                    ex.Message
+                });
+            }
+
         }
         [HttpDelete]
         public async Task<IActionResult> DeleteUsuario(int id)
@@ -139,33 +137,25 @@ namespace inti_back.Controllers
         [HttpPost("LoginUsuario")]
         public async Task<IActionResult> LoginUsuario(string usuario, string Password, string Correo)
         {
-            try
-            {
-                var objUsuarioLogin = await _usuarioPstRepository.LoginUsuario(usuario, Password, Correo);
+            var objUsuarioLogin = await _usuarioPstRepository.LoginUsuario(usuario, Password, Correo);
 
-                if (objUsuarioLogin == null)
-                {
-                    return NotFound();
-                }
-
-                string issuer = this.Configuration.GetValue<string>("Jwt:Issuer");
-                string audience = this.Configuration.GetValue<string>("Jwt:Audience");
-                string key = this.Configuration.GetValue<string>("Jwt:key");
-
-                objUsuarioLogin.TokenAcceso = objTokenConf.GenerarToken(usuario, 5, objUsuarioLogin.IdUsuarioPst,
-                    issuer, audience, key);
-                objUsuarioLogin.TokenRefresco = objTokenConf.GenerarToken(usuario, 20, objUsuarioLogin.IdUsuarioPst,
-                    issuer, audience, key);
-                objUsuarioLogin.HoraLogueo = DateTime.Now.ToString("hh:mm:ss");
-                var serialized = JsonSerializer.Serialize(objUsuarioLogin);
-
-                return Ok(serialized);
-            }
-            catch (Exception ex)
+            if (objUsuarioLogin == null)
             {
                 return NotFound();
             }
-            
+
+            string issuer = this.Configuration.GetValue<string>("Jwt:Issuer");
+            string audience = this.Configuration.GetValue<string>("Jwt:Audience");
+            string key = this.Configuration.GetValue<string>("Jwt:key");
+
+            objUsuarioLogin.TokenAcceso = objTokenConf.GenerarToken(usuario, 5, objUsuarioLogin.ID_USUARIO,
+              issuer, audience, key);
+            objUsuarioLogin.TokenRefresco = objTokenConf.GenerarToken(usuario, 20, objUsuarioLogin.ID_USUARIO,
+              issuer, audience, key);
+            objUsuarioLogin.HoraLogueo = DateTime.Now.ToString("hh:mm:ss");
+            var serialized = JsonSerializer.Serialize(objUsuarioLogin);
+
+            return Ok(serialized);
         }
         [HttpGet("Prueba")]
         [Authorize]
@@ -176,42 +166,76 @@ namespace inti_back.Controllers
 
         }
         [HttpPost("registrarEmpleadoPst")]
-        public async Task<IActionResult> RegistrarEmpleadoPst(int id, string correo, string rnt)
+        public async Task<IActionResult> RegistrarEmpleadoPst(int id, string nombre, string correo, int idcargo)
         {
             try
             {
-                var create = await _usuarioPstRepository.RegistrarEmpleadoPst(id,correo,rnt);
-                if (create != null)
+                var validacion =  _validacionesRepository.ValidarRegistroCorreo(correo);
+                if (validacion)
                 {
-                    Envio envio = new Envio(Configuration);
-                    var send = envio.EnviarCorreo(correo, "Cambio de contraseña", create);
-                    if(send == 0)
-                    {
-                        throw new Exception();
-                    }
                     return Ok(new
                     {
-                        StatusCode(201).StatusCode,
-                        valor = "El empleado se registró correctamente"
+                        StatusCode(200).StatusCode,
+                        valor = "Debe ingresar otro correo"
                     });
-
                 }
                 else
                 {
-                    throw new Exception();
+                    var create = await _usuarioPstRepository.RegistrarEmpleadoPst(id, nombre, correo, idcargo);
+                    if (create != null)
+                    {
+                        Correos envio = new(Configuration);
+                        var send = envio.EnviarCambioContraseña(correo, "Cambio de contraseña", create);
+                        if (send == 0)
+                        {
+                            throw new Exception();
+                        }
+                        return Ok(new
+                        {
+                            StatusCode(201).StatusCode,
+                            valor = "El empleado se registró correctamente"
+                        });
+
+                    }
+                    else
+                    {
+                        throw new Exception();
+                    }
                 }
-                
+               
             }
-            catch(Exception ex)
+            catch
             {
                 return Ok(new
                 {
                     StatusCode(200).StatusCode,
-                    valor = "no se pudo registrar el usuario",
+                    valor = "no se pudo registrar el usuario"
+                });
+            }
+
+        }
+
+        [HttpGet("usuariosxpst/{rnt}")]
+        public async Task<IActionResult> GetUsuariosxPst(string rnt)
+        {
+            try
+            {
+                var response = await _usuarioPstRepository.GetUsuariosxPst(rnt);
+                if (response == null)
+                {
+                    throw new Exception();
+                }
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    Mensaje = "No se encontró el usuario",
                     ex.Message
                 });
             }
-            
 
         }
 

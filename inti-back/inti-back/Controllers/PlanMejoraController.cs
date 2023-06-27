@@ -33,13 +33,12 @@ namespace inti_back.Controllers
                 var response = await _planmejoraRepository.GetResponseArchivoPlanMejora(idnorma, idusuariopst, Convert.ToInt32(ValorMaestroValorTituloListaChequeo), Convert.ToInt32(ValorMaestroValorListaChequeo), Convert.ToInt32(ValorMaestroValordescripcionCalificacion));
                 return Ok(response);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return Ok(new
                 {
                     StatusCode(200).StatusCode,
-                    valor = "Error al momento de obtener el archivo",
-                    ex.Message
+                    valor = "Error al momento de obtener el archivo"
                 });
             }
 

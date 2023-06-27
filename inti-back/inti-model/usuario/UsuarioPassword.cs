@@ -9,11 +9,15 @@ namespace inti_model.usuario
 {
     public class UsuarioPassword
     {
-        public int idusuariopst { get; set; }
-        public string? correopst { get; set; }
-        public string? password { get; set; }
+        public int ID_USUARIO { get; set; }
+        public String? CORREO { get; set; }
+        public String? PASSWORD { get; set; }
+        public int ID_RECUPERACION { get; set; }
+        public String? CODIGO_RECUPERACION { get; set; }
+        public String? ENCRIPTACION { get; set; }
 
-
-
+        public UsuarioPassword() {
+            CORREO = "";
+        }
     }
 }

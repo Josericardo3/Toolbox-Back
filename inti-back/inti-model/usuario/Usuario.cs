@@ -8,14 +8,18 @@ namespace inti_model.usuario
 {
     public class Usuario
     {
-        public int IdUsuario { get; set; }
-        public string? nombre { get; set; }
-        public string? correo { get; set; }
-        public string? telefono { get; set; }
-        public string? password { get; set; }
-        public string? rnt { get; set; }
-        public string? nit { get; set; }
-        public string? cargo { get; set; }
+        public int ID_USUARIO { get; set; }
+        public string? NOMBRE { get; set; }
+        public string? CORREO { get; set; }
+        public string? TELEFONO { get; set; }
+        public string? PASSWORD { get; set; }
+        public string? RNT { get; set; }
+        public string? NIT { get; set; }
+        public int FK_ID_PST { get; set; }
+        public bool ESTADO { get; set; }
+        public int ID_TIPO_USUARIO { get; set; }
+        public int ID_CARGO { get; set; }
+
 
     }
 }
