@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 public class ResponseDiagnostico
 {
-    public int id { get; set; }
-    public String? TituloPrincipal { get; set; }
+    public int ID_DIAGNOSTICO { get; set; }
+    public String? TITULO_PRINCIPAL { get; set; }
     public List<Diagnostico>? campos { get; set; }
 
     public ResponseDiagnostico()

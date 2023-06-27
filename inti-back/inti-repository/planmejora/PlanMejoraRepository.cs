@@ -23,113 +23,135 @@ namespace inti_repository.planmejora
         public async Task<ResponseArchivoPlanMejora> GetResponseArchivoPlanMejora(int idnorma, int idusuario, int idValorTituloListaChequeo, int idValorSeccionListaChequeo, int idValordescripcionCalificacion)
         {
             var db = dbConnection();
-            var queryTitulo = @"Select * from maestro where idtabla = @idtabla and item=3";
-            var dataTitulo = await db.QueryFirstOrDefaultAsync<Maestro>(queryTitulo, new { idtabla = idValorTituloListaChequeo });
+            var queryTitulo = @"
+                    SELECT 
+                        *
+                    FROM
+                        MaeGeneral
+                    WHERE
+                        ID_TABLA = @ID_TABLA AND ITEM = 3";
+            var dataTitulo = await db.QueryFirstOrDefaultAsync<Maestro>(queryTitulo, new { ID_TABLA = idValorTituloListaChequeo });
 
-            var querySeccion = @"Select * from maestro where idtabla = @idtabla";
-            var dataSeccion = db.Query<Maestro>(querySeccion, new { idtabla = idValorSeccionListaChequeo }).ToList();
+            var querySeccion = @"
+                    SELECT 
+                        *
+                    FROM
+                        MaeGeneral
+                    WHERE
+                        ID_TABLA = @ID_TABLA";
+            var dataSeccion = db.Query<Maestro>(querySeccion, new { ID_TABLA = idValorSeccionListaChequeo }).ToList();
 
-            var querydescAccion = @"Select * from maestro where idtabla = @idtabla";
-            var datadescAccion = db.Query<Maestro>(querydescAccion, new { idtabla = 11 }).ToList();
+            var querydescAccion = @"
+                    SELECT 
+                        *
+                    FROM
+                        MaeGeneral
+                    WHERE
+                        ID_TABLA = @ID_TABLA";
+            var datadescAccion = db.Query<Maestro>(querydescAccion, new { ID_TABLA = 11 }).ToList();
 
             var sql = @"
-                SELECT 
-                    up.idusuariopst,
-                    up.nit,
-                    up.rnt,
-                    up.idcategoriarnt,
-                    c.categoriarnt,
-                    up.idsubcategoriarnt,
-                    sc.subcategoriarnt,
-                    up.nombrepst,
-                    up.razonsocialpst,
-                    up.correopst,
-                    up.telefonopst,
-                    up.nombrerepresentantelegal,
-                    up.correorepresentantelegal,
-                    up.telefonorepresentantelegal,
-                    up.idtipoidentificacion,
-                    up.identificacionrepresentantelegal,
-                    up.departamento ,
-                    up.municipio ,
-                    up.nombreresponsablesostenibilidad,
-                    up.correoresponsablesostenibilidad,
-                    up.telefonoresponsablesostenibilidad,
-                    up.password,
-                    up.idtipoavatar,
-                    up.activo,
-                    'Inicial' AS EtapaDiagnostico
-                FROM
-                    usuariospst up
-                        INNER JOIN
-                    categoriasrnt c ON up.idcategoriarnt = c.idcategoriarnt
-                        INNER JOIN
-                    subcategoriasrnt sc ON up.idsubcategoriarnt = sc.idsubcategoriarnt
-                WHERE
-                    idusuariopst = @IdUsuarioPst
-                        AND up.activo = TRUE";
-            var datausuario = db.QueryFirstOrDefault<UsuarioPstArchivoDiagnostico>(sql, new { IdUsuarioPst = idusuario });
+                        SELECT 
+                            ps.RAZON_SOCIAL_PST,
+	                        ps.FK_ID_USUARIO,
+	                        ps.NOMBRE_PST,
+                            ps.NIT,
+                            ps.RNT,
+                            c.CATEGORIA_RNT,
+                            sc.SUB_CATEGORIA_RNT,
+                            ps.MUNICIPIO,
+                            ps.DEPARTAMENTO,
+                            'Inicial' AS ETAPA_DIAGNOSTICO,
+                            ps.NOMBRE_RESPONSABLE_SOSTENIBILIDAD,
+                            ps.TELEFONO_RESPONSABLE_SOSTENIBILIDAD,
+                            ps.CORREO_RESPONSABLE_SOSTENIBILIDAD,
+                            ps.ESTADO
+                        FROM
+                            Pst ps
+                                INNER JOIN
+                            MaeCategoriaRnt c ON ps.FK_ID_CATEGORIA_RNT = c.ID_CATEGORIA_RNT
+                                INNER JOIN
+                            MaeSubCategoriaRnt sc ON ps.FK_ID_SUB_CATEGORIA_RNT = sc.ID_SUB_CATEGORIA_RNT
+		                        INNER JOIN
+	                        Usuario us ON ps.FK_ID_USUARIO = us.ID_USUARIO
+                        WHERE
+                            FK_ID_USUARIO = @FK_ID_USUARIO
+                                AND ps.ESTADO = TRUE";
+            var datausuario = db.QueryFirstOrDefault<UsuarioPstArchivoDiagnostico>(sql, new { FK_ID_USUARIO = idusuario });
 
             var queryCalificacion = @"
-SELECT d.tituloprincipal as Numeral,
-d.tituloespecifico as tituloRequisito,d.Requisito,  
-d.Evidencia,r.valor as valorcalificado ,ma.descripcion as calificado,
-case r.valor when 1 then d.Predet_planmejoracumple1
-when 2 then d.Predet_planmejoracumpleparc1 when 3 then d.Predet_planmejoranocumple1
-when 4 then d.Predet_planmejoranoaplica1 end as observacion,
-m.descripcion as duracion
+                        SELECT 
+                            d.TITULO_PRINCIPAL AS NUMERAL,
+                            d.TITULO_ESPECIFICO AS TITULO_REQUISITO,
+                            d.REQUISITO,
+                            d.EVIDENCIA,
+                            r.VALOR AS VALOR_CALIFICADO,
+                            ma.DESCRIPCION AS CALIFICADO,
+                            CASE r.VALOR
+                                WHEN 1 THEN d.PREDET_PLAN_MEJORA_CUMPLE1
+                                WHEN 2 THEN d.PREDET_PLAN_MEJORA_CUMPLE_PARC1
+                                WHEN 3 THEN d.PREDET_PLAN_MEJORA_NO_CUMPLE1
+                                WHEN 4 THEN d.PREDET_PLAN_MEJORA_NO_APLICA1
+                            END AS OBSERVACION,
+                            m.DESCRIPCION AS DURACION
+                        FROM
+                            MaeDiagnosticoDinamico dd
+                                INNER JOIN
+                            MaeDiagnostico d ON dd.FK_ID_NORMA = d.FK_ID_NORMA
+                                AND dd.NUMERAL_PRINCIPAL = d.ID_GRUPO_CAMPO
+                                AND dd.ID_TITULO_ESPECIFICO = d.ID_CAMPO
+                                INNER JOIN
+                            RespuestaDiagnostico r ON dd.NUMERAL_ESPECIFICO = r.NUMERAL_ESPECIFICO
+                                AND dd.FK_ID_NORMA = r.FK_ID_NORMA
+                                INNER JOIN
+                            MaeGeneral ma ON r.VALOR = ma.ITEM
+                                INNER JOIN
+                            MaeGeneral m ON r.VALOR = m.ITEM
+                        WHERE
+                            r.FK_ID_NORMA = @FK_ID_NORMA
+                                AND r.FK_ID_USUARIO = @FK_ID_USUARIO
+                                AND dd.ESTADO = 1
+                                AND d.ESTADO = 1
+                                AND ma.ID_TABLA = 4
+                                AND m.ID_TABLA = 12";
+            var datacalificacion = db.Query<CalifPlanMejora>(queryCalificacion, new { FK_ID_NORMA = idnorma, FK_ID_USUARIO = idusuario }).ToList();
 
-FROM intidb.diagnosticodinamico dd
-
-inner join intidb.Diagnostico d on dd.idnormatecnica=d.idnormatecnica
-and dd.numeralprincipal=d.idgrupocampo
-and dd.idtituloespecifico=d.idcampo
-
-inner join intidb.respuestadiagnostico r 
-on dd.numeralespecifico=r.numeralespecifico
-and dd.idnormatecnica=r.idnormatecnica
-
-inner join intidb.maestro ma
-on r.valor=ma.item
-inner join intidb.maestro m
-on r.valor=m.item
-
-where r.idnormatecnica=@idnormatecnica
-and r.idusuario=@idusuario
-and dd.activo=1
-and d.activo=1
-and ma.idtabla=4
-and m.idtabla=12";
-
-            var datacalificacion = db.Query<CalifPlanMejora>(queryCalificacion, new { idnormatecnica = idnorma, idusuario = idusuario }).ToList();
-
-            var queryPSTxAsesor = @"SELECT idusuario FROM pst_asesor where idusuariopst=@idusuariopst and activo = 1";
-            var dataPSTxAsesor = db.Query<PST_Asesor>(queryPSTxAsesor, new { datausuario.IdUsuarioPst }).FirstOrDefault();
-
-            Usuario objasesor = new Usuario();
-
-            if (dataPSTxAsesor == null || dataPSTxAsesor.Equals(DBNull.Value))
+            var queryAsesorPst = @"
+                            SELECT 
+	                            u.ID_USUARIO,
+	                            a.NOMBRE
+                            FROM
+                                AsesorPst aps
+                            INNER JOIN
+	                            Pst ps ON aps.FK_ID_PST = ps.ID_PST
+                            INNER JOIN
+	                            Usuario u ON u.FK_ID_PST=ps.ID_PST
+                            INNER JOIN 
+	                            Asesor a ON a.ID_ASESOR=aps.FK_ID_ASESOR
+                            AND  u.ID_USUARIO = @FK_ID_USUARIO
+                            AND u.ESTADO = 1
+                            AND ps.ESTADO = 1
+                            AND aps.ESTADO = 1";
+            var dataAsesorPst = db.QueryFirstOrDefault<Asesor>(queryAsesorPst, new { FK_ID_USUARIO = datausuario.FK_ID_USUARIO });
+            Asesor objAsesorPst = new();
+            if(dataAsesorPst == null || dataAsesorPst.Equals(DBNull.Value))
             {
-                objasesor.nombre = "Sin asignar";
+                objAsesorPst.NOMBRE = "Sin Asignar";
             }
-            else
-            {
-                var queryUsuario = @"SELECT idUsuario,rnt,correo,nombre FROM Usuario where activo = 1 ";
-                var dataUsuarioAsesor = db.Query<Usuario>(queryUsuario, new { });
-                objasesor = dataUsuarioAsesor.Where(x => x.IdUsuario == dataPSTxAsesor.idusuario).FirstOrDefault();
-            }
-            ResponseArchivoPlanMejora responsePlanMejora = new ResponseArchivoPlanMejora();
+            dataAsesorPst = objAsesorPst;
 
-            responsePlanMejora.Titulo = dataTitulo.descripcion;
-            responsePlanMejora.seccion1 = dataSeccion.Where(x => x.item == 1).FirstOrDefault().descripcion;
+            ResponseArchivoPlanMejora responsePlanMejora = new();
 
-            responsePlanMejora.usuario = datausuario;
-            responsePlanMejora.DescripcionAccionNoCumple = datadescAccion.Where(x => x.item == 1).FirstOrDefault().descripcion;
-            responsePlanMejora.DescripcionAccionCumpleParcialmente = datadescAccion.Where(x => x.item == 2).FirstOrDefault().descripcion;
-            responsePlanMejora.DescripcionAccionCumple = datadescAccion.Where(x => x.item == 3).FirstOrDefault().descripcion;
-            responsePlanMejora.calificacion = datacalificacion;
-            responsePlanMejora.FechaInforme = DateTime.Now.ToString("dd 'de' MMMM 'de' yyyy");
-            responsePlanMejora.NombreAsesor = objasesor.nombre;
+            responsePlanMejora.TITULO                                   = dataTitulo.DESCRIPCION;
+            responsePlanMejora.PRIMERA_SECCION                          = dataSeccion.Where(x => x.ITEM == 1).FirstOrDefault().DESCRIPCION;
+            responsePlanMejora.USUARIO                                  = datausuario;
+            responsePlanMejora.DESCRIPCION_ACCION_NO_CUMPLE             = datadescAccion.Where(x => x.ITEM == 1).FirstOrDefault().DESCRIPCION;
+            responsePlanMejora.DESCRIPCION_ACCION_CUMPLE_PARCIALMENTE   = datadescAccion.Where(x => x.ITEM == 2).FirstOrDefault().DESCRIPCION;
+            responsePlanMejora.DESCRIPCION_ACCION_CUMPLE                = datadescAccion.Where(x => x.ITEM == 3).FirstOrDefault().DESCRIPCION;
+            responsePlanMejora.DATA_CALIFICACION                        = datacalificacion;
+            responsePlanMejora.FECHA_INFORME                            = DateTime.Now.ToString("dd 'de' MMMM 'de' yyyy");
+            responsePlanMejora.NOMBRE_ASESOR                            = dataAsesorPst.NOMBRE;
+
             return responsePlanMejora;
 
         }

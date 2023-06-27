@@ -7,18 +7,15 @@ using System.Threading.Tasks;
 
 public class Diagnostico
 {
-    public int iddiagnosticodinamico { get; set; }
-    public int idnormatecnica { get; set; }
-    public String? numeralprincipal { get; set; }
-
-    public String? tituloprincipal { get; set; }
-
-    public int activo { get; set; }
-    public String? tipodedato { get; set; }
-
-    public String? campo_local { get; set; }
-    public String? nombre { get; set; }
-    public int editable { get; set; }
+    public int ID_DIAGNOSTICO_DINAMICO { get; set; }
+    public int FK_ID_NORMA { get; set; }
+    public String? NUMERAL_PRINCIPAL { get; set; }
+    public String? TITULO_PRINCIPAL { get; set; }
+    public int ESTADO { get; set; }
+    public String? TIPO_DE_DATO { get; set; }
+    public String? CAMPO_LOCAL { get; set; }
+    public String? NOMBRE { get; set; }
+    public int EDITABLE { get; set; }
     public List<SubGrupoDiagnostico>? listacampos { get; set; }
     public Diagnostico()
     {

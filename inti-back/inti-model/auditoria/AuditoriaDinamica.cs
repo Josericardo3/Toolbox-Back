@@ -1,4 +1,5 @@
-﻿using inti_model.caracterizacion;
+﻿
+using inti_model.caracterizacion;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +23,7 @@ namespace inti_model.auditoria
         public bool ESTADO { get; set; }
         public AuditoriaDinamica()
         {
-         
+
             DESPLEGABLE = new List<DesplegableAuditoria>();
         }
     }

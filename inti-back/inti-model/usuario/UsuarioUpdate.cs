@@ -8,12 +8,12 @@ namespace inti_model.usuario
 {
     public class UsuarioUpdate
     {
-        public int idUsuario { get; set; }
-        public string? nombre { get; set; }
-        public string? correo { get; set; }
-        public string? telefono { get; set; }
-        public string? password { get; set; }
-        public string? rnt { get; set; }
-        public string? nit { get; set; }
+        public int ID_USUARIO { get; set; }
+        public string? NOMBRE { get; set; }
+        public string? CORREO { get; set; }
+        public string? TELEFONO { get; set; }
+        public string? PASSWORD { get; set; }
+        public string? RNT { get; set; }
+        public string? NIT { get; set; }
     }
 }

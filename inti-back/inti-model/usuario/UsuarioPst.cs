@@ -9,69 +9,71 @@ namespace inti_model.usuario
 {
     public class UsuarioPst
     {
-        public int IdUsuarioPst { get; set; }
+        public int ID_PST { get; set; }
+        public int FK_ID_PST { get; set; }
+        public int FK_ID_USUARIO { get; set; }
+        public int ID_USUARIO { get; set; }
 
         [Required(ErrorMessage = "Nit es requerido")]
-        public string? Nit { get; set; }
+        public string? NIT { get; set; }
 
         [Required(ErrorMessage = "Rnt es requerido")]
-        public string? Rnt { get; set; }
+        public string? RNT { get; set; }
 
         [Required(ErrorMessage = "CategoriaRnt es requerido")]
-        public int idCategoriaRnt { get; set; }
+        public int FK_ID_CATEGORIA_RNT { get; set; }
 
         [Required(ErrorMessage = "SubCategoriaRnt es requerido")]
-        public int idSubCategoriaRnt { get; set; }
+        public int FK_ID_SUB_CATEGORIA_RNT { get; set; }
 
         [Required(ErrorMessage = "NombrePst es requerido")]
-        public string? NombrePst { get; set; }
+        public string? NOMBRE_PST { get; set; }
 
         [Required(ErrorMessage = "RazonSocialPst es requerido")]
-        public string? RazonSocialPst { get; set; }
+        public string? RAZON_SOCIAL_PST { get; set; }
 
         [Required(ErrorMessage = "CorreoPst es requerido")]
-        public string? CorreoPst { get; set; }
+        public string? CORREO_PST { get; set; }
 
         [Required(ErrorMessage = "TelefonoPst es requerido")]
-        public string? TelefonoPst { get; set; }
+        public string? TELEFONO_PST { get; set; }
 
         [Required(ErrorMessage = "NombreRepresentanteLegal es requerido")]
-        public string? NombreRepresentanteLegal { get; set; }
+        public string? NOMBRE_REPRESENTANTE_LEGAL { get; set; }
 
         [Required(ErrorMessage = "CorreoRepresentanteLegal es requerido")]
-        public string? CorreoRepresentanteLegal { get; set; }
+        public string? CORREO_REPRESENTANTE_LEGAL { get; set; }
 
         [Required(ErrorMessage = "TelefonoRepresentanteLegal es requerido")]
-        public string? TelefonoRepresentanteLegal { get; set; }
+        public string? TELEFONO_REPRESENTANTE_LEGAL { get; set; }
 
         [Required(ErrorMessage = "TipoIdentificacionRepresentanteLegal es requerido")]
-        public int idTipoIdentificacion { get; set; }
+        public int FK_ID_TIPO_IDENTIFICACION { get; set; }
 
         [Required(ErrorMessage = "IdentificacionRepresentanteLegal es requerido")]
-        public string? IdentificacionRepresentanteLegal { get; set; }
+        public string? IDENTIFICACION_REPRESENTANTE_LEGAL { get; set; }
 
         [Required(ErrorMessage = "Departamento es requerido")]
-        public String? Departamento { get; set; }
+        public String? DEPARTAMENTO { get; set; }
 
         [Required(ErrorMessage = "Municipio es requerido")]
-        public String? Municipio { get; set; }
+        public String? MUNICIPIO { get; set; }
 
         [Required(ErrorMessage = "NombreResponsableSostenibilidad es requerido")]
-        public string? NombreResponsableSostenibilidad { get; set; }
+        public string? NOMBRE_RESPONSABLE_SOSTENIBILIDAD { get; set; }
 
         [Required(ErrorMessage = "CorreoResponsableSostenibilidad es requerido")]
-        public string? CorreoResponsableSostenibilidad { get; set; }
+        public string? CORREO_RESPONSABLE_SOSTENIBILIDAD { get; set; }
 
         [Required(ErrorMessage = "TelefonoResponsableSostenibilidad es requerido")]
-        public string? TelefonoResponsableSostenibilidad { get; set; }
+        public string? TELEFONO_RESPONSABLE_SOSTENIBILIDAD { get; set; }
 
         [Required(ErrorMessage = "Contraseña es requerido")]
-        public string? Password { get; set; }
+        public string? PASSWORD { get; set; }
 
         [Required(ErrorMessage = "Avatar es requerido")]
-        public int idTipoAvatar { get; set; }
-        public string logo { get; set; }
-        public bool Activo { get; set; }
+        public int FK_ID_TIPO_AVATAR { get; set; }
+        public bool ESTADO { get; set; }
 
     }
 

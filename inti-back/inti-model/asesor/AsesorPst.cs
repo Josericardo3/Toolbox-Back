@@ -8,12 +8,11 @@ namespace inti_model.asesor
 {
     public class AsesorPst
     {
-        public int idusuariopst { get; set; }
-        public string? rnt { get; set; }
-        public string? Razonsocial { get; set; }
-        public string? asesorasignado { get; set; }
-        public string? estadoatencion { get; set; }
-        public int idtabla { get; set; }
-        public int idusuario { get; set; }
+        public int ID_ASESOR_PST { get; set; }
+        public int FK_ID_ASESOR { get; set; }
+        public int FK_ID_PST { get; set; }
+        public int ESTADO { get; set; }
+
+
     }
 }

@@ -1,7 +1,11 @@
-﻿using inti_model.asesor;
+﻿using inti_model.actividad;
 using inti_model.usuario;
+using inti_model.dboinput;
 using inti_repository.actividad;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using System.Timers;
+using Microsoft.Extensions.Hosting.Internal;
 
 namespace inti_back.Controllers
 {
@@ -10,23 +14,60 @@ namespace inti_back.Controllers
     public class ActividadController : Controller
     {
         private readonly IActividadRepository _actividadRepository;
-        public ActividadController(IActividadRepository actividadRepository)
+        private static System.Timers.Timer timer;
+        private readonly IWebHostEnvironment _hostingEnvironment;
+        private static ActividadController _instance;
+
+        public ActividadController(IActividadRepository actividadRepository, IWebHostEnvironment hostingEnvironment)
         {
             _actividadRepository = actividadRepository;
+            _instance = this;
+            _hostingEnvironment = hostingEnvironment;
+
+        }
+        [NonAction]
+        public void StartTimer()
+        {
+            
+
+            DateTime now = DateTime.Now;
+            DateTime nextExecutionTime = now.Date.AddDays(1).AddHours(00).AddMinutes(00).AddSeconds(00);
+            TimeSpan timeUntilNextExecution = nextExecutionTime - now;
+            timer = new System.Timers.Timer(timeUntilNextExecution.TotalMilliseconds);
+            timer.Elapsed += TimerElapsed;
+            timer.AutoReset = false;
+            timer.Start();
+        }
+
+        [NonAction]
+        public static void TimerElapsed(object sender, ElapsedEventArgs e)
+        {
+            _instance.ExecuteFunctionAsync();
+        }
+
+        [NonAction]
+        public async Task ExecuteFunctionAsync()
+        {
+            var response = await _actividadRepository.ActualizarActividades();
+
+            timer.Stop();
+            timer.Interval = TimeSpan.FromDays(1).TotalMilliseconds;
+            timer.Start();
+
         }
 
         [HttpGet("actividades")]
-        public async Task<IActionResult> GetAllActividades(int idAsesor)
+        public async Task<IActionResult> GetAllActividades(int idUsuarioPst)
         {
-            return Ok(await _actividadRepository.GetAllActividades(idAsesor));
+            return Ok(await _actividadRepository.GetAllActividades(idUsuarioPst));
         }
 
-        [HttpGet("actividades/{idActividad}/{idAsesor}")]
-        public async Task<IActionResult> GetActividad(int idActividad, int idAsesor)
+        [HttpGet("actividades/{idActividad}")]
+        public async Task<IActionResult> GetActividad(int idActividad)
         {
             try
             {
-                var response = await _actividadRepository.GetActividad(idActividad, idAsesor);
+                var response = await _actividadRepository.GetActividad(idActividad);
                 return Ok(response);
             }
             catch (Exception)
@@ -43,7 +84,7 @@ namespace inti_back.Controllers
         }
 
         [HttpPost("actividades")]
-        public async Task<IActionResult> InsertActividad([FromBody] ActividadesAsesor actividades)
+        public async Task<IActionResult> InsertActividad([FromBody] InputActividad actividades)
         {
 
             try
@@ -51,7 +92,8 @@ namespace inti_back.Controllers
                 var create = await _actividadRepository.InsertActividad(actividades);
                 return Ok(new
                 {
-                    StatusCode(201).StatusCode
+                    StatusCode(201).StatusCode,
+                    valor = "Se insertó la actividad"
                 });
             }
             catch
@@ -66,7 +108,7 @@ namespace inti_back.Controllers
         }
 
         [HttpPut("actividades")]
-        public async Task<IActionResult> UpdateActividad([FromBody] ActividadesAsesor actividades)
+        public async Task<IActionResult> UpdateActividad([FromBody] Actividad actividades)
         {
             try
             {
@@ -75,7 +117,7 @@ namespace inti_back.Controllers
                 {
                     return Ok(new
                     {
-                        Id = actividades.id,
+                        Id = actividades.ID_ACTIVIDAD,
                         StatusCode(200).StatusCode
                     });
                 }
@@ -96,11 +138,11 @@ namespace inti_back.Controllers
         }
 
         [HttpDelete("actividades")]
-        public async Task<IActionResult> DeleteActividad(int id, int idAsesor)
+        public async Task<IActionResult> DeleteActividad(int id)
         {
             try
             {
-                var borrado = await _actividadRepository.DeleteActividad(id, idAsesor);
+                var borrado = await _actividadRepository.DeleteActividad(id);
                 if (borrado == false)
                 {
                     throw new Exception();
@@ -108,7 +150,8 @@ namespace inti_back.Controllers
                 return Ok(new
                 {
                     Id = id,
-                    StatusCode(204).StatusCode
+                    StatusCode(204).StatusCode,
+                    valor = "Se borró correctamente la actividad"
                 });
             }
             catch (Exception)
@@ -122,22 +165,28 @@ namespace inti_back.Controllers
         }
 
         [HttpGet("ListarResponsables/{rnt}")]
-        public async Task<IActionResult> GetAllAuditor(string rnt)
+        public async Task<IActionResult> GetAllResponsables(string rnt)
         {
             return Ok(await _actividadRepository.ListarResponsable(rnt));
         }
 
+        [HttpGet("ListarAvatares")]
+        public async Task<IActionResult> GetAllAvatar()
+        {
+            return Ok(await _actividadRepository.ListarAvatar());
+        }
+
         [HttpPut("Avatar")]
-        public async Task<IActionResult> AsignarAvatar([FromBody] UsuarioPst usuario)
+        public async Task<IActionResult> AsignarAvatar(int idusuariopst, int idavatar)
         {
             try
             {
-                var resp = await _actividadRepository.AsignarAvatar(usuario);
+                var resp = await _actividadRepository.AsignarAvatar(idusuariopst, idavatar);
                 if (resp == true)
                 {
                     return Ok(new
                     {
-                        Id = usuario.IdUsuarioPst,
+                        Id = idusuariopst,
                         StatusCode(200).StatusCode
                     });
                 }
@@ -157,7 +206,7 @@ namespace inti_back.Controllers
 
         }
         [HttpPut("Logo")]
-        public async Task<IActionResult> AsignarLogo([FromBody] UsuarioPst usuario)
+        public async Task<IActionResult> AsignarLogo([FromBody] UsuarioLogo usuario)
         {
             try
             {
@@ -166,7 +215,7 @@ namespace inti_back.Controllers
                 {
                     return Ok(new
                     {
-                        Id = usuario.IdUsuarioPst,
+                        Id = usuario.ID_USUARIO,
                         StatusCode(200).StatusCode
                     });
                 }

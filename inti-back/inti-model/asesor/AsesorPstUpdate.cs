@@ -9,8 +9,8 @@ namespace inti_model.asesor
     public class AsesorPstUpdate
     {
 
-        public int idusuariopst { get; set; }
-        public int idUsuario { get; set; }
+        public int ID_PST { get; set; }
+        public int ID_ASESOR { get; set; }
 
     }
 }

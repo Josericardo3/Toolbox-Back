@@ -7,18 +7,16 @@ using System.Threading.Tasks;
 
 public class DesplegableDiagnostico
 {
-    public int idtabla { get; set; }
-    public int item { get; set; }
-    public String? descripcion { get; set; }
-    public String? valor { get; set; }
-    public int estado { get; set; } 
-
-    public int id { get; set; }
+    public int ID_TABLA { get; set; }
+    public int ITEM { get; set; }
+    public String? DESCRIPCION { get; set; }
+    public String? VALOR { get; set; }
+    public int ESTADO { get; set; } 
+    public int ID { get; set; }
     public int iddiagnostico { get; set; }
-    public String? nombre { get; set; }
-    public bool activo { get; set; }
-
-    public int editable { get; set; }
-    public int obligatorio { get; set; }
+    public String? NOMBRE { get; set; }
+    public bool ACTIVO { get; set; }
+    public int EDITABLE { get; set; }
+    public int OBLIGATORIO { get; set; }
 
 }

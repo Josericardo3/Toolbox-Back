@@ -9,10 +9,10 @@ namespace inti_model.caracterizacion
 {
     public class DesplegableCaracterizacion
     {
-        public int id { get; set; }
-        public int idcaracterizacion { get; set; }
-        public string? nombre { get; set; }
-        public bool activo { get; set; }
+        public int ID_DESPLEGABLE_CARACTERIZACION { get; set; }
+        public int FK_ID_CARACTERIZACION_DINAMICA { get; set; }
+        public string? NOMBRE { get; set; }
+        public bool ESTADO { get; set; }
 
     }
 

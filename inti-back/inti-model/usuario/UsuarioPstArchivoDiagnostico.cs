@@ -9,51 +9,20 @@ namespace inti_model.usuario
 {
     public class UsuarioPstArchivoDiagnostico
     {
-        public int IdUsuarioPst { get; set; }
-
-        public string? Nit { get; set; }
-
-        public string? Rnt { get; set; }
-
-        public int idCategoriaRnt { get; set; }
-        public string? categoriarnt { get; set; }
-
-        public int idSubCategoriaRnt { get; set; }
-        public string? subcategoriarnt { get; set; }
-        public string? NombrePst { get; set; }
-
-        public string? RazonSocialPst { get; set; }
-
-        public string? CorreoPst { get; set; }
-
-        public string? TelefonoPst { get; set; }
-
-        public string? NombreRepresentanteLegal { get; set; }
-
-        public string? CorreoRepresentanteLegal { get; set; }
-
-        public string? TelefonoRepresentanteLegal { get; set; }
-
-        public int idTipoIdentificacion { get; set; }
-
-        public string? IdentificacionRepresentanteLegal { get; set; }
-
-        public int idDepartamento { get; set; }
-        public string? departamento { get; set; }
-
-        public int idMunicipio { get; set; }
-        public string? municipio { get; set; }
-
-        public string? NombreResponsableSostenibilidad { get; set; }
-
-        public string? CorreoResponsableSostenibilidad { get; set; }
-
-        public string? TelefonoResponsableSostenibilidad { get; set; }
-
-        public string? Password { get; set; }
-
-        public int idTipoAvatar { get; set; }
-        public bool Activo { get; set; }
-        public string? EtapaDiagnostico { get; set; }
+        public string? RAZON_SOCIAL_PST { get; set; }
+        public int FK_ID_USUARIO { get; set; }
+        public string? NOMBRE_PST { get; set; }
+        public string? NIT { get; set; }
+        public string? RNT { get; set; }
+        public string? CATEGORIA_RNT { get; set; }
+        public string? SUB_CATEGORIA_RNT { get; set; }
+        public string? MUNICIPIO { get; set; }
+        public string? DEPARTAMENTO { get; set; }
+        public string? ETAPA_DIAGNOSTICO { get; set; }
+        public string? NOMBRE_RESPONSABLE_SOSTENIBILIDAD { get; set; }
+        public string? CORREO_RESPONSABLE_SOSTENIBILIDAD { get; set; }
+        public string? TELEFONO_RESPONSABLE_SOSTENIBILIDAD { get; set; }
+        public bool ESTADO { get; set; }
+       
     }
 }

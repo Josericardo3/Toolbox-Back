@@ -8,31 +8,30 @@ namespace inti_model.caracterizacion
 {
     public class Caracterizacion
     {
-        public int idcaracterizaciondinamica { get; set; }
-        public string? nombre { get; set; }
-        public string? tipodedato { get; set; }
-        public int idcategoriarnt { get; set; }
-        public string? mensaje { get; set; }
-        public string? codigo { get; set; }
-        public string? Dependiente { get; set; }
-        public string? desplegable_id { get; set; }
-        public string? tablarelacionada { get; set; }
-        public bool existe { get; set; }
-        public List<DesplegableCaracterizacion>? desplegable { get; set; }
-        public List<Municipios> municipios { get; set; }
-        public string? relations { get; set; }
-        public string? campo_local { get; set; }
-        public bool requerido { get; set; }
-        public string? values { get; set; }
-        public bool activo { get; set; }
-        public string ffcontext { get; set; }
-
+        public int ID_CARACTERIZACION_DINAMICA { get; set; }
+        public string? NOMBRE { get; set; }
+        public string? TIPO_DE_DATO { get; set; }
+        public int FK_ID_CATEGORIA_RNT { get; set; }
+        public string? MENSAJE { get; set; }
+        public string? CODIGO { get; set; }
+        public string? DEPENDIENTE { get; set; }
+        public string? DESPLEGABLE_ID { get; set; }
+        public string? TABLA_RELACIONADA { get; set; }
+        public List<DesplegableCaracterizacion>? DESPLEGABLE { get; set; }
+        public bool EXISTE { get; set; }
+        public string? RELATIONS { get; set; }
+        public string? CAMPO_LOCAL { get; set; }
+        public bool REQUERIDO { get; set; }
+        public string? VALUES { get; set; }
+        public bool ESTADO { get; set; }
+        public string? FFCONTEXT { get; set; }
         public Caracterizacion()
         {
-            relations = "{}";
-            desplegable = new List<DesplegableCaracterizacion>();
-            municipios = new List<Municipios>();
+            RELATIONS = "{}";
+            DESPLEGABLE = new List<DesplegableCaracterizacion>();
         }
+
+
     }
 
 }

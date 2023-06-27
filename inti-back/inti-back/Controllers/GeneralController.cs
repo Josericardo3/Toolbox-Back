@@ -7,8 +7,8 @@ using System.Net.Mail;
 using System.Net;
 using System.Text;
 using System.Security.Cryptography;
-using inti_model;
 using inti_repository;
+using inti_model.noticia;
 
 namespace inti_back.Controllers
 {
@@ -29,7 +29,7 @@ namespace inti_back.Controllers
         {
             try
             {
-                var response = await _generalRepository.GetMaestro(idtabla,item);
+                var response = await _generalRepository.GetMaestro(idtabla, item);
                 return Ok(response);
             }
             catch (Exception)
@@ -59,7 +59,70 @@ namespace inti_back.Controllers
                 });
             }
         }
-    
+
+        [HttpGet("GetNormas")]
+        public async Task<IActionResult> GetNormas()
+        {
+            try
+            {
+                var response = await _generalRepository.GetNormas();
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "Ocurrió un error al extraer las normas",
+                    ex.Message
+                });
+            }
+        }
+
+        [HttpGet("ListarResponsables/{rnt}")]
+        public async Task<IActionResult> GetAllAuditor(string rnt)
+        {
+            return Ok(await _generalRepository.ListarResponsable(rnt));
+        }
+
+        [HttpGet("ListarCategorias")]
+        public async Task<IActionResult> ListarCategorias()
+        {
+            try
+            {
+                var response = await _generalRepository.ListarCategorias();
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "Ocurrió un error al listar categorias",
+                    ex.Message
+                });
+            }
+        }
+
+        [HttpGet("ListarPst")]
+        public async Task<IActionResult> ListarPst()
+        {
+            try
+            {
+                var response = await _generalRepository.ListarPst();
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "Ocurrió un error al listar pst",
+                    ex.Message
+                });
+            }
+        }
+
 
     }
 }

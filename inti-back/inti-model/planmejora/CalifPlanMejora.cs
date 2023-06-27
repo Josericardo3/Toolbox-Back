@@ -8,15 +8,13 @@ namespace inti_model.planmejora
 {
     public class CalifPlanMejora
     {
-        public String? Numeral { get; set; }
-        public String? tituloRequisito { get; set; }
-        public String? Requisito { get; set; }
-        public String? Evidencia { get; set; }
-        public String? calificado { get; set; }
-        public String? observacion { get; set; }
-        public int idnormatecnica { get; set; }
-        public int idusuario { get; set; }
-        public String? valorcalificado { get; set; }
-        public String? duracion { get; set; }
+        public String? NUMERAL { get; set; }
+        public String? TITULO_REQUISITO { get; set; }
+        public String? REQUISITO { get; set; }
+        public String? EVIDENCIA { get; set; }
+        public String? VALOR_CALIFICADO { get; set; }
+        public String? CALIFICADO { get; set; }
+        public String? OBSERVACION { get; set; }
+        public String? DURACION { get; set; }
     }
 }

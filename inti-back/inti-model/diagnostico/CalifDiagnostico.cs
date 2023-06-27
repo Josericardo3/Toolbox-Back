@@ -8,15 +8,12 @@ namespace inti_model.diagnostico
 {
     public class CalifDiagnostico
     {
-        public string? Numeral { get; set; }
-        public string? tituloRequisito { get; set; }
-        public string? Requisito { get; set; }
-        public string? Evidencia { get; set; }
-        public string? calificado { get; set; }
-        public string? observacion { get; set; }
-        public int idnormatecnica { get; set; }
-        public int idusuario { get; set; }
-        public string? valorcalificado { get; set; }
-        public string? Numeralprincipal { get; set; }
+        public String? NUMERAL { get; set; }
+        public String? TITULO_REQUISITO { get; set; }
+        public String? REQUISITO { get; set; }
+        public String? EVIDENCIA { get; set; }
+        public String? CALIFICADO { get; set; }
+        public String? OBSERVACION { get; set; }
+        public String? VALOR_CALIFICADO { get; set; }
     }
 }
