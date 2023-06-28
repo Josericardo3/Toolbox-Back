@@ -31,14 +31,12 @@ namespace inti_model.auditoria
         public int CANT_F { get; set; }
         public int CANT_C { get; set; }
         public List<AuditoriaRequisito> REQUISITOS { get; set; }
-        public List<AuditoriaConformidad> CONFORMIDADES { get; set; }
 
 
         public AuditoriaProceso()
         {
 
             REQUISITOS = new List<AuditoriaRequisito>();
-            CONFORMIDADES = new List<AuditoriaConformidad>();
 
         }
     }

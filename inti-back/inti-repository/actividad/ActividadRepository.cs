@@ -31,13 +31,13 @@ namespace inti_repository.actividad
             var queryActividades = @"
                             UPDATE Actividad 
                             SET 
-                                ESTADO_PLANIFICACION = 'Demorado'
+                                ESTADO_PLANIFICACION = @ESTADO_PLANIFICACION
                             WHERE
                                 DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'),
                                         '%d-%m-%Y') = DATE_FORMAT(CURDATE(), '%d-%m-%Y')
                                     AND ESTADO_PLANIFICACION <> 'Finalizado'
                                     AND ESTADO = 1";
-            var dataActividades = await db.ExecuteAsync(queryActividades);
+            var dataActividades = await db.ExecuteAsync(queryActividades, new { ESTADO_PLANIFICACION  = "Demorado"});
 
             return dataActividades > 0;
         }
