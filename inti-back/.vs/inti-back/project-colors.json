@@ -1,0 +1,26 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "6f8c433d-9eda-42eb-99a7-c710148ce347": {
+      "ProjectGuid": "6f8c433d-9eda-42eb-99a7-c710148ce347",
+      "DisplayName": "inti-back",
+      "ColorIndex": 0
+    },
+    "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3": {
+      "ProjectGuid": "a2fe74e1-b743-11d0-ae1a-00a0c90fffc3",
+      "DisplayName": "Archivos varios",
+      "ColorIndex": -1
+    },
+    "f22fae7f-6f9a-419e-9bd1-7655bed77315": {
+      "ProjectGuid": "f22fae7f-6f9a-419e-9bd1-7655bed77315",
+      "DisplayName": "inti-repository",
+      "ColorIndex": 1
+    },
+    "ffb5790d-5576-4101-add4-e856d3d4f407": {
+      "ProjectGuid": "ffb5790d-5576-4101-add4-e856d3d4f407",
+      "DisplayName": "inti-model",
+      "ColorIndex": 2
+    }
+  },
+  "NextColorIndex": 3
+}

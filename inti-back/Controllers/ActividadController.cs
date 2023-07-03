@@ -28,15 +28,12 @@ namespace inti_back.Controllers
         [NonAction]
         public void StartTimer()
         {
-            
-
-            DateTime now = DateTime.Now;
-            DateTime nextExecutionTime = now.Date.AddDays(1).AddHours(00).AddMinutes(00).AddSeconds(00);
-            TimeSpan timeUntilNextExecution = nextExecutionTime - now;
-            timer = new System.Timers.Timer(timeUntilNextExecution.TotalMilliseconds);
+            timer = new System.Timers.Timer();
             timer.Elapsed += TimerElapsed;
-            timer.AutoReset = false;
+            timer.AutoReset = true;
+            timer.Interval = TimeSpan.FromDays(1).TotalMilliseconds;
             timer.Start();
+
         }
 
         [NonAction]
@@ -50,7 +47,6 @@ namespace inti_back.Controllers
         {
             var response = await _actividadRepository.ActualizarActividades();
 
-            timer.Stop();
             timer.Interval = TimeSpan.FromDays(1).TotalMilliseconds;
             timer.Start();
 
