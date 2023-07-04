@@ -46,10 +46,10 @@ namespace inti_back.Controllers
 
         }
 
-        [HttpGet("UsuarioDiagnostico/{idUsuario}")]
-        public bool ValidarUsuarioDiagnostico(int idUsuario)
+        [HttpGet("UsuarioDiagnostico")]
+        public bool ValidarUsuarioDiagnostico(int idUsuario, int idNorma)
         {
-            bool validacion =  _validacionesRepository.ValidarUsuarioDiagnostico(idUsuario);
+            bool validacion =  _validacionesRepository.ValidarUsuarioDiagnostico(idUsuario, idNorma);
             return validacion;
 
         }

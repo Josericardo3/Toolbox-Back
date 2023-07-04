@@ -13,7 +13,7 @@ namespace inti_repository.validaciones
         bool ValidarRegistroCorreo(string datoCorreo);
         bool ValidarRegistroTelefono(string datoTelefono);
         bool ValidarUsuarioCaracterizacion(int idUsuario);
-        bool ValidarUsuarioDiagnostico(int idUsuarioPst);
+        bool ValidarUsuarioDiagnostico(int idUsuarioPst, int idNorma);
         bool ValidarUsuarioRnt(string rnt);
         Task<UsuarioPassword> RecuperacionContraseña(string correo);
         Task<bool> UpdatePassword(string password, string id);

@@ -20,6 +20,7 @@ using inti_repository.general;
 using inti_repository.noticia;
 using inti_back.Controllers;
 using Microsoft.AspNetCore.Mvc;
+using inti_repository.formularios;
 
 const String default_url = "http://{0}:{1};https://{2}:{3}"; 
 
@@ -34,7 +35,7 @@ builder.Services.AddScoped<ActividadController>();
 
 //var host = Environment.GetEnvironmentVariable("INTI_BACK_HOST");
 var env = Environment.GetEnvironmentVariable("INTI_BACK_ENV");
-var port = 8050;
+var port = 8054; 
 //var port = 8050;
 var host = "0.0.0.0";
 String connectionString = env != "DEV" ? "MySqlConnectionDev" : "MySqlConnection";
@@ -104,6 +105,7 @@ builder.Services.AddScoped<IAuditoriaRepository, AuditoriaRepository>();
 builder.Services.AddScoped<IMatrizLegalRepository, MatrizLegalRepository>();
 builder.Services.AddScoped<IGeneralRepository, GeneralRepository>();
 builder.Services.AddScoped<INoticiaRepository, NoticiaRepository>();
+builder.Services.AddScoped<IFormularioRepository, FormulariosRepository>();
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(options =>

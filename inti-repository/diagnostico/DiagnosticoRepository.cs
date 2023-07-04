@@ -114,6 +114,10 @@ namespace inti_repository.diagnostico
             var db = dbConnection();
             var result = 1;
 
+
+            var dataUsuario = @"SELECT COALESCE(MAX(ETAPA), 0) as ETAPA FROM RespuestaDiagnostico WHERE FK_ID_USUARIO=@idusuario AND FK_ID_NORMA =@idnorma";
+            var data = db.QueryFirstOrDefault<int?>(dataUsuario, new { idusuario = lstRespuestaDiagnostico[0].FK_ID_USUARIO, idnorma = lstRespuestaDiagnostico[0].FK_ID_NORMA });
+
             foreach (var respuestaDiagnostico in lstRespuestaDiagnostico)
             {
                 var valor = respuestaDiagnostico.VALOR;
@@ -126,8 +130,8 @@ namespace inti_repository.diagnostico
                     observacion = splitValor[0];
                 }
 
-                var sql = @"INSERT INTO RespuestaDiagnostico(FK_ID_USUARIO, FK_ID_NORMA, NUMERAL_PRINCIPAL, NUMERAL_ESPECIFICO, VALOR, OBSERVACION, ESTADO)
-                    VALUES (@FK_ID_USUARIO, @FK_ID_NORMA, @NUMERAL_PRINCIPAL, @NUMERAL_ESPECIFICO, TRIM(@VALOR), TRIM(@OBSERVACION), 1)";
+                var sql = @"INSERT INTO RespuestaDiagnostico(FK_ID_USUARIO, FK_ID_NORMA, NUMERAL_PRINCIPAL, NUMERAL_ESPECIFICO, VALOR, OBSERVACION, ETAPA,ESTADO)
+                    VALUES (@FK_ID_USUARIO, @FK_ID_NORMA, @NUMERAL_PRINCIPAL, @NUMERAL_ESPECIFICO, TRIM(@VALOR), TRIM(@OBSERVACION), @ETAPA,1)";
 
                 result = await db.ExecuteAsync(sql, new
                 {
@@ -136,7 +140,8 @@ namespace inti_repository.diagnostico
                     respuestaDiagnostico.NUMERAL_PRINCIPAL,
                     respuestaDiagnostico.NUMERAL_ESPECIFICO,
                     valor,
-                    observacion
+                    observacion,
+                    ETAPA = data+1
                 });
             }
 

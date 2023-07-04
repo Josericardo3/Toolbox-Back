@@ -66,7 +66,7 @@ namespace inti_back.Controllers
                 foreach (var notificacion in response)
                 {
 
-                        var rutaImagen = Path.Combine("imagenes//noticias//", notificacion.IMAGEN);
+                        var rutaImagen = Path.Combine("inti-back//inti-back//imagenes//noticias//", notificacion.IMAGEN);
 
                         if (System.IO.File.Exists(rutaImagen))
                         {
@@ -107,7 +107,7 @@ namespace inti_back.Controllers
             try
             {
                 var response = await _noticiaRepository.GetNoticia(idNoticia);
-                string rutaImagen = Path.Combine("imagenes//noticias//", response.IMAGEN);
+                string rutaImagen = Path.Combine("inti-back//inti-back//imagenes//noticias//", response.IMAGEN);
 
                 if (System.IO.File.Exists(rutaImagen))
                 {
@@ -159,7 +159,7 @@ namespace inti_back.Controllers
                         return BadRequest("No se pudo insertar la foto");
 
                     var foto_nombre = create + "-" + noticia.FOTO.FileName;
-                    var filePath = Path.Combine("imagenes//noticias//", foto_nombre);
+                    var filePath = Path.Combine("inti-back//inti-back//imagenes//noticias//", foto_nombre);
                     //var filePath = Path.Combine("C:\\SESRepos\\inti-back\\inti-back\\inti-repository\\imagenes\\noticias\\", foto_nombre);
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
@@ -213,7 +213,7 @@ namespace inti_back.Controllers
                     resp = await _noticiaRepository.UpdateNoticia(noticia);
 
                     var foto_nombre = noticia.ID_NOTICIA + "-" + noticia.FOTO.FileName;
-                    var filePath = Path.Combine("imagenes//noticias//", foto_nombre);
+                    var filePath = Path.Combine("inti-back//inti-back//imagenes//noticias//", foto_nombre);
                     //var filePath = Path.Combine("C:\\SESRepos\\inti-back\\inti-back\\inti-repository\\imagenes\\noticias\\", foto_nombre);
                     using (var stream = new FileStream(filePath, FileMode.Create))
                     {
@@ -318,7 +318,7 @@ namespace inti_back.Controllers
                     }
                     else
                     {
-                        var rutaImagen = Path.Combine("imagenes//noticias//",notificacion.IMAGEN_NOTICIA);
+                        var rutaImagen = Path.Combine("inti-back//inti-back//imagenes//noticias//", notificacion.IMAGEN_NOTICIA);
 
                         if (System.IO.File.Exists(rutaImagen))
                         {

@@ -228,7 +228,7 @@ namespace inti_repository.auditoria
 
             var sql = @"SELECT 
                         ID_AUDITORIA,FECHA_AUDITORIA,AUDITOR_LIDER,EQUIPO_AUDITOR,OBJETIVO,ALCANCE,CRITERIO,
-            FECHA_REUNION_APERTURA,HORA_REUNION_APERTURA,FECHA_REUNION_CIERRE,HORA_REUNION_CIERRE,FK_ID_PST,PROCESO,ESTADO
+            FECHA_REUNION_APERTURA,HORA_REUNION_APERTURA,FECHA_REUNION_CIERRE,HORA_REUNION_CIERRE,FK_ID_PST,PROCESO, FECHA_REG, COALESCE(FECHA_ACT, FECHA_REG) AS FECHA_ACT,ESTADO
             FROM Auditoria  WHERE ID_AUDITORIA= @IdAuditoria AND ESTADO = TRUE ";
             Auditoria data = await db.QueryFirstOrDefaultAsync<Auditoria>(sql, new { IdAuditoria = id });
             var sqlProceso = @"SELECT ap.ID_PROCESO_AUDITORIA, ap.FK_ID_AUDITORIA, ap.FECHA, ap.HORA, ap.TIPO_PROCESO, ap.PROCESO_DESCRIPCION,
@@ -248,14 +248,6 @@ GROUP BY ap.ID_PROCESO_AUDITORIA, ap.FK_ID_AUDITORIA, ap.FECHA, ap.HORA, ap.TIPO
             var dataProceso = db.Query<AuditoriaProceso>(sqlProceso, new { IdAuditoria = id }).ToList();
             foreach (AuditoriaProceso proceso in dataProceso)
             {
-                var sqlConformidad = @"select ID_CONFORMIDAD_AUDITORIA,FK_ID_PROCESO,DESCRIPCION,NTC,LEGALES,ESTADO from AuditoriaConformidad where ESTADO=TRUE AND FK_ID_PROCESO = @IdProceso";
-                var dataConformidad = db.Query<AuditoriaConformidad>(sqlConformidad, new { IdProceso = proceso.ID_PROCESO_AUDITORIA }).ToList();
-                foreach (AuditoriaConformidad i in dataConformidad)
-                {
-                    proceso.CONFORMIDADES.Add(i);
-
-                }
-
                 var sqlRequisito = @"select ROW_NUMBER() OVER(ORDER BY ID_REQUISITO) AS NUMERACION, ID_REQUISITO,FK_ID_PROCESO, REQUISITO, EVIDENCIA, PREGUNTA,HALLAZGO, OBSERVACION, ESTADO from AuditoriaRequisito where ESTADO=TRUE AND FK_ID_PROCESO = @IdProceso";
                 var dataRequisito = db.Query<AuditoriaRequisito>(sqlRequisito, new { IdProceso = proceso.ID_PROCESO_AUDITORIA }).ToList();
                 foreach (AuditoriaRequisito i in dataRequisito)

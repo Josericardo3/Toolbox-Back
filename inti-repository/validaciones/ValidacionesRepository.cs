@@ -70,13 +70,13 @@ namespace inti_repository.validaciones
                 return false;
             }
         }
-        public bool ValidarUsuarioDiagnostico(int idUsuario)
+        public bool ValidarUsuarioDiagnostico(int idUsuario, int idnorma)
         {
             var db = dbConnection();
-            var dataUsuario = @"SELECT FK_ID_USUARIO FROM RespuestaDiagnostico WHERE FK_ID_USUARIO=@idusuario";
-            var result = db.Query(dataUsuario, new { idusuario = idUsuario });
-
-            if (result.Count() > 0)
+            var dataUsuario = @"SELECT COALESCE(MAX(ETAPA), 0) as ETAPA FROM RespuestaDiagnostico WHERE FK_ID_USUARIO=@idusuario AND FK_ID_NORMA =@idnorma";
+            var result = db.QueryFirstOrDefault<int?>(dataUsuario, new { idusuario = idUsuario, idnorma = idnorma });
+            
+            if (result < 3)
             {
                 return true;
             }
