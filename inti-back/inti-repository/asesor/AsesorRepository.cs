@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks; 
+using System.Threading.Tasks;
 
 namespace inti_repository.caracterizacion
 {
@@ -29,9 +29,10 @@ namespace inti_repository.caracterizacion
         {
 
             var db = dbConnection();
+            var fecha_registro = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
             var queryAsesor = @"INSERT INTO Asesor(RNT,CORREO,NOMBRE) VALUES(@RNT,@CORREO,@NOMBRE)";
-            var insertAsesor = await db.ExecuteAsync(queryAsesor, new { RNT = objAsesor.RNT, CORREO = objAsesor.CORREO, NOMBRE = objAsesor.NOMBRE});
-   
+            var insertAsesor = await db.ExecuteAsync(queryAsesor, new { RNT = objAsesor.RNT, CORREO = objAsesor.CORREO, NOMBRE = objAsesor.NOMBRE });
+
             Asesor oAsesor = new Asesor();
             Usuario oUser = new Usuario();
             if (insertAsesor > 0)
@@ -42,13 +43,11 @@ namespace inti_repository.caracterizacion
                 oAsesor = db.QueryFirstOrDefault<Asesor>(sqlobtenerasesor, new { user = objAsesor.RNT, Correo = objAsesor.CORREO });
 
 
-                var insertUsuario = @"INSERT INTO Usuario(FK_ID_ASESOR,RNT,ID_TIPO_USUARIO,CORREO,PASSWORD,ESTADO) Values (@FK_ID_ASESOR,@RNT,@ID_TIPO_USUARIO,@CORREO,SHA1(@PASSWORD),1)";
-                var result = await db.ExecuteAsync(insertUsuario, new { FK_ID_ASESOR = oAsesor.ID_ASESOR, objAsesor.RNT, ID_TIPO_USUARIO = 8, objAsesor.CORREO, password = 123 });
+                var insertUsuario = @"INSERT INTO Usuario(FK_ID_ASESOR,NOMBRE,RNT,ID_TIPO_USUARIO,CORREO,PASSWORD,FECHA_REG) Values (@FK_ID_ASESOR,@NOMBRE,@RNT,@ID_TIPO_USUARIO,@CORREO,SHA1(@PASSWORD),@FECHA_REG)";
+                var result = await db.ExecuteAsync(insertUsuario, new { FK_ID_ASESOR = oAsesor.ID_ASESOR, NOMBRE = objAsesor.NOMBRE, objAsesor.RNT, ID_TIPO_USUARIO = 8, objAsesor.CORREO, password = 123, FECHA_REG = fecha_registro });
 
                 var queryusuario = @"SELECT LAST_INSERT_ID() FROM Usuario limit 1;";
                 var idusuario = await db.QueryFirstAsync<int>(queryusuario);
-
-
 
 
                 var insertPermisoAsesor = @"INSERT INTO MaePermiso(ID_TABLA,ITEM,FK_ID_USUARIO,ESTADO,TIPO_USUARIO) Values (1,8,@result,1,8)";
@@ -66,7 +65,7 @@ namespace inti_repository.caracterizacion
             IEnumerable<Asesor> dataPSTAsesor = new List<Asesor>();
 
             if (idasesor == 0)
-            { 
+            {
                 queryPSTAsesor = @"
                       SELECT 
                         ps.ID_PST,
@@ -175,7 +174,7 @@ namespace inti_repository.caracterizacion
             result = await db.ExecuteAsync(insertAsesor, new { FK_ID_PST = objPST_Asesor.ID_PST, FK_ID_ASESOR = objPST_Asesor.ID_ASESOR });
 
             var insertAtencionPST = @"INSERT INTO AtencionUsuarioPst (FK_ID_USUARIO,ESTADO) VALUES (@FK_ID_PST,1)";
-            result = await db.ExecuteAsync(insertAtencionPST, new {FK_ID_PST = objPST_Asesor.ID_PST });
+            result = await db.ExecuteAsync(insertAtencionPST, new { FK_ID_PST = objPST_Asesor.ID_PST });
             return result > 0;
 
         }
@@ -201,7 +200,7 @@ namespace inti_repository.caracterizacion
                 WHERE
                     ID_USUARIO = @ID_USUARIO AND ESTADO = 1";
             var updUsuario = await db.ExecuteAsync(queryUsuario, new { objAsesor.RNT, objAsesor.CORREO, ID_USUARIO = objAsesor.ID_USUARIO });
-            return result >0 & updUsuario > 0;
+            return result > 0 & updUsuario > 0;
         }
         public async Task<IEnumerable<Asesor>> ListAsesor()
         {
@@ -226,7 +225,7 @@ namespace inti_repository.caracterizacion
             var sql = @"INSERT INTO RespuestaAnalisisAsesor(FK_ID_USUARIO,FK_ID_NORMA,RESPUESTA_ANALISIS) Values (@FK_ID_USUARIO,@FK_ID_NORMA,@RESPUESTA_ANALISIS)";
             var result = await db.ExecuteAsync(sql, new { objRespuestaAsesor.FK_ID_USUARIO, objRespuestaAsesor.FK_ID_NORMA, objRespuestaAsesor.RESPUESTA_ANALISIS });
 
-           
+
 
             return result > 0;
         }
