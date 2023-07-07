@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using inti_model.usuario;
+using inti_model.dboresponse;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
@@ -54,37 +55,78 @@ namespace inti_repository.validaciones
 
         }
 
-        public bool ValidarUsuarioCaracterizacion(int idUsuario)
+        public async Task<bool?> ValidarUsuarioCaracterizacion(int idUsuario)
         {
             var db = dbConnection();
-           
-            var dataUsuario = @"SELECT FK_ID_USUARIO FROM RespuestaCaracterizacion WHERE FK_ID_USUARIO=@idusuariopst";
-            var result = db.Query(dataUsuario, new { idusuariopst = idUsuario });
 
-            if (result.Count() > 0)
+
+            var queryUsuario = @"SELECT * FROM Usuario WHERE ID_USUARIO = @id AND ESTADO = true";
+            Usuario dataUsuario = await db.QueryFirstOrDefaultAsync<Usuario>(queryUsuario, new { id = idUsuario });
+
+            if (dataUsuario != null)
             {
-                return true;
+                var query = @"SELECT a.FK_ID_USUARIO, b.RNT FROM RespuestaCaracterizacion a LEFT JOIN Usuario b ON a.FK_ID_USUARIO = b.ID_USUARIO WHERE b.RNT=@RNT";
+                int count = await db.ExecuteScalarAsync<int>(query, new { RNT = dataUsuario.RNT });
+
+                if (count > 0)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
             else
             {
-                return false;
+                return null;
             }
         }
-        public bool ValidarUsuarioDiagnostico(int idUsuario, int idnorma)
+        public async Task<ResponseValidacionDiagnostico> ValidarUsuarioDiagnostico(int idUsuario, int idnorma)
         {
             var db = dbConnection();
-            var dataUsuario = @"SELECT COALESCE(MAX(ETAPA), 0) as ETAPA FROM RespuestaDiagnostico WHERE FK_ID_USUARIO=@idusuario AND FK_ID_NORMA =@idnorma";
-            var result = db.QueryFirstOrDefault<int?>(dataUsuario, new { idusuario = idUsuario, idnorma = idnorma });
-            
-            if (result < 3)
+            var queryUsuario = @"SELECT * FROM Usuario WHERE ID_USUARIO = @id AND ESTADO = true";
+            Usuario datausuario =  await db.QueryFirstOrDefaultAsync<Usuario>(queryUsuario, new { id = idUsuario });
+            if (datausuario != null)
             {
-                return true;
+                var dataUsuario = @"SELECT COALESCE(MAX(a.ETAPA), 0) as ETAPA FROM RespuestaDiagnostico a LEFT JOIN  Usuario b ON a.FK_ID_USUARIO = b.ID_USUARIO
+            WHERE b.RNT = @rnt AND a.FK_ID_NORMA = @idnorma";
+                var result = db.QueryFirstOrDefault<int?>(dataUsuario, new { rnt = datausuario.RNT, idnorma = idnorma });
+
+                var response = new ResponseValidacionDiagnostico();
+                if (result == 0)
+                {
+                    response.ETAPA_INICIO = false;
+                    response.ETAPA_INTERMEDIO = false;
+                    response.ETAPA_FINAL = false;
+                }
+                else if (result == 1)
+                {
+                    response.ETAPA_INICIO = true;
+                    response.ETAPA_INTERMEDIO = false;
+                    response.ETAPA_FINAL = false;
+                }
+                else if (result == 2)
+                {
+                    response.ETAPA_INICIO = false;
+                    response.ETAPA_INTERMEDIO = true;
+                    response.ETAPA_FINAL = false;
+                }
+                else if (result == 3)
+                {
+                    response.ETAPA_INICIO = false;
+                    response.ETAPA_INTERMEDIO = false;
+                    response.ETAPA_FINAL = true;
+                }
+
+                return response;
             }
             else
             {
-                return false;
+                return null;
             }
         }
+
 
         public bool ValidarUsuarioRnt(string datoRnt)
         {

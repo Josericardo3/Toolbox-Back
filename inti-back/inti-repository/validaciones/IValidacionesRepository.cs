@@ -1,4 +1,5 @@
 ﻿using inti_model.usuario;
+using inti_model.dboresponse;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -12,8 +13,8 @@ namespace inti_repository.validaciones
     {
         bool ValidarRegistroCorreo(string datoCorreo);
         bool ValidarRegistroTelefono(string datoTelefono);
-        bool ValidarUsuarioCaracterizacion(int idUsuario);
-        bool ValidarUsuarioDiagnostico(int idUsuarioPst, int idNorma);
+        Task<bool?> ValidarUsuarioCaracterizacion(int idUsuario);
+        Task<ResponseValidacionDiagnostico> ValidarUsuarioDiagnostico(int idUsuarioPst, int idNorma);
         bool ValidarUsuarioRnt(string rnt);
         Task<UsuarioPassword> RecuperacionContraseña(string correo);
         Task<bool> UpdatePassword(string password, string id);

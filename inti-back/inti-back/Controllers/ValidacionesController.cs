@@ -1,4 +1,5 @@
 ﻿using inti_model.usuario;
+using inti_model.dboresponse;
 using inti_repository.caracterizacion;
 using inti_repository.validaciones;
 using Microsoft.AspNetCore.Http;
@@ -39,19 +40,39 @@ namespace inti_back.Controllers
         }
 
         [HttpGet("UsuarioCaracterizacion/{idUsuarioPst}")]
-        public bool ValidarUsuarioCaracterizacion(int idUsuarioPst)
+        public async Task<bool?> ValidarUsuarioCaracterizacion(int idUsuarioPst)
         {
-            bool validacion = _validacionesRepository.ValidarUsuarioCaracterizacion(idUsuarioPst);
-            return validacion;
+            bool? validacion = await _validacionesRepository.ValidarUsuarioCaracterizacion(idUsuarioPst);
+            if (validacion == null)
+            {
+                throw new Exception();
+            }
+            else
+            {
+                return validacion;
 
+            }
         }
-
         [HttpGet("UsuarioDiagnostico")]
-        public bool ValidarUsuarioDiagnostico(int idUsuario, int idNorma)
+        public async Task<IActionResult> ValidarUsuarioDiagnostico(int idUsuario, int idNorma)
         {
-            bool validacion =  _validacionesRepository.ValidarUsuarioDiagnostico(idUsuario, idNorma);
-            return validacion;
+            var validacion = await _validacionesRepository.ValidarUsuarioDiagnostico(idUsuario, idNorma);
+            if (validacion == null)
+            {
+                throw new Exception();
+            }
+            else
+            {
+                var response = new ResponseValidacionDiagnostico
+                {
+                    ETAPA_INICIO = validacion.ETAPA_INICIO,
+                    ETAPA_INTERMEDIO = validacion.ETAPA_INTERMEDIO,
+                    ETAPA_FINAL = validacion.ETAPA_FINAL
+                };
 
+                return Ok(response);
+            }
+       
         }
 
         [HttpGet("UsuarioRnt/{rnt}")]
