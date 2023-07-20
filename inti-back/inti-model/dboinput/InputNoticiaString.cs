@@ -12,6 +12,7 @@ namespace inti_model.dboinput
     {
         public int FK_ID_USUARIO { get; set; }
         public string? FK_ID_NORMA { get; set; }
+        public string? FK_ID_PST_DESTINATARIO { get; set; }
         public string? FK_ID_CATEGORIA { get; set; }
         public string? FK_ID_SUB_CATEGORIA { get; set; }
         public string? FK_ID_DESTINATARIO { get; set; }

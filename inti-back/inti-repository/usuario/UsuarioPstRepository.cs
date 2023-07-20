@@ -5,6 +5,7 @@ using inti_model.dboresponse;
 using MySql.Data.MySqlClient;
 using System.Data;
 
+
 namespace inti_repository.usuario
 {
     public class UsuarioPstRepository : IUsuarioPstRepository
@@ -103,7 +104,7 @@ namespace inti_repository.usuario
             var data = await db.QueryFirstAsync<UsuarioPst>(sqlusuario, new { usuariopst.RNT, CORREO = usuariopst.CORREO_PST });
 
             var queryUsuario = @"INSERT INTO Usuario(FK_ID_PST,NOMBRE,RNT,ID_TIPO_USUARIO,CORREO,PASSWORD,FECHA_REG) VALUES(@FK_ID_PST,@NOMBRE,@RNT,@ID_TIPO_USUARIO,@CORREO,SHA1(@PASSWORD),@FECHA_REG)";
-            var dataUsuario = await db.ExecuteAsync(queryUsuario, new { FK_ID_PST = idPst, NOMBRE = usuariopst.NOMBRE_PST, RNT = usuariopst.RNT, ID_TIPO_USUARIO = 1, CORREO = usuariopst.CORREO_PST, PASSWORD = usuariopst.PASSWORD, FECHA_REG = fecha_registro });
+            var dataUsuario = await db.ExecuteAsync(queryUsuario, new { FK_ID_PST = idPst, NOMBRE = usuariopst.NOMBRE_PST, RNT = usuariopst.RNT, ID_TIPO_USUARIO=1, CORREO = usuariopst.CORREO_PST, PASSWORD = usuariopst.PASSWORD, FECHA_REG = fecha_registro });
 
             var queryusuario = @"SELECT LAST_INSERT_ID() FROM Usuario limit 1;";
             var idusuario = await db.QueryFirstAsync<int>(queryusuario);
@@ -115,7 +116,7 @@ namespace inti_repository.usuario
                             WHERE
                                 ID_PST = @ID_PST AND ESTADO = 1";
             var datasqlpst2 = await db.ExecuteAsync(sqlpst2, new { FK_ID_USUARIO = idusuario, ID_PST = data.ID_PST });
-
+                            
             sql = @"SELECT 
                         u.ID_USUARIO,
                         ps.NIT,
@@ -200,7 +201,7 @@ namespace inti_repository.usuario
                                 WHERE
                                     ID_USUARIO = @FK_ID_USUARIO
                                         AND ESTADO = 1";
-            var resultUsuario = await db.ExecuteAsync(queryUsuario, new { CORREO = usuariopst.CORREO_PST, NOMBRE = usuariopst.NOMBRE_PST, FK_ID_USUARIO = usuariopst.FK_ID_USUARIO });
+            var resultUsuario = await db.ExecuteAsync(queryUsuario, new { CORREO = usuariopst.CORREO_PST, NOMBRE =usuariopst.NOMBRE_PST, FK_ID_USUARIO = usuariopst.FK_ID_USUARIO });
             return resultPst.ToString();
         }
         public async Task<UsuarioPstLogin> LoginUsuario(string user, string Password, string Correo)
@@ -288,20 +289,19 @@ namespace inti_repository.usuario
                 ID_CARGO = idcargo
             });
 
-            var queryRoles = @"SELECT LAST_INSERT_ID() FROM Pst_Roles limit 1;";
+            var queryRoles  = @"SELECT LAST_INSERT_ID() FROM Pst_Roles limit 1;";
             var idPstRoles = await db.QueryFirstAsync<int>(queryRoles);
 
             var sqlUsuario = @"INSERT INTO Usuario(FK_USUARIO_ROLES,RNT,NOMBRE,ID_TIPO_USUARIO,CORREO,PASSWORD,FECHA_REG) 
                             VALUES(@FK_USUARIO_ROLES,@RNT,@NOMBRE,@ID_TIPO_USUARIO,@CORREO,SHA1(@PASSWORD),@FECHA_REG)";
-            var resultUsuario = await db.ExecuteAsync(sqlUsuario, new
-            {
+            var resultUsuario = await db.ExecuteAsync(sqlUsuario, new { 
                 FK_USUARIO_ROLES = idPstRoles,
-                RNT = datapst.RNT,
+                RNT = datapst.RNT, 
                 NOMBRE = nombre,
-                ID_TIPO_USUARIO = idcargo,
-                CORREO = correo,
+                ID_TIPO_USUARIO = idcargo, 
+                CORREO = correo, 
                 PASSWORD = 123,
-                FECHA_REG = fecha_registro
+                FECHA_REG =fecha_registro
             });
 
             var queryEmpleado = @"Select * from Usuario where CORREO = @correo and NOMBRE = @nombre and ESTADO = true";
@@ -335,6 +335,49 @@ namespace inti_repository.usuario
             var result = await db.QueryAsync<Usuario>(sql, new { Rnt = rnt });
             return result;
         }
+
+        public async Task<bool> GetPermiso(int usuario, int modelo)
+        {
+            var db = dbConnection();
+
+            var querytipoUsuario = @"
+                                    SELECT 
+                                        VALOR
+                                    FROM
+                                        inti.MaeGeneral
+                                    WHERE
+                                        ID_TABLA = 19 AND ITEM = @ITEM";
+            var dataUsuario = await db.QueryFirstOrDefaultAsync<dynamic>(querytipoUsuario, new { ITEM = modelo });
+
+            var ValueFormat = dataUsuario.VALOR;
+
+
+            var queryPermisos = $@"SELECT
+                                        mu.{ValueFormat}
+                                    FROM
+                                        MaeModuloUsuario mu
+                                            INNER JOIN
+                                        MaeGeneral mg ON mg.ID_TABLA = 1
+                                            INNER JOIN
+                                        Usuario u ON mu.TIPO_PERMISO = u.ID_TIPO_USUARIO
+                                    WHERE
+                                        mu.TIPO_PERMISO = mg.ITEM
+                                            AND mg.ESTADO = 1
+                                            AND mu.TIPO_PERMISO = u.ID_TIPO_USUARIO
+                                            AND u.ID_USUARIO = @ID_USUARIO
+                                            AND mu.{ValueFormat} = 'x'";
+
+            var dataPermisos = await db.QueryFirstOrDefaultAsync<dynamic>(queryPermisos, new { ID_USUARIO = usuario });
+
+            if(dataPermisos == null)
+            {
+                return false;
+            }
+
+            return true;
+
+        }
+
     }
 }
 

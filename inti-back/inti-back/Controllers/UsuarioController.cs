@@ -5,6 +5,7 @@ using System.Text.Json;
 using inti_model.usuario;
 using inti_repository.usuario;
 using inti_repository.validaciones;
+using Org.BouncyCastle.Pkcs;
 
 namespace inti_back.Controllers
 {
@@ -233,6 +234,37 @@ namespace inti_back.Controllers
                 {
                     StatusCode(200).StatusCode,
                     Mensaje = "No se encontró el usuario",
+                    ex.Message
+                });
+            }
+
+        }
+        [HttpGet("usuariosPermisos")]
+        public async Task<IActionResult> GetPermiso(int usuario, int modelo)
+        {
+            try
+            {
+                var response = await _usuarioPstRepository.GetPermiso(usuario,modelo);
+                if (response == null)
+                {
+                    throw new Exception();
+                }
+                if(response == false)
+                {
+                    return Ok(new
+                    {
+                        StatusCode(200).StatusCode,
+                        Mensaje = "No se encontró permisos para el usuario, contacte con el administrador del sistema"
+                    });
+                }
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    Mensaje = "No se encontró permisos para el usuario, contacte con el administrador del sistema",
                     ex.Message
                 });
             }

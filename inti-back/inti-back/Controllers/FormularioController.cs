@@ -17,7 +17,7 @@ namespace inti_back.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> postFormularios(List<Formulario> formulario )
+        public async Task<IActionResult> postFormularios(List<Formulario> formulario)
         {
             try
             {
@@ -41,11 +41,11 @@ namespace inti_back.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetFormulario(int ID_FORMULARIO, string RNT)
+        public async Task<IActionResult> GetFormulario(int ID_FORMULARIO, string RNT, int ID_USUARIO)
         {
             try
             {
-                var result = await _formularioRepository.GetFormulario(ID_FORMULARIO, RNT);
+                var result = await _formularioRepository.GetFormulario(ID_FORMULARIO, RNT, ID_USUARIO);
 
                 return Ok(result);
 
@@ -60,8 +60,31 @@ namespace inti_back.Controllers
             }
         }
 
+        [HttpDelete]
+
+        public async Task<IActionResult> DeleteFormulario(List<int> idformularios)
+        {
+            try
+            {
+                var result = await _formularioRepository.DeleteFormulario(idformularios);
 
 
+                return Ok(new
+                {
+                    StatusCode = 200,
+                    Mensaje = "Formulario eliminado correctamente"
+                });
+            }catch(Exception ex)
+            {
+                return Ok(new
+                {
+                    StatusCode = 500,
+                    ErrorMessage = ex.Message,
+                });
+            }
+
+
+        }
 
     }
 }

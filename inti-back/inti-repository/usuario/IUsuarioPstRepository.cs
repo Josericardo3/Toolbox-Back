@@ -13,6 +13,7 @@ namespace inti_repository.usuario
         Task<UsuarioPstLogin> LoginUsuario(string usuario, string Password, string Correo);
         Task<int> RegistrarEmpleadoPst(int id, string nombre, string correo, int idcargo);
         Task<IEnumerable<Usuario>> GetUsuariosxPst(string rnt);  
+        Task<bool> GetPermiso(int usuario,int modelo);  
 
     }
 }

@@ -21,6 +21,10 @@ using inti_repository.noticia;
 using inti_back.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using inti_repository.formularios;
+using inti_repository.encuestas;
+using Seguridad.API.Middleware;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 
 const String default_url = "http://{0}:{1};https://{2}:{3}"; 
 
@@ -31,11 +35,12 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<NoticiaController>();
 builder.Services.AddScoped<ActividadController>();
 
+
 //var port = int.Parse(Environment.GetEnvironmentVariable("INTI_BACK_PORT"));
 
 //var host = Environment.GetEnvironmentVariable("INTI_BACK_HOST");
 var env = Environment.GetEnvironmentVariable("INTI_BACK_ENV");
-var port = 8050; 
+var port = 8054; 
 //var port = 8050;
 var host = "0.0.0.0";
 String connectionString = env != "DEV" ? "MySqlConnectionDev" : "MySqlConnection";
@@ -106,6 +111,7 @@ builder.Services.AddScoped<IMatrizLegalRepository, MatrizLegalRepository>();
 builder.Services.AddScoped<IGeneralRepository, GeneralRepository>();
 builder.Services.AddScoped<INoticiaRepository, NoticiaRepository>();
 builder.Services.AddScoped<IFormularioRepository, FormulariosRepository>();
+builder.Services.AddScoped<IEncuestasRepository, EncuestasRepository>();
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(options =>
@@ -167,14 +173,33 @@ app.UseSwaggerUI();
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
+app.UseMiddleware<CustomDelegatingHandler>();
+
 app.UseAuthorization();
 
 app.MapControllers();
+/*
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Add("X-Frame-Options", "SAMEORIGIN");
+    await next();
+});*/
 
 app.UseCors(x => x
                 .AllowAnyMethod()
+                
                 .AllowAnyHeader()
-                .SetIsOriginAllowed(origin => true) // allow any origin
+                .SetIsOriginAllowed(origin => true)
+                /*CORS para que solo pueda ingresar desde este url a las APIS*/
+                 /*.SetIsOriginAllowed(origin =>
+                 {
+                     List<string> allowedOrigins = new List<string>
+                    {
+                        "http://10.4.3.140:8080"
+                    };
+
+                     return allowedOrigins.Contains(origin);
+                 })*/
                 .AllowCredentials());
 
 

@@ -40,7 +40,7 @@ namespace inti_repository
 
                 return 1;
             }
-            catch (Exception ex)
+            catch
             {
                 return 0;
             }

@@ -89,6 +89,7 @@ namespace inti_repository.validaciones
             var sql = @"
                         SELECT 
 	                        ps.ID_PST,
+                             u.ID_USUARIO,
                             ps.NOMBRE_PST
                         FROM
                             Pst ps

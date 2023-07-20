@@ -9,8 +9,9 @@ namespace inti_repository.formularios
 {
     public interface IFormularioRepository
     {
-        Task <IEnumerable<dynamic>> GetFormulario (int ID, string RNT);
-        Task<bool> PostFormulario(IEnumerable<Formulario> formularios);
+        Task <DataFormulario> GetFormulario (int ID_FORMULARIO, string RNT, int ID_USUARIO);
+        Task<bool> PostFormulario(List<Formulario> formularios);
+        Task<bool> DeleteFormulario(List<int> idformularios);
 
     }
 }

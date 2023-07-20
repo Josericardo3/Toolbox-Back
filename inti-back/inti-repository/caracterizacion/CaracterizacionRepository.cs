@@ -41,7 +41,7 @@ namespace inti_repository.caracterizacion
                                         INNER JOIN
                                     MaeTipoAvatar t2 ON t2.ID_TIPO_AVATAR = u.FK_ID_TIPO_AVATAR
                                 WHERE
-                                    u.FK_ID_USUARIO = @id_user";
+                                    u.FK_ID_USUARIO = (SELECT b.FK_ID_USUARIO FROM Usuario a INNER JOIN Pst b ON a.RNT = b.RNT WHERE a.ID_USUARIO = @id_user )";
 
             ResponseUsuario dataUsuario = await db.QueryFirstOrDefaultAsync<ResponseUsuario>(queryUsuario, new { id_user = id });
             var queryCaracterizacion = @"SELECT * FROM MaeCaracterizacionDinamica WHERE ESTADO =TRUE AND ( FK_ID_CATEGORIA_RNT = @idcategoria OR FK_ID_CATEGORIA_RNT = 0)";
@@ -135,15 +135,11 @@ namespace inti_repository.caracterizacion
         public async Task<List<NormaTecnica>> GetNormaTecnica(int id)
         {
             var db = dbConnection();
-            var queryUsuarios = @"SELECT FK_ID_USUARIO,FK_ID_CATEGORIA_RNT FROM Pst WHERE ESTADO = TRUE AND FK_ID_USUARIO = @id_user";
+            var queryUsuarios = @"SELECT FK_ID_USUARIO,FK_ID_CATEGORIA_RNT FROM Pst WHERE ESTADO = TRUE AND FK_ID_USUARIO = (SELECT b.FK_ID_USUARIO FROM Usuario a INNER JOIN Pst b ON a.RNT = b.RNT WHERE a.ID_USUARIO = @id_user )";
             var dataUsuarios = await db.QueryFirstOrDefaultAsync<ResponseNormaUsuario>(queryUsuarios, new { id_user = id });
-            var idNorma = dataUsuarios.FK_ID_CATEGORIA_RNT;
-            var queryNorma = @"SELECT * FROM MaeNorma WHERE FK_ID_CATEGORIA_RNT = @id_categoria";
-            var dataNorma = db.Query<NormaTecnica>(queryNorma, new { id_categoria = idNorma }).ToList();
-
-            var queryUsuario = @"SELECT FK_ID_USUARIO,FK_ID_CATEGORIA_RNT FROM Pst where ESTADO = TRUE AND FK_ID_USUARIO = @id_user";
-            var dataUsuario = await db.QueryFirstOrDefaultAsync<ResponseNormaUsuario>(queryUsuario, new { id_user = id });
-            var idCategoria = dataUsuario.FK_ID_CATEGORIA_RNT;
+            var idCategoria = dataUsuarios.FK_ID_CATEGORIA_RNT;
+            //var queryNorma = @"SELECT * FROM MaeNorma WHERE FK_ID_CATEGORIA_RNT = @id_categoria";
+            //var dataNorma = db.Query<NormaTecnica>(queryNorma, new { id_categoria = idNorma }).ToList();
             int idPreguntaAdicional = 0;
 
             switch (idCategoria)
@@ -171,7 +167,7 @@ namespace inti_repository.caracterizacion
             }
                     
             var queryNorma_ = @"SELECT * FROM MaeNorma WHERE FK_ID_CATEGORIA_RNT = @id_categoria"+adicional;
-            var dataNorma_ = db.Query<NormaTecnica>(queryNorma_, new { id_categoria = idCategoria }).ToList();
+            var dataNorma = db.Query<NormaTecnica>(queryNorma_, new { id_categoria = idCategoria }).ToList();
 
             return dataNorma;
 
