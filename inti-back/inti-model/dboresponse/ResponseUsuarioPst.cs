@@ -13,6 +13,8 @@ namespace inti_model.dboresponse
         public int FK_ID_USUARIO { get; set; }
         public int FK_ID_CATEGORIA_RNT { get; set; }
         public string? RNT { get; set; }
+        public string? CATEGORIA_RNT { get; set; }
+        public string? SUB_CATEGORIA_RNT { get; set; }
 
         public int FK_ID_SUB_CATEGORIA_RNT { get; set; }
 

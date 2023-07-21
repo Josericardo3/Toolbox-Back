@@ -47,7 +47,9 @@ namespace inti_repository.usuario
                             a.ID_PST,
                             a.FK_ID_USUARIO,
                             a.FK_ID_CATEGORIA_RNT,
+                            c.CATEGORIA_RNT,
                             a.FK_ID_SUB_CATEGORIA_RNT,
+                            d.SUB_CATEGORIA_RNT,
                             a.RNT,
                             a.NOMBRE_PST,
                             a.RAZON_SOCIAL_PST,
@@ -61,6 +63,8 @@ namespace inti_repository.usuario
                             a.ESTADO
                         FROM
                             Pst a LEFT JOIN Usuario b  ON b.RNT = a.RNT
+                            LEFT JOIN MaeCategoriaRnt c ON a.FK_ID_CATEGORIA_RNT = c.ID_CATEGORIA_RNT
+                            LEFT JOIN MaeSubCategoriaRnt d ON a.FK_ID_SUB_CATEGORIA_RNT = d.ID_SUB_CATEGORIA_RNT
                         WHERE
                             b.ID_USUARIO = @IdUsuarioPst
                                 AND a.ESTADO = TRUE";
