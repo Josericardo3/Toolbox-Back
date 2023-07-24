@@ -139,26 +139,29 @@ namespace inti_repository.formularios
             return dataFormulario;
         }
 
-        public async Task<bool> DeleteFormulario(List<int> idformularios)
+        public async Task<bool> DeleteFormulario(int idformulario)
         {
             var db = dbConnection();
             int i = 0;
-            foreach (var id in idformularios)
-            {
+            
                 var queryDelete = @"UPDATE RespuestaFormularios 
                                 SET ESTADO  = 0
                                 WHERE ID_RESPUESTA_FORMULARIOS = @ID_RESPUESTA_FORMULARIOS AND ESTADO = 1";
 
-                var dataDelete = await db.ExecuteAsync(queryDelete, new { ID_RESPUESTA_FORMULARIOS= id });
+            var dataDelete = await db.ExecuteAsync(queryDelete, new { ID_RESPUESTA_FORMULARIOS = idformulario });
 
-                i = 1;
-            }
-
-
-            return i > 0;
-
-            
+            return dataDelete > 0;  
                                 
+        }
+
+        public async Task<bool> DeleteFormularioData(int idformulario)
+        {
+            var db = dbConnection();
+
+            var queryDelete = @"DELETE from RespuestaFormularios where FK_MAE_FORMULARIOS = @FK_MAE_FORMULARIOS";
+
+            var rowsAffected = await db.ExecuteAsync(queryDelete, new { FK_MAE_FORMULARIOS = idformulario });
+            return rowsAffected > 0;
         }
     }
 }

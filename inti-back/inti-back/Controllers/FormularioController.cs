@@ -62,17 +62,17 @@ namespace inti_back.Controllers
 
         [HttpDelete]
 
-        public async Task<IActionResult> DeleteFormulario(List<int> idformularios)
+        public async Task<IActionResult> DeleteFormulario(int idRespuestaformulario)
         {
             try
             {
-                var result = await _formularioRepository.DeleteFormulario(idformularios);
+                var result = await _formularioRepository.DeleteFormulario(idRespuestaformulario);
 
 
                 return Ok(new
                 {
                     StatusCode = 200,
-                    Mensaje = "Formulario eliminado correctamente"
+                    Mensaje = "Respuesta Formulario  eliminado correctamente"
                 });
             }catch(Exception ex)
             {
@@ -86,5 +86,31 @@ namespace inti_back.Controllers
 
         }
 
+        [HttpDelete("Borrardatabd")]
+
+        public async Task<IActionResult> DeleteFormularioData(int idformulario)
+        {
+            try
+            {
+                var result =  _formularioRepository.DeleteFormularioData(idformulario);
+
+
+                return Ok(new
+                {
+                    StatusCode = 200,
+                    Mensaje = "Formulario eliminado correctamente"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    StatusCode = 500,
+                    ErrorMessage = ex.Message,
+                });
+            }
+
+
+        }
     }
 }
