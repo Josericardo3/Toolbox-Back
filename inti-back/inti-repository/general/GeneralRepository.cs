@@ -102,5 +102,23 @@ namespace inti_repository.validaciones
             return data;
         }
 
+        public async Task<bool> PostMonitorizacionUsuario(ResponseMonitorizacionUsuario data)
+        {
+            var db = dbConnection();
+            int i = 0;
+
+                  var queryPost = @"INSERT INTO MonitorizacionUsuario (FK_ID_USUARIO,TIPO,MODULO,FECHA_REG)
+                              VALUES (@FK_ID_USUARIO, @TIPO, @MODULO, NOW())";
+
+                    i += await db.ExecuteAsync(queryPost, new
+                    {
+                        data.FK_ID_USUARIO,
+                        data.TIPO,
+                        data.MODULO
+                    });
+
+            return i > 0;
+        }
+
     }
 }

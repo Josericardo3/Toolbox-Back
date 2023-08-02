@@ -8,7 +8,7 @@ using System.Net;
 using System.Text;
 using System.Security.Cryptography;
 using inti_repository;
-using inti_model.noticia;
+using inti_model.dboresponse;
 
 namespace inti_back.Controllers
 {
@@ -124,5 +124,28 @@ namespace inti_back.Controllers
         }
 
 
+        [HttpPost("MonitorizacionUsuario")]
+        public async Task<IActionResult> postMonitorizacionUsuario(ResponseMonitorizacionUsuario data)
+        {
+            try
+            {
+                var result = await _generalRepository.PostMonitorizacionUsuario(data);
+                return Ok(new
+                {
+                    StatusCode = 200,
+                    Message = "Se agregó correctamente el dato de Monitorización",
+                });
+
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    StatusCode = 500,
+                    ErrorMessage = ex.Message,
+                });
+            }
+
+        }
     }
 }

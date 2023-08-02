@@ -19,6 +19,7 @@ namespace inti_repository.general
         Task<IEnumerable<ResponseResponsable>> ListarResponsable(string rnt);
         Task<IEnumerable<dynamic>> ListarCategorias();
         Task<IEnumerable<dynamic>> ListarPst();
+        Task<bool> PostMonitorizacionUsuario(ResponseMonitorizacionUsuario data);
 
     }
 }

@@ -142,7 +142,6 @@ namespace inti_repository.formularios
         public async Task<bool> DeleteFormulario(int idformulario)
         {
             var db = dbConnection();
-            int i = 0;
             
                 var queryDelete = @"UPDATE RespuestaFormularios 
                                 SET ESTADO  = 0

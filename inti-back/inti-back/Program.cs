@@ -18,6 +18,7 @@ using inti_repository.auditoria;
 using inti_repository.matrizlegal;
 using inti_repository.general;
 using inti_repository.noticia;
+using inti_repository.monitorizacion;
 using inti_back.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using inti_repository.formularios;
@@ -112,6 +113,7 @@ builder.Services.AddScoped<IGeneralRepository, GeneralRepository>();
 builder.Services.AddScoped<INoticiaRepository, NoticiaRepository>();
 builder.Services.AddScoped<IFormularioRepository, FormulariosRepository>();
 builder.Services.AddScoped<IEncuestasRepository, EncuestasRepository>();
+builder.Services.AddScoped<IMonitorizacionRepository, MonitorizacionRepository>();
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(options =>
