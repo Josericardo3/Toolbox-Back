@@ -20,7 +20,7 @@ namespace inti_repository.planmejora
             return new MySqlConnection(_connectionString.ConnectionString);
         }
 
-        public async Task<ResponseArchivoPlanMejora> GetResponseArchivoPlanMejora(int idnorma, int idusuario, int idValorTituloListaChequeo, int idValorSeccionListaChequeo, int idValordescripcionCalificacion)
+        public async Task<ResponseArchivoPlanMejora> GetResponseArchivoPlanMejora(int idnorma, int idusuario, int etapa, int idValorTituloListaChequeo, int idValorSeccionListaChequeo, int idValordescripcionCalificacion)
         {
             var db = dbConnection();
             var queryTitulo = @"
@@ -109,12 +109,13 @@ namespace inti_repository.planmejora
                             MaeGeneral m ON r.VALOR = m.ITEM
                         WHERE
                             r.FK_ID_NORMA = @FK_ID_NORMA
+                                AND r.ETAPA = @ETAPA
                                 AND r.FK_ID_USUARIO = @FK_ID_USUARIO
                                 AND dd.ESTADO = 1
                                 AND d.ESTADO = 1
                                 AND ma.ID_TABLA = 4
                                 AND m.ID_TABLA = 12";
-            var datacalificacion = db.Query<CalifPlanMejora>(queryCalificacion, new { FK_ID_NORMA = idnorma, FK_ID_USUARIO = idusuario }).ToList();
+            var datacalificacion = db.Query<CalifPlanMejora>(queryCalificacion, new { FK_ID_NORMA = idnorma, ETAPA = etapa, FK_ID_USUARIO = idusuario }).ToList();
 
             var queryAsesorPst = @"
                             SELECT 

@@ -3,11 +3,14 @@ using inti_model.noticia;
 using inti_model.dboinput;
 using inti_model.usuario;
 using inti_repository.noticia;
+using inti_repository.validaciones;
 using Microsoft.AspNetCore.Mvc;
 using System.Timers;
 using Microsoft.Extensions.Options;
 using System.Linq.Expressions;
 using Microsoft.AspNetCore.Server.IIS.Core;
+using inti_repository;
+using System.Configuration;
 
 namespace inti_back.Controllers
 {
@@ -16,16 +19,22 @@ namespace inti_back.Controllers
     public class NoticiaController : Controller
     {
         private readonly INoticiaRepository _noticiaRepository;
+        private readonly IValidacionesRepository _validacionesRepository;
         private static System.Timers.Timer timer;
         private readonly IWebHostEnvironment _hostingEnvironment;
+        private IConfiguration Configuration;
+
 
 
         private static NoticiaController _instance;
-        public NoticiaController(INoticiaRepository noticiaRepository, IWebHostEnvironment hostingEnvironment)
+        public NoticiaController(INoticiaRepository noticiaRepository, IValidacionesRepository validacionesRepository, IWebHostEnvironment hostingEnvironment, IConfiguration _configuration)
         {
             _noticiaRepository = noticiaRepository;
+            _validacionesRepository = validacionesRepository;
             _instance = this;
             _hostingEnvironment = hostingEnvironment;
+             Configuration = _configuration;
+
         }
 
         [NonAction]
@@ -139,10 +148,13 @@ namespace inti_back.Controllers
         {
             try
             {
+                string subject = "Notificación de Noticia";
+                Correos envio = new(Configuration);
 
                 if (noticia.FOTO == null)
                 {
                     var create = await _noticiaRepository.InsertNoticia(noticia);
+                    var estado = envio.EnviarCorreoMasivoNoticia(create.CORREO, subject);
 
                     return Ok(new
                     {
@@ -153,12 +165,13 @@ namespace inti_back.Controllers
                 else
                 {
                     var create = await _noticiaRepository.InsertNoticia(noticia);
+                    var estado = envio.EnviarCorreoMasivoNoticia(create.CORREO, subject);
 
                     if (noticia.FOTO == null || noticia.FOTO.Length == 0)
 
                         return BadRequest("No se pudo insertar la foto");
 
-                    var foto_nombre = create + "-" + noticia.FOTO.FileName;
+                    var foto_nombre = create.ID_NOTICIA + "-" + noticia.FOTO.FileName;
                     var filePath = Path.Combine("imagenes//noticias//", foto_nombre);
                     //var filePath = Path.Combine("C:\\SESRepos\\inti-back\\inti-back\\inti-repository\\imagenes\\noticias\\", foto_nombre);
 

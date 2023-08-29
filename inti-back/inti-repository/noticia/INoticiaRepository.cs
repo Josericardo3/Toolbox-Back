@@ -15,7 +15,7 @@ namespace inti_repository.noticia
     {
         Task<IEnumerable<ResponseNoticia>> GetAllNoticias(string rnt);
         Task<ResponseNoticia> GetNoticia(int id);
-        Task<int> InsertNoticia(InputNoticiaString noticia);
+        Task<ReturnInsertNoticia> InsertNoticia(InputNoticiaString noticia);
         Task<bool> UpdateNoticia(Noticia noticia);
         Task<bool> DeleteNoticia(int id);
         Task<bool> ActualizarNotificaciones();

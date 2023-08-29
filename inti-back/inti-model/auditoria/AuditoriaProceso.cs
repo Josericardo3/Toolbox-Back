@@ -25,6 +25,7 @@ namespace inti_model.auditoria
         public string? DOCUMENTOS_REFERENCIA { get; set; }
         public string? CONCLUSION_CONFORMIDAD { get; set; }
         public bool ESTADO { get; set; }
+        public bool ESTADO_CONCLUIDO { get; set; }
         public int CANT_NC { get; set; }
         public int CANT_OBS { get; set; }
         public int CANT_OM { get; set; }

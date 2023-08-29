@@ -22,7 +22,7 @@ namespace inti_repository.listachequeo
         }
 
 
-        public async Task<ResponseArchivoListaChequeo> GetResponseArchivoListaChequeo(int idnorma, int idusuario, int idValorTituloListaChequeo, int idValorSeccionListaChequeo, int idValordescripcionCalificacion)
+        public async Task<ResponseArchivoListaChequeo> GetResponseArchivoListaChequeo(int idnorma, int idusuario, int etapa, int idValorTituloListaChequeo, int idValorSeccionListaChequeo, int idValordescripcionCalificacion)
         {
             var db = dbConnection();
             var queryTitulo = @"SELECT * FROM MaeGeneral WHERE ID_TABLA = @idtabla and ITEM = 1";
@@ -86,13 +86,14 @@ namespace inti_repository.listachequeo
                             MaeGeneral ma ON rd.VALOR=ma.ITEM
                         WHERE
                             rd.FK_ID_NORMA = @ID_NORMA
+								AND rd.ETAPA = @ETAPA
                                 AND rd.FK_ID_USUARIO = @FK_ID_USUARIO
                                 AND mdd.ESTADO = 1
                                 AND md.ESTADO = 1
                                 AND ma.ID_TABLA = 4
                         ORDER BY md.ID_DIAGNOSTICO";
 
-            var datacalificacion = db.Query<CalifListaChequeo>(queryCalificacion, new { ID_NORMA = idnorma, FK_ID_USUARIO = idusuario }).ToList();
+            var datacalificacion = db.Query<CalifListaChequeo>(queryCalificacion, new { ID_NORMA = idnorma, ETAPA = etapa,FK_ID_USUARIO = idusuario }).ToList();
             ResponseArchivoListaChequeo responseListaChequeo = new();
             responseListaChequeo.TITULO                 = dataTitulo.DESCRIPCION;
 
@@ -122,7 +123,7 @@ namespace inti_repository.listachequeo
 
         }
 
-        public async Task<ResponseArchivoDiagnostico> GetResponseArchivoDiagnostico(int idnorma, int idusuario, int idValorTituloListaChequeo, int idValorSeccionListaChequeo, int idValordescripcionCalificacion)
+        public async Task<ResponseArchivoDiagnostico> GetResponseArchivoDiagnostico(int idnorma, int idusuario, int etapa, int idValorTituloListaChequeo, int idValorSeccionListaChequeo, int idValordescripcionCalificacion)
         {
           
             var db = dbConnection();
@@ -222,13 +223,14 @@ namespace inti_repository.listachequeo
                             MaeGeneral ma ON r.VALOR = ma.ITEM
                         WHERE
                             r.FK_ID_NORMA = @ID_NORMA
+								AND r.ETAPA = @ETAPA
                                 AND r.FK_ID_USUARIO = @FK_ID_USUARIO
                                 AND dd.NUMERAL_PRINCIPAL = @NUMERAL_PRINCIPAL
                                 AND dd.ESTADO = 1
                                 AND d.ESTADO = 1
                                 AND ma.ID_TABLA = 4";
 
-                var datacalificacion = db.Query<CalifDiagnostico>(queryCalificacion, new { ID_NORMA = idnorma, FK_ID_USUARIO = idusuario, NUMERAL_PRINCIPAL = item.NUMERAL_PRINCIPAL }).ToList();
+                var datacalificacion = db.Query<CalifDiagnostico>(queryCalificacion, new { ID_NORMA = idnorma, ETAPA= etapa, FK_ID_USUARIO = idusuario, NUMERAL_PRINCIPAL = item.NUMERAL_PRINCIPAL }).ToList();
 
                 item.N_REQUISITO_NA             = datacalificacion.Where(x => x.VALOR_CALIFICADO == "4").Count() + "";
                 item.N_REQUISITO_NC             = datacalificacion.Where(x => x.VALOR_CALIFICADO == "3").Count() + "";

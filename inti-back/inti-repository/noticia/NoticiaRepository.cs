@@ -62,36 +62,68 @@ namespace inti_repository.noticia
             return result;
         }
 
-        public async Task<int> InsertNoticia(InputNoticiaString noticia)
+        public async Task<ReturnInsertNoticia> InsertNoticia(InputNoticiaString noticia)
         {
             var db = dbConnection();
             String imagen;
-            List<int> fkPst = new List<int>();
-            List<int> fkNormas = new List<int>();
-            List<int> fkCategorias = new List<int>();
-            List<int> fkSubCategorias = new List<int>();
-            List<int> fkDestinatarios = new List<int>();
+            List<int> fkPst = null;
+            List<int> fkNormas = null;
+            List<int> fkCategorias = null;
+            List<int> fkSubCategorias = null;
+            List<int> fkDestinatarios = null;
+            
             if (noticia.FK_ID_NORMA != null && noticia.FK_ID_NORMA != "")
             {
-               fkNormas = noticia.FK_ID_NORMA.Split(',').Select(int.Parse).ToList();
+                fkNormas = noticia.FK_ID_NORMA.Split(',').Select(int.Parse).ToList();
             }
             if (noticia.FK_ID_CATEGORIA != null && noticia.FK_ID_CATEGORIA != "")
             {
-               fkCategorias = noticia.FK_ID_CATEGORIA.Split(',').Select(int.Parse).ToList();
+                fkCategorias = noticia.FK_ID_CATEGORIA.Split(',').Select(int.Parse).ToList();
             }
-            if (noticia.FK_ID_SUB_CATEGORIA != null && noticia.FK_ID_SUB_CATEGORIA !=  "")
+            if (noticia.FK_ID_SUB_CATEGORIA != null && noticia.FK_ID_SUB_CATEGORIA != "")
             {
                 fkSubCategorias = noticia.FK_ID_SUB_CATEGORIA.Split(',').Select(int.Parse).ToList();
             }
             if (noticia.FK_ID_DESTINATARIO != null && noticia.FK_ID_DESTINATARIO != "")
             {
-               fkDestinatarios = noticia.FK_ID_DESTINATARIO.Split(',').Select(int.Parse).ToList();
+                fkDestinatarios = noticia.FK_ID_DESTINATARIO.Split(',').Select(int.Parse).ToList();
             }
             if (noticia.FK_ID_PST_DESTINATARIO != null && noticia.FK_ID_PST_DESTINATARIO != "")
             {
                 fkPst = noticia.FK_ID_PST_DESTINATARIO.Split(',').Select(int.Parse).ToList();
             }
-            
+            /*string queryCorreo = @"
+                    SELECT DISTINCT CORREO
+                    FROM (
+                        SELECT DISTINCT a.CORREO_PST AS CORREO
+                        FROM Pst a
+                        INNER JOIN MaeNorma b ON a.FK_ID_CATEGORIA_RNT = b.FK_ID_CATEGORIA_RNT
+                        WHERE (@LstCategorias IS NULL OR a.FK_ID_CATEGORIA_RNT IN @LstCategorias)
+                           OR  (@LstSubCategorias IS NULL OR a.FK_ID_SUB_CATEGORIA_RNT IN @LstSubCategorias)
+                           OR  (@LstPst IS NULL OR a.ID_PST IN @LstPst)
+                           OR  (@LstNorma IS NULL OR b.ID_NORMA IN @LstNorma )
+                        UNION
+                        SELECT DISTINCT CORREO
+                        FROM Usuario WHERE (@LstUsuarios IS NULL OR ID_USUARIO in @LstUsuarios)
+                    ) AS Result";
+
+            var parameters = new
+            {
+                LstCategorias = fkCategorias,
+                LstSubCategorias = fkSubCategorias,
+                LstPst = fkPst,
+                LstNorma = fkNormas,
+                LstUsuarios = fkDestinatarios
+            };
+
+            var lstCorreos = (await db.QueryAsync<ReturnInsertNoticia>(queryCorreo, parameters)).Select(result => result.CORREO).ToList();
+
+            //var lstCorreos = (await db.QueryAsync<string>(queryCorreo, parameters)).ToList();
+
+            */
+
+
+
             if (noticia.FOTO == null)
             {
                 imagen = "";
@@ -127,6 +159,7 @@ namespace inti_repository.noticia
             var querypst = @"INSERT INTO Notificacion (FK_ID_PST,FK_ID_USUARIO,FK_ID_NOTICIA,TIPO,FECHA_REG) VALUES
             (@FK_ID_PST, @FK_ID_USUARIO,@FK_ID_NOTICIA,'Noticia',NOW())";
             var resultpst = 0;
+            List<string> lstCorreos = new List<string>();
             if (fkPst != null && fkPst.Count > 0)
             {
                 foreach (var pst in fkPst)
@@ -137,6 +170,16 @@ namespace inti_repository.noticia
                         FK_ID_USUARIO = pst,
                         FK_ID_NOTICIA = idnoticia
                     });
+
+                    var querypstcorreo = @"SELECT CORREO_PST AS CORREO
+                        FROM Pst WHERE ID_PST = @idpst";
+                    var lstcorreoPst = await db.QueryAsync<string>(querypstcorreo, new { idpst = pst });
+
+
+                    if (lstcorreoPst != null && lstcorreoPst.Any())
+                    {
+                        lstCorreos.AddRange(lstcorreoPst);
+                    }
                 }
             }
 
@@ -153,6 +196,15 @@ namespace inti_repository.noticia
                         FK_ID_USUARIO = destinatario,
                         FK_ID_NOTICIA = idnoticia
                     });
+                    var querypstdestinatario = @"SELECT CORREO
+                        FROM Usuario WHERE ID_USUARIO = @destinatario";
+                    var lstcorreoDestinatario = await db.QueryAsync<string>(querypstdestinatario, new { destinatario = destinatario });
+
+
+                    if (lstcorreoDestinatario != null && lstcorreoDestinatario.Any())
+                    {
+                        lstCorreos.AddRange(lstcorreoDestinatario);
+                    }
                 }
             }
 
@@ -169,6 +221,16 @@ namespace inti_repository.noticia
                         FK_ID_NOTICIA = idnoticia,
                         FK_ID_NORMA = norma
                     });
+
+                    var querypstnorma = @"SELECT DISTINCT a.CORREO_PST AS CORREO
+                        FROM Pst a INNER JOIN MaeNorma b ON a.FK_ID_CATEGORIA_RNT = b.FK_ID_CATEGORIA_RNT 
+                    WHERE b.ID_NORMA = @norma";
+                    var lstcorreoNorma = await db.QueryAsync<string>(querypstnorma, new { norma = norma });
+
+                    if (lstcorreoNorma != null && lstcorreoNorma.Any())
+                    {
+                        lstCorreos.AddRange(lstcorreoNorma);
+                    }
                 }
             }
             var querycat = @"INSERT INTO Notificacion (FK_ID_NOTICIA,FK_ID_CATEGORIA,TIPO,FECHA_REG) VALUES
@@ -183,6 +245,15 @@ namespace inti_repository.noticia
                         FK_ID_NOTICIA = idnoticia,
                         FK_ID_CATEGORIA = categoria
                     });
+
+                    var querypstcategoria = @"SELECT DISTINCT a.CORREO_PST AS CORREO
+                        FROM Pst a WHERE a.FK_ID_CATEGORIA_RNT = @categoria";
+                    var lstcorreoCategoria = await db.QueryAsync<string>(querypstcategoria, new { categoria = categoria });
+
+                    if (lstcorreoCategoria != null && lstcorreoCategoria.Any())
+                    {
+                        lstCorreos.AddRange(lstcorreoCategoria);
+                    }
                 }
             }
          
@@ -198,12 +269,27 @@ namespace inti_repository.noticia
                         FK_ID_NOTICIA = idnoticia,
                         FK_ID_SUB_CATEGORIA = subcategoria
                     });
+
+                    var querypstsubcategoria = @"SELECT DISTINCT a.CORREO_PST AS CORREO
+                        FROM Pst a WHERE a.FK_ID_SUB_CATEGORIA_RNT = @subcategoria";
+                    var lstcorreoSubCategoria = await db.QueryAsync<string>(querypstsubcategoria, new { subcategoria = subcategoria });
+
+                    if (lstcorreoSubCategoria != null && lstcorreoSubCategoria.Any())
+                    {
+                        lstCorreos.AddRange(lstcorreoSubCategoria);
+                    }
                 }
 
             }
+            List<string> lstCorreosSinDuplicados = lstCorreos.Distinct().ToList();
 
+            var resultData = new ReturnInsertNoticia
+            {
+                ID_NOTICIA = id,
+                CORREO = lstCorreosSinDuplicados
+            };
 
-            return id;
+            return resultData;
         }
 
         public async Task<bool> UpdateNoticia(Noticia noticia)

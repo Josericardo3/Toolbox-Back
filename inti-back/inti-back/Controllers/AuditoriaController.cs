@@ -329,5 +329,25 @@ namespace inti_back.Controllers
             }
         }
 
+        [HttpPut("UpdateEstadoTerminadoAuditoria")]
+        public async Task<IActionResult> UpdateEstadoTerminadoAuditoria(int idProceso)
+        {
+
+            try
+            {
+                var response = await _auditoriaRepository.UpdateEstadoTerminadoAuditoria(idProceso);
+
+                if (response == null)
+                {
+                    return NotFound(new { mensaje = "El idProceso no se ha encontrado o es incorrecto" });
+                }
+
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { mensaje = "Se produjo un error al procesar la solicitud" });
+            }
+        }
     }
 }

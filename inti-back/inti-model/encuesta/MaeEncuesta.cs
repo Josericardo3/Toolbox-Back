@@ -11,19 +11,20 @@ namespace inti_model.encuesta
         public int ID_MAE_ENCUESTA { get; set; }
         public string TITULO { get; set; }
         public string DESCRIPCION { get; set; }
-        public string ENCUESTA { get; set; }
-        public int TIPO { get; set; }
-        public List<MaeRespuesta>? FK_ID_RESPUESTA { get; set; }
+        public List<MaeEncuestaPregunta>? MAE_ENCUESTA_RESPUESTAS { get; set; }
 
         public MaeEncuesta()
         {
-            FK_ID_RESPUESTA = new List<MaeRespuesta>();
+            MAE_ENCUESTA_RESPUESTAS = new List<MaeEncuestaPregunta>();
         }
     }
 
-    public class MaeRespuesta
+    public class MaeEncuestaPregunta
     {
-        public string ID_MAE_RESPUESTA { get; set;  }
+        public int ID_MAE_ENCUESTA_PREGUNTA { get; set;  }
+        public int FK_MAE_ENCUESTA { get; set;  }
+        public string DESCRIPCION { get; set;  }
         public string VALOR { get; set;  }
+        public bool OBLIGATORIO { get; set;  }
     }
 }

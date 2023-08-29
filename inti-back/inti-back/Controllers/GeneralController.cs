@@ -130,11 +130,24 @@ namespace inti_back.Controllers
             try
             {
                 var result = await _generalRepository.PostMonitorizacionUsuario(data);
-                return Ok(new
+                if (result)
                 {
-                    StatusCode = 200,
-                    Message = "Se agregó correctamente el dato de Monitorización",
-                });
+                    return Ok(new
+                    {
+                        StatusCode = 200,
+                        Message = "Se agregó correctamente el dato de Monitorización",
+                    });
+
+                }
+                else
+                {
+                    return Ok(new
+                    {
+                        StatusCode = 200,
+                        Message = "Ya existe un registro previo",
+                    });
+                }
+               
 
             }
             catch (Exception ex)

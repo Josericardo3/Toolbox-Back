@@ -5,6 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
 using System.ComponentModel.Design;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Net.Http.Headers;
+using Newtonsoft.Json;
+using inti_model;
 
 namespace inti_repository.validaciones
 {
@@ -12,10 +17,14 @@ namespace inti_repository.validaciones
     {
         private readonly MySQLConfiguration _connectionString;
         private IConfiguration Configuration;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        public ValidacionesRepository(MySQLConfiguration connectionString)
+
+        public ValidacionesRepository(MySQLConfiguration connectionString,IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
             _connectionString = connectionString;
+            _httpClientFactory = httpClientFactory;
+            Configuration = configuration;
         }
         protected MySqlConnection dbConnection()
         {
@@ -108,14 +117,14 @@ namespace inti_repository.validaciones
                 }
                 else if (result == 2)
                 {
-                    response.ETAPA_INICIO = false;
+                    response.ETAPA_INICIO = true;
                     response.ETAPA_INTERMEDIO = true;
                     response.ETAPA_FINAL = false;
                 }
                 else if (result == 3)
                 {
-                    response.ETAPA_INICIO = false;
-                    response.ETAPA_INTERMEDIO = false;
+                    response.ETAPA_INICIO = true;
+                    response.ETAPA_INTERMEDIO = true;
                     response.ETAPA_FINAL = true;
                 }
 
@@ -231,6 +240,71 @@ namespace inti_repository.validaciones
         public Task<IActionResult> SendEmail2(string correo)
         {
             throw new NotImplementedException();
+        }
+        /*  public async Task<MincitResponse> ConsultaMincit(string RNT)
+          {
+              var accessToken = await ObtenerToken();
+              var MincitUrl = Configuration.GetValue<string>("UrlServices:URLConsultaMincit");
+              var httpClient = _httpClientFactory.CreateClient();
+              httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+              var urlCompleta = $"{MincitUrl}{RNT}"; 
+              var response = await httpClient.GetAsync(urlCompleta);
+              if (response.IsSuccessStatusCode)
+              {
+                  var responseBody = await response.Content.ReadAsStringAsync();
+                  var datos = JsonConvert.DeserializeObject<MincitResponse>(responseBody);
+                  return datos;
+              }
+              else
+              {
+                  return null;
+              }
+          }*/
+        public async Task<string> ConsultaMincit(string RNT)
+        {
+            var accessToken = await ObtenerToken();
+            var MincitUrl = Configuration.GetValue<string>("UrlServices:URLConsultaMincit");
+            var httpClient = _httpClientFactory.CreateClient();
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            var urlCompleta = $"{MincitUrl}{RNT}";
+            var response = await httpClient.GetAsync(urlCompleta);
+            if (response.IsSuccessStatusCode)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                return responseBody;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public async Task<string> ObtenerToken()
+        {
+            var httpClient = _httpClientFactory.CreateClient();
+            var tokenUrl = Configuration.GetValue<string>("UrlServices:URLToken"); 
+            var user = Configuration.GetValue<string>("UrlServices:Usuario");
+            var pass = Configuration.GetValue<string>("UrlServices:Password");
+            var grant = Configuration.GetValue<string>("UrlServices:Grant_Type");
+
+            var requestBody = new FormUrlEncodedContent(new[]
+            {
+            new KeyValuePair<string, string>("grant_type", grant),
+            new KeyValuePair<string, string>("username", user),
+            new KeyValuePair<string, string>("password", pass),
+        });
+                
+            var response = await httpClient.PostAsync(tokenUrl, requestBody);
+            if (response.IsSuccessStatusCode)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                var tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(responseBody);
+                var accessToken = tokenResponse.access_token; 
+                return accessToken;
+            }
+            return null; 
         }
     }
 }

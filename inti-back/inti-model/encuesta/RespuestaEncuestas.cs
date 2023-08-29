@@ -9,9 +9,7 @@ namespace inti_model.encuesta
 {
     public class RespuestaEncuestas
     {
-        public int FK_TIPO_ENCUESTA { get; set; }
-        public string PREGUNTA { get; set; }
+        public int FK_ID_MAE_ENCUESTA_PREGUNTA { get; set; }
         public string RESPUESTA { get; set; }
-        public int FK_ID_USUARIO { get; set; }
     }
 }

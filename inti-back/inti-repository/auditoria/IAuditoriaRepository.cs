@@ -27,6 +27,7 @@ namespace inti_repository.auditoria
         Task<IEnumerable<ResponseAuditorias>> ListarAuditorias(int idPst);
         Task<bool> DeleteRequisitoAuditoria(int id_auditoria);
 
+        Task<bool> UpdateEstadoTerminadoAuditoria(int idProceso);
 
     }
 }

@@ -20,7 +20,7 @@ namespace inti_back.Controllers
         }
 
         [HttpGet("ListaChequeo")]
-        public async Task<IActionResult> GetResponseArchivoListaChequeo(int idnorma, int idusuariopst)
+        public async Task<IActionResult> GetResponseArchivoListaChequeo(int idnorma, int idusuariopst, int etapa)
         {
             string ValorMaestroValorTituloListaChequeo = this.Configuration.GetValue<string>("ValorMaestro:ValorTituloListaChequeo");
             string ValorMaestroValorListaChequeo = this.Configuration.GetValue<string>("ValorMaestro:ValorSeccionListaChequeo");
@@ -28,7 +28,7 @@ namespace inti_back.Controllers
 
             try
             {
-                var response = await _listachequeoRepository.GetResponseArchivoListaChequeo(idnorma, idusuariopst, Convert.ToInt32(ValorMaestroValorTituloListaChequeo), Convert.ToInt32(ValorMaestroValorListaChequeo), Convert.ToInt32(ValorMaestroValordescripcionCalificacion));
+                var response = await _listachequeoRepository.GetResponseArchivoListaChequeo(idnorma, idusuariopst,etapa, Convert.ToInt32(ValorMaestroValorTituloListaChequeo), Convert.ToInt32(ValorMaestroValorListaChequeo), Convert.ToInt32(ValorMaestroValordescripcionCalificacion));
                 return Ok(response);
             }
             catch (Exception ex)
@@ -44,7 +44,7 @@ namespace inti_back.Controllers
         }
 
         [HttpGet("ListaDiagnostico")]
-        public async Task<IActionResult> GetResponseArchivoDiagnostico(int idnorma, int idusuariopst)
+        public async Task<IActionResult> GetResponseArchivoDiagnostico(int idnorma, int idusuariopst , int etapa)
         {
             string ValorMaestroValorTituloListaChequeo = this.Configuration.GetValue<string>("ValorMaestro:ValorTituloListaChequeo");
             string ValorMaestroValorListaChequeo = this.Configuration.GetValue<string>("ValorMaestro:ValorSeccionListaChequeo");
@@ -52,7 +52,7 @@ namespace inti_back.Controllers
 
             try
             {
-                var response = await _listachequeoRepository.GetResponseArchivoDiagnostico(idnorma, idusuariopst, Convert.ToInt32(ValorMaestroValorTituloListaChequeo), Convert.ToInt32(ValorMaestroValorListaChequeo), Convert.ToInt32(ValorMaestroValordescripcionCalificacion));
+                var response = await _listachequeoRepository.GetResponseArchivoDiagnostico(idnorma, idusuariopst,etapa, Convert.ToInt32(ValorMaestroValorTituloListaChequeo), Convert.ToInt32(ValorMaestroValorListaChequeo), Convert.ToInt32(ValorMaestroValordescripcionCalificacion));
                 return Ok(response);
             }
             catch (Exception ex)

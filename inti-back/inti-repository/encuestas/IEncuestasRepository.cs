@@ -1,4 +1,5 @@
 ﻿using inti_model.encuesta;
+using inti_model.dboresponse;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +10,9 @@ namespace inti_repository.encuestas
 {
     public interface IEncuestasRepository
     {
-        Task<bool> PostMaeEncuestas(List<MaeEncuesta> encuestas);
+        Task<int> PostMaeEncuestas(MaeEncuesta encuesta);
 
-        Task<List<Encuesta>> GetEncuesta(int id);
+        Task<IEnumerable<ResponseEncuestaGeneral>> GetEncuestaGeneral();
         Task<bool> PostRespuestas(List<RespuestaEncuestas> respuestas);
     }
 }

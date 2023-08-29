@@ -105,17 +105,31 @@ namespace inti_repository.validaciones
         public async Task<bool> PostMonitorizacionUsuario(ResponseMonitorizacionUsuario data)
         {
             var db = dbConnection();
-            int i = 0;
+            var queryCheck = @"SELECT COUNT(*) FROM MonitorizacionUsuario 
+                       WHERE FK_ID_USUARIO = @FK_ID_USUARIO 
+                       AND MODULO = @MODULO 
+                       AND DATE(FECHA_REG) = CURDATE()";
 
-                  var queryPost = @"INSERT INTO MonitorizacionUsuario (FK_ID_USUARIO,TIPO,MODULO,FECHA_REG)
+            int count = await db.ExecuteScalarAsync<int>(queryCheck, new
+            {
+                data.FK_ID_USUARIO,
+                data.MODULO
+            });
+
+            if (count > 0)
+            {
+                return false;
+            }
+
+            var queryPost = @"INSERT INTO MonitorizacionUsuario (FK_ID_USUARIO,TIPO,MODULO,FECHA_REG)
                               VALUES (@FK_ID_USUARIO, @TIPO, @MODULO, NOW())";
 
-                    i += await db.ExecuteAsync(queryPost, new
-                    {
-                        data.FK_ID_USUARIO,
-                        data.TIPO,
-                        data.MODULO
-                    });
+            int i = await db.ExecuteAsync(queryPost, new
+            {
+                data.FK_ID_USUARIO,
+                data.TIPO,
+                data.MODULO
+            });
 
             return i > 0;
         }

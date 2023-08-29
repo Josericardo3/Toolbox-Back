@@ -70,9 +70,6 @@ namespace inti_repository.formularios
             return data > 0;
         }
 
-
-
-
         public async Task<DataFormulario> GetFormulario(int ID_FORMULARIO, string RNT, int ID_USUARIO)
         {
             var db = dbConnection();
@@ -153,14 +150,5 @@ namespace inti_repository.formularios
                                 
         }
 
-        public async Task<bool> DeleteFormularioData(int idformulario)
-        {
-            var db = dbConnection();
-
-            var queryDelete = @"DELETE from RespuestaFormularios where FK_MAE_FORMULARIOS = @FK_MAE_FORMULARIOS";
-
-            var rowsAffected = await db.ExecuteAsync(queryDelete, new { FK_MAE_FORMULARIOS = idformulario });
-            return rowsAffected > 0;
-        }
     }
 }

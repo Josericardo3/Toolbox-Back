@@ -96,6 +96,8 @@ builder.Services.AddCors(
 
 
 );
+builder.Services.AddHttpClient();
+
 
 var MySqlConfiguration = new MySQLConfiguration(builder.Configuration.GetConnectionString("MySqlConnectionDev"));
 builder.Services.AddSingleton(MySqlConfiguration);
@@ -180,31 +182,33 @@ app.UseMiddleware<CustomDelegatingHandler>();
 app.UseAuthorization();
 
 app.MapControllers();
-/*
-app.Use(async (context, next) =>
+/*app.Use(async (context, next) =>
 {
     context.Response.Headers.Add("X-Frame-Options", "SAMEORIGIN");
     await next();
 });*/
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Add("X-XSS-Protection", "1; mode=block");
+    await next();
+});
 
 app.UseCors(x => x
                 .AllowAnyMethod()
                 
                 .AllowAnyHeader()
                 .SetIsOriginAllowed(origin => true)
-                /*CORS para que solo pueda ingresar desde este url a las APIS*/
-                 /*.SetIsOriginAllowed(origin =>
-                 {
-                     List<string> allowedOrigins = new List<string>
-                    {
-                        "http://10.4.3.140:8080"
-                    };
+                /*.SetIsOriginAllowed(origin =>
+                {
+                    List<string> allowedOrigins = new List<string>
+                   {
+                       "http://172.18.72.20:8080"
 
-                     return allowedOrigins.Contains(origin);
-                 })*/
+                   };
+
+                    return allowedOrigins.Contains(origin);
+                })*/
                 .AllowCredentials());
-
-
 
 app.Run();
 

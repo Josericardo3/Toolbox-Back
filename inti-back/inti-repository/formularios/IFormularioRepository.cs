@@ -12,7 +12,6 @@ namespace inti_repository.formularios
         Task <DataFormulario> GetFormulario (int ID_FORMULARIO, string RNT, int ID_USUARIO);
         Task<bool> PostFormulario(List<Formulario> formularios);
         Task<bool> DeleteFormulario(int idformulario);
-        Task<bool> DeleteFormularioData(int idformulario);
 
     }
 }

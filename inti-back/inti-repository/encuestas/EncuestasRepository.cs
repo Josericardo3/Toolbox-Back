@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using inti_model.encuesta;
+using inti_model.dboresponse;
 using MySql.Data.MySqlClient;
 
 namespace inti_repository.encuestas
@@ -18,114 +19,78 @@ namespace inti_repository.encuestas
             return new MySqlConnection(_connectionString.ConnectionString);
         }
 
-        public async Task<bool> PostMaeEncuestas(List<MaeEncuesta> encuestas)
+        public async Task<int> PostMaeEncuestas(MaeEncuesta encuesta)
         {
             var db = dbConnection();
 
-            int i = 0;
-
-            foreach (var item in encuestas)
-            {
-                var queryEncuesta = @"INSERT INTO MaeEncuesta (TITULO,ENCUESTA,DESCRIPCION,TIPO,ESTADO,FECHA_REG)
-                                   VALUES(@TITULO,@ENCUESTA,@DESCRIPCION,@TIPO,1,NOW())";
+                var queryEncuesta = @"INSERT INTO MaeEncuesta (TITULO,DESCRIPCION,ESTADO,FECHA_REG)
+                                   VALUES(@TITULO,@DESCRIPCION,1,NOW())";
 
                 var dataEncuesta = await db.ExecuteAsync(queryEncuesta, new
                 {
-                    item.TITULO,
-                    item.ENCUESTA,
-                    item.DESCRIPCION,
-                    item.TIPO
+                    encuesta.TITULO,
+                    encuesta.DESCRIPCION,
                 });
 
-                i = 1;
+                var queryEncuestaId = @"SELECT LAST_INSERT_ID() FROM MaeEncuesta limit 1;";
+                var idEncuesta = await db.QueryFirstAsync<int>(queryEncuestaId);
 
-                if (item.TIPO == 1 || item.TIPO == 2)
-                {
-
-                    List<MaeRespuesta> maeRespuesta = new();
-
-                    maeRespuesta = item.FK_ID_RESPUESTA;
-
-                    foreach (var item2 in maeRespuesta)
+                    foreach (var pregunta in encuesta.MAE_ENCUESTA_RESPUESTAS)
                     {
-                        var queryLastInsert = @"SELECT LAST_INSERT_ID() FROM MaeEncuesta limit 1";
-                        var dataLastInsert = await db.QueryFirstAsync<int>(queryLastInsert);
+                        pregunta.FK_MAE_ENCUESTA = idEncuesta;
 
-                        var queryRespuesta = @"INSERT INTO MaeRespuesta (VALOR,ESTADO,FECHA_REG,FK_ID_MAE_ENCUESTA)
-                                       VALUES(@VALOR,1,NOW(),@FK_ID_MAE_ENCUESTA)";
+                        var querypregunta = @"INSERT INTO MaeEncuestaPregunta (FK_MAE_ENCUESTA,DESCRIPCION,VALOR,OBLIGATORIO,FECHA_REG)
+                                       VALUES(@FK_MAE_ENCUESTA,@DESCRIPCION,@VALOR,@OBLIGATORIO,NOW())";
 
-                        var dataRespuesta = await db.ExecuteAsync(queryRespuesta, new
+                        var dataPregunta = await db.ExecuteAsync(querypregunta, new
                         {
-                            item2.VALOR,
-                            FK_ID_MAE_ENCUESTA = dataLastInsert
+                            pregunta.FK_MAE_ENCUESTA,
+                            pregunta.DESCRIPCION,
+                            pregunta.VALOR,
+                            pregunta.OBLIGATORIO
                         });
-
-                        i = 2;
                     }
-
-                }
-            }
-
-            return i > 0;
-
+            return idEncuesta;
         }
-
-        public async Task<List<Encuesta>> GetEncuesta(int id)
+        public async Task<IEnumerable<ResponseEncuestaGeneral>> GetEncuestaGeneral()
         {
             var db = dbConnection();
 
-            List<Encuesta> encuestas = new List<Encuesta>();
-
             var queryEncuesta = @"
                                     SELECT 
-                                        me.ID_MAE_ENCUESTA,me.TITULO, me.DESCRIPCION,me.TIPO as TIPO, mg.DESCRIPCION as TIPO_PREGUNTA,me.ENCUESTA
+                                        me.ID_MAE_ENCUESTA,me.TITULO, me.DESCRIPCION, COALESCE(MAX(re.NUM_ENCUESTADO),0) as NUM_ENCUESTADOS
                                     FROM
                                         MaeEncuesta me
-                                            INNER JOIN
-                                        MaeGeneral mg ON mg.ID_TABLA = 20 AND mg.ITEM = me.TIPO
+                                            INNER JOIN MaeEncuestaPregunta ep ON me.ID_MAE_ENCUESTA = ep.FK_MAE_ENCUESTA
+                                        LEFT JOIN RespuestaEncuesta re ON ep.ID_MAE_ENCUESTA_PREGUNTA = re.FK_ID_MAE_ENCUESTA_PREGUNTA
                                     WHERE
-                                     me.ENCUESTA = @ENCUESTA AND me.ESTADO = 1 ";
+                                     me.ESTADO = 1 
+                                    GROUP BY
+                                        me.ID_MAE_ENCUESTA, me.TITULO, me.DESCRIPCION;";
 
-            var dataEncuesta = await db.QueryAsync<Encuesta>(queryEncuesta, new { ENCUESTA = id });
+            var dataEncuesta = await db.QueryAsync<ResponseEncuestaGeneral>(queryEncuesta);
 
-            foreach (var item in dataEncuesta)
-            {
-                if (item.TIPO == 1 || item.TIPO == 2)
-                {
-                    var queryRespuesta = @"
-                                    SELECT 
-                                        VALOR
-                                    FROM
-                                        MaeRespuesta
-                                    WHERE
-                                        ESTADO = 1 AND FK_ID_MAE_ENCUESTA = @ID_ENCUESTA";
-                    var dataRespuesta = await db.QueryAsync<MaeRespuesta>(queryRespuesta, new { ID_ENCUESTA = item.ID_MAE_ENCUESTA });
-
-                    foreach (var item1 in dataRespuesta)
-                    {
-                        item.RESPUESTAS.Add(item1);
-                    }
-
-                    encuestas.Add(item);
-                }
-            }
-            return encuestas;
+            return dataEncuesta;
         }
 
         public async Task<bool> PostRespuestas(List<RespuestaEncuestas> respuestas)
         {
             var db = dbConnection();
             int i = 0;
+
+            var queryencuestado = @"SELECT coalesce(MAX(re.NUM_ENCUESTADO),0) + 1 AS NUM_ENCUESTADO FROM RespuestaEncuesta re INNER JOIN MaeEncuestaPregunta ep
+                                    ON re.FK_ID_MAE_ENCUESTA_PREGUNTA = ep.ID_MAE_ENCUESTA_PREGUNTA WHERE ep.FK_MAE_ENCUESTA = (SELECT FK_MAE_ENCUESTA FROM 
+                                    MaeEncuestaPregunta WHERE ID_MAE_ENCUESTA_PREGUNTA = @IdPregunta);";
+            var num_encuestado = await db.QueryFirstAsync<int>(queryencuestado, new {IdPregunta = respuestas[0].FK_ID_MAE_ENCUESTA_PREGUNTA});
             foreach (var item in respuestas)
             {
-                var queryInsert = @"INSERT INTO RespuestaEncuesta(FK_TIPO_ENCUESTA,PREGUNTA,RESPUESTA,FK_ID_USUARIO,ESTADO,FECHA_REG)
-                                VALUES(@FK_TIPO_ENCUESTA,@PREGUNTA,@RESPUESTA,@FK_ID_USUARIO,1,NOW())";
+                var queryInsert = @"INSERT INTO RespuestaEncuesta(FK_ID_MAE_ENCUESTA_PREGUNTA,NUM_ENCUESTADO,RESPUESTA,FECHA_REG)
+                                VALUES(@FK_ID_MAE_ENCUESTA_PREGUNTA,@NUM_ENCUESTADO,@RESPUESTA,NOW())";
                 var dataInsert = await db.ExecuteAsync(queryInsert, new
                 {
-                    item.FK_TIPO_ENCUESTA,
-                    item.PREGUNTA,
-                    item.RESPUESTA,
-                    item.FK_ID_USUARIO
+                    item.FK_ID_MAE_ENCUESTA_PREGUNTA,
+                    num_encuestado,
+                    item.RESPUESTA
                 });
 
                 i = 1;

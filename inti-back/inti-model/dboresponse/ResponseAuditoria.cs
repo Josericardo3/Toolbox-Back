@@ -18,6 +18,7 @@ namespace inti_model.dboresponse
         public string? FECHA_REUNION_CIERRE { get; set; }
         public string? HORA_REUNION_CIERRE { get; set; }
         public string? FECHA_AUDITORIA { get; set; }
+        public string? ESTADO_AUDITORIA { get; set; }
         public string? PROCESO { get; set; }
         public string? FECHA_REG { get; set; }
         public string? FECHA_ACT { get; set; }

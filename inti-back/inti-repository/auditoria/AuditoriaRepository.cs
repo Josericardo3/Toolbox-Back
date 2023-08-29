@@ -203,23 +203,28 @@ namespace inti_repository.auditoria
             var datauser = await db.QueryFirstAsync<Usuario>(sqluser, new { Idusuario = IdUsuario });
 
             var queryAsesor = @"
-                SELECT 
-                    ID_AUDITORIA, FK_ID_PST, FECHA_AUDITORIA, PROCESO, AUDITOR_LIDER, EQUIPO_AUDITOR,
-                    FECHA_REUNION_APERTURA, HORA_REUNION_APERTURA, FECHA_REUNION_CIERRE, HORA_REUNION_CIERRE, 
-                    FECHA_REG, COALESCE(FECHA_ACT, FECHA_REG) AS FECHA_ACT
-                FROM 
-                    Auditoria  
-                WHERE 
-                    FK_ID_PST = @idpst AND ESTADO = true 
-                ORDER BY 
-                    FECHA_REG DESC;";
-
+            SELECT 
+                ID_AUDITORIA, FK_ID_PST, FECHA_AUDITORIA, PROCESO, AUDITOR_LIDER, EQUIPO_AUDITOR,
+                FECHA_REUNION_APERTURA, HORA_REUNION_APERTURA, FECHA_REUNION_CIERRE, HORA_REUNION_CIERRE, 
+                FECHA_REG, COALESCE(FECHA_ACT, FECHA_REG) AS FECHA_ACT,
+                CASE 
+                    WHEN ESTADO_CONCLUIDO = 0 AND STR_TO_DATE(FECHA_REUNION_CIERRE, '%d/%m/%Y') < NOW() THEN 'Demorado'
+                    WHEN ESTADO_CONCLUIDO = 0 THEN 'Iniciado'
+                    WHEN ESTADO_CONCLUIDO = 1 THEN 'Terminado'
+                    ELSE 'Estado Desconocido'
+                END AS ESTADO_AUDITORIA
+            FROM 
+                Auditoria  
+            WHERE 
+                FK_ID_PST = @idpst AND ESTADO = true 
+            ORDER BY 
+            FECHA_REG DESC;";
 
             var data = await db.QueryAsync<ResponseAuditorias>(queryAsesor, new { idpst = datauser.FK_ID_PST });
 
             return data;
-
         }
+
 
         public async Task<Auditoria> GetAuditoria(int id)
         {
@@ -429,6 +434,45 @@ GROUP BY ap.ID_PROCESO_AUDITORIA, ap.FK_ID_AUDITORIA, ap.FECHA, ap.HORA, ap.TIPO
             auditoriaNorma.TITUTLOS = dataTitulos;
 
             return auditoriaNorma;
+        }
+
+        public async Task<bool> UpdateEstadoTerminadoAuditoria(int IdProceso)
+        {
+            var db = dbConnection();
+            var sql = @"UPDATE AuditoriaProceso SET ESTADO_CONCLUIDO = 1 WHERE ID_PROCESO_AUDITORIA = @IdProceso AND ESTADO = 1;";
+
+            var data = await db.ExecuteAsync(sql, new
+            {
+                IdProceso = IdProceso
+            });
+
+
+            var sqlprocesos = @"
+                            SELECT * 
+                            FROM AuditoriaProceso 
+                            WHERE FK_ID_AUDITORIA = (SELECT FK_ID_AUDITORIA FROM AuditoriaProceso WHERE ID_PROCESO_AUDITORIA = @IdProceso);";
+
+            var dataProcesos = await db.QueryAsync<AuditoriaProceso>(sqlprocesos, new
+            {
+                IdProceso = IdProceso
+            });
+
+            bool allProcessesCompleted = dataProcesos.All(proceso => proceso.ESTADO_CONCLUIDO == true);
+
+            if (allProcessesCompleted)
+            {
+                var updateAuditoria = @"
+                UPDATE Auditoria
+                SET ESTADO_CONCLUIDO = 1
+                WHERE ID_AUDITORIA = (SELECT FK_ID_AUDITORIA FROM AuditoriaProceso WHERE ID_PROCESO_AUDITORIA = @IdProceso);";
+
+                await db.ExecuteAsync(updateAuditoria, new
+                {
+                    IdProceso = IdProceso
+                });
+            }
+    
+            return data > 0;
         }
     }
 }

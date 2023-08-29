@@ -86,31 +86,5 @@ namespace inti_back.Controllers
 
         }
 
-        [HttpDelete("Borrardatabd")]
-
-        public async Task<IActionResult> DeleteFormularioData(int idformulario)
-        {
-            try
-            {
-                var result =  _formularioRepository.DeleteFormularioData(idformulario);
-
-
-                return Ok(new
-                {
-                    StatusCode = 200,
-                    Mensaje = "Formulario eliminado correctamente"
-                });
-            }
-            catch (Exception ex)
-            {
-                return Ok(new
-                {
-                    StatusCode = 500,
-                    ErrorMessage = ex.Message,
-                });
-            }
-
-
-        }
     }
 }

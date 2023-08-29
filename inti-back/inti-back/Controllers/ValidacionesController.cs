@@ -1,4 +1,5 @@
 ﻿using inti_model.usuario;
+using inti_model;
 using inti_model.dboresponse;
 using inti_repository.caracterizacion;
 using inti_repository.validaciones;
@@ -192,6 +193,58 @@ namespace inti_back.Controllers
             }
 
         }
+
+        [HttpPost("EnviarEmailMasivoNoticia")]
+        public async Task<IActionResult> SendEmailMasivoNoticia(List<String> correo)
+        {
+
+            try
+            {
+          
+                    string subject = "Notificación de Noticia";
+                    Correos envio = new(Configuration);
+                    var estado = envio.EnviarCorreoMasivoNoticia(correo, subject);
+
+                    if (estado == 0)
+                    {
+                        throw new Exception();
+                    }
+                    else
+                    {
+                        return Ok(new
+                        {
+                            StatusCode(200).StatusCode,
+                            Valor = "correo enviado satisfactoriamente",
+                        });
+                    }
+
+            }
+            catch (Exception e)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    Valor = "El correo no se pudo enviar",
+                    Mensaje = e.Message
+                });
+            }
+
+        }
+        [HttpGet("ObtenerDataMincit")]
+        public async Task<IActionResult> ObtenerDataMincit(string RNT)
+        {
+            try
+            {
+               // MincitResponse mincitResponse = await _validacionesRepository.ConsultaMincit(RNT);
+                string mincitResponse = await _validacionesRepository.ConsultaMincit(RNT);
+                return Ok(mincitResponse);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500); 
+            }
+        }
+
 
     }
 }

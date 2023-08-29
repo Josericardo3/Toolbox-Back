@@ -22,7 +22,7 @@ namespace inti_back.Controllers
         }
 
         [HttpGet("PlanMejora")]
-        public async Task<IActionResult> GetResponseArchivoPlanMejora(int idnorma, int idusuariopst)
+        public async Task<IActionResult> GetResponseArchivoPlanMejora(int idnorma, int idusuariopst, int etapa)
         {
             string ValorMaestroValorTituloListaChequeo = this.Configuration.GetValue<string>("ValorMaestro:ValorTituloListaChequeo");
             string ValorMaestroValorListaChequeo = this.Configuration.GetValue<string>("ValorMaestro:ValorSeccionListaChequeo");
@@ -30,7 +30,7 @@ namespace inti_back.Controllers
 
             try
             {
-                var response = await _planmejoraRepository.GetResponseArchivoPlanMejora(idnorma, idusuariopst, Convert.ToInt32(ValorMaestroValorTituloListaChequeo), Convert.ToInt32(ValorMaestroValorListaChequeo), Convert.ToInt32(ValorMaestroValordescripcionCalificacion));
+                var response = await _planmejoraRepository.GetResponseArchivoPlanMejora(idnorma, idusuariopst,etapa, Convert.ToInt32(ValorMaestroValorTituloListaChequeo), Convert.ToInt32(ValorMaestroValorListaChequeo), Convert.ToInt32(ValorMaestroValordescripcionCalificacion));
                 return Ok(response);
             }
             catch (Exception)

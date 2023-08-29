@@ -18,17 +18,18 @@ namespace inti_back.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostMaeEncuestas(List<MaeEncuesta> encuestas)
+        public async Task<IActionResult> PostMaeEncuestas(MaeEncuesta encuesta)
         {
             try
             {
-                var data = _encuestaRepository.PostMaeEncuestas(encuestas);
+                var data = _encuestaRepository.PostMaeEncuestas(encuesta);
 
 
                 return Ok(new
                 {
-                    StatusCode = 200,
-                    Valor = "Se registró correctamente la encuesta" 
+                    Id = data.Result,
+                    StatusCode(200).StatusCode,
+                    valor = "Se insertó la encuesta"
                 });
 
 
@@ -45,11 +46,11 @@ namespace inti_back.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetEncuestas(int id)
+        public async Task<IActionResult> GetEncuestasGeneral()
         {
             try
             {
-                var data = await _encuestaRepository.GetEncuesta(id);
+                var data = await _encuestaRepository.GetEncuestaGeneral();
 
                 if(data == null)
                 {

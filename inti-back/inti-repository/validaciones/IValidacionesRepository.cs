@@ -1,4 +1,5 @@
 ﻿using inti_model.usuario;
+using inti_model;
 using inti_model.dboresponse;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -19,5 +20,8 @@ namespace inti_repository.validaciones
         Task<UsuarioPassword> RecuperacionContraseña(string correo);
         Task<bool> UpdatePassword(string password, string id);
         Task<IActionResult> SendEmail2(string correo);
+        Task<string> ObtenerToken();
+        //Task<MincitResponse> ConsultaMincit(string RNT);
+        Task<string> ConsultaMincit(string RNT);
     }
 }
