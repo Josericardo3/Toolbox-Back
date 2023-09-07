@@ -197,7 +197,7 @@ app.UseCors(x => x
                 .AllowAnyMethod()
                 
                 .AllowAnyHeader()
-                .SetIsOriginAllowed(origin => true)
+                .AllowAnyOrigin()
                 /*.SetIsOriginAllowed(origin =>
                 {
                     List<string> allowedOrigins = new List<string>
