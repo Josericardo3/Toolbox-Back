@@ -195,7 +195,7 @@ app.Use(async (context, next) =>
     context.Response.Headers.Add("X-XSS-Protection", "1; mode=block");
     await next();
 });
-
+app.UseCors("AllowAll");
 /*app.UseCors(x => x
                 .AllowAnyMethod()
                 
