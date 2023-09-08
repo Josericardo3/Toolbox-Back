@@ -92,10 +92,13 @@ builder.Services.AddSwaggerGen(c =>
 
 });
 
-builder.Services.AddCors(
-
-
-);
+builder.Services.AddCors(options => {
+  options.AddPolicy("AllowAll", builder => {
+    builder.AllowAnyOrigin()
+      .AllowAnyMethod()
+      .AllowAnyHeader();
+  });
+});
 builder.Services.AddHttpClient();
 
 
