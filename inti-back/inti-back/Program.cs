@@ -92,10 +92,13 @@ builder.Services.AddSwaggerGen(c =>
 
 });
 
-builder.Services.AddCors(
-
-
-);
+builder.Services.AddCors(options => {
+  options.AddPolicy("AllowAll", builder => {
+    builder.AllowAnyOrigin()
+      .AllowAnyMethod()
+      .AllowAnyHeader();
+  });
+});
 builder.Services.AddHttpClient();
 
 
@@ -192,7 +195,7 @@ app.Use(async (context, next) =>
     context.Response.Headers.Add("X-XSS-Protection", "1; mode=block");
     await next();
 });
-
+app.UseCors("AllowAll");
 /*app.UseCors(x => x
                .AllowAnyMethod()
 
