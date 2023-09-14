@@ -14,5 +14,6 @@ namespace inti_repository.encuestas
 
         Task<IEnumerable<ResponseEncuestaGeneral>> GetEncuestaGeneral();
         Task<bool> PostRespuestas(List<RespuestaEncuestas> respuestas);
+        Task<bool> DeleteEncuesta(int idEncuesta);
     }
 }

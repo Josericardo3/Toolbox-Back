@@ -194,21 +194,21 @@ app.Use(async (context, next) =>
 });
 
 /*app.UseCors(x => x
-                .AllowAnyMethod()
-                
-                .AllowAnyHeader()
-                //.SetIsOriginAllowed(origin => true)
-                .SetIsOriginAllowed(origin =>
+               .AllowAnyMethod()
+
+               .AllowAnyHeader()
+               .SetIsOriginAllowed(origin => true)
+               .SetIsOriginAllowed(origin =>
                 {
                     List<string> allowedOrigins = new List<string>
                    {
-                       "http://172.18.72.20:8080",
+                      "http://172.18.72.20:8080",
                        "https://cajadeherramientasqa.mincit.gov.co"
                    };
 
                     return allowedOrigins.Contains(origin);
                 })
-                .AllowCredentials());*/
+               .AllowCredentials());*/
 
 app.Run();
 

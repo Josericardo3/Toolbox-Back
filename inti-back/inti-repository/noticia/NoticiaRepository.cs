@@ -29,21 +29,44 @@ namespace inti_repository.noticia
             return new MySqlConnection(_connectionString.ConnectionString);
         }
 
-        public async Task<IEnumerable<ResponseNoticia>> GetAllNoticias(string rnt)
+        public async Task<IEnumerable<ResponseNoticia>> GetAllNoticias(string rnt, int idTipoUsuario)
         {
             var db = dbConnection();
-            var data = @"SELECT a.ID_NOTICIA,a.FK_ID_USUARIO, c.NOMBRE, a.TITULO, a.DESCRIPCION, a.IMAGEN, a.FECHA_REG, COALESCE(a.FECHA_ACT, a.FECHA_REG) AS FECHA_ACT, GROUP_CONCAT(b.NOMBRE SEPARATOR ', ') AS NOMBRE_DESTINATARIO, GROUP_CONCAT(d.NORMA SEPARATOR ', ') AS NORMAS,GROUP_CONCAT(e.CATEGORIA_RNT SEPARATOR ', ') AS CATEGORIAS,GROUP_CONCAT(f.SUB_CATEGORIA_RNT SEPARATOR ', ') AS SUB_CATEGORIAS
+            var result = new List<ResponseNoticia>();
+            string data;
+            if (idTipoUsuario == 3 || idTipoUsuario == 4 || idTipoUsuario == 5)
+            {
+                data = @"SELECT a.ID_NOTICIA,a.FK_ID_USUARIO,p.NOMBRE_PST, c.NOMBRE, a.TITULO, a.DESCRIPCION, a.IMAGEN, a.FECHA_REG, COALESCE(a.FECHA_ACT, a.FECHA_REG) AS FECHA_ACT, GROUP_CONCAT(b.NOMBRE SEPARATOR ', ') AS NOMBRE_DESTINATARIO, GROUP_CONCAT(d.NORMA SEPARATOR ', ') AS NORMAS,GROUP_CONCAT(e.CATEGORIA_RNT SEPARATOR ', ') AS CATEGORIAS,GROUP_CONCAT(f.SUB_CATEGORIA_RNT SEPARATOR ', ') AS SUB_CATEGORIAS
                         FROM Noticia a
                         INNER JOIN Notificacion n ON n.FK_ID_NOTICIA = a.ID_NOTICIA
                         LEFT JOIN Usuario b ON b.ID_USUARIO = n.FK_ID_USUARIO
                         INNER JOIN Usuario c ON a.FK_ID_USUARIO = c.ID_USUARIO
+                        LEFT JOIN Pst p ON c.FK_ID_PST = p.ID_PST
+                        LEFT JOIN MaeNorma d ON d.ID_NORMA = n.FK_ID_NORMA
+                        LEFT JOIN MaeCategoriaRnt e ON e.ID_CATEGORIA_RNT = n.FK_ID_CATEGORIA
+                        LEFT JOIN MaeSubCategoriaRnt f ON f.ID_SUB_CATEGORIA_RNT = n.FK_ID_SUB_CATEGORIA
+                        WHERE a.ESTADO = true 
+                        GROUP BY a.ID_NOTICIA, a.FK_ID_USUARIO, c.NOMBRE,a.TITULO, a.DESCRIPCION, a.IMAGEN, a.FECHA_REG, a.FECHA_ACT
+                        ORDER BY a.FECHA_REG DESC";
+                result = (await db.QueryAsync<ResponseNoticia>(data)).ToList();
+            }
+            else
+            {
+                data = @"SELECT a.ID_NOTICIA,a.FK_ID_USUARIO, p.NOMBRE_PST,c.NOMBRE, a.TITULO, a.DESCRIPCION, a.IMAGEN, a.FECHA_REG, COALESCE(a.FECHA_ACT, a.FECHA_REG) AS FECHA_ACT, GROUP_CONCAT(b.NOMBRE SEPARATOR ', ') AS NOMBRE_DESTINATARIO, GROUP_CONCAT(d.NORMA SEPARATOR ', ') AS NORMAS,GROUP_CONCAT(e.CATEGORIA_RNT SEPARATOR ', ') AS CATEGORIAS,GROUP_CONCAT(f.SUB_CATEGORIA_RNT SEPARATOR ', ') AS SUB_CATEGORIAS
+                        FROM Noticia a
+                        INNER JOIN Notificacion n ON n.FK_ID_NOTICIA = a.ID_NOTICIA
+                        LEFT JOIN Usuario b ON b.ID_USUARIO = n.FK_ID_USUARIO
+                        INNER JOIN Usuario c ON a.FK_ID_USUARIO = c.ID_USUARIO
+                        LEFT JOIN Pst p ON c.FK_ID_PST = p.ID_PST
                         LEFT JOIN MaeNorma d ON d.ID_NORMA = n.FK_ID_NORMA
                         LEFT JOIN MaeCategoriaRnt e ON e.ID_CATEGORIA_RNT = n.FK_ID_CATEGORIA
                         LEFT JOIN MaeSubCategoriaRnt f ON f.ID_SUB_CATEGORIA_RNT = n.FK_ID_SUB_CATEGORIA
                         WHERE a.ESTADO = true AND c.RNT = @RNT
                         GROUP BY a.ID_NOTICIA, a.FK_ID_USUARIO, c.NOMBRE,a.TITULO, a.DESCRIPCION, a.IMAGEN, a.FECHA_REG, a.FECHA_ACT
                         ORDER BY a.FECHA_REG DESC";
-            var result = await db.QueryAsync<ResponseNoticia>(data, new { RNT = rnt });
+                result = (await db.QueryAsync<ResponseNoticia>(data, new { RNT = rnt })).ToList();
+            }
+
             return result;
         }
 

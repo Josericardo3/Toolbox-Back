@@ -100,5 +100,22 @@ namespace inti_repository.encuestas
 
             return i > 0;
         }
+        public async Task<bool> DeleteEncuesta(int idEncuesta)
+        {
+            var db = dbConnection();
+            int i = 0;
+
+            var queryEncuesta = @"UPDATE MaeEncuesta SET ESTADO = 0 WHERE ID_MAE_ENCUESTA = @IdEncuesta AND ESTADO = 1";
+            var dataEncuesta = await db.ExecuteAsync(queryEncuesta, new { IdEncuesta = idEncuesta });
+
+            var querypreguntas = @"UPDATE MaeEncuestaPregunta SET ESTADO = 0 WHERE FK_MAE_ENCUESTA = @IdEncuesta AND ESTADO = 1";
+            var dataPregunta = await db.ExecuteAsync(querypreguntas, new { IdEncuesta = idEncuesta });
+
+            var queryrespuesta = @"UPDATE RespuestaEncuesta a INNER JOIN MaeEncuestaPregunta b ON a.FK_ID_MAE_ENCUESTA_PREGUNTA = b.ID_MAE_ENCUESTA_PREGUNTA SET a.ESTADO = 0 WHERE b.FK_MAE_ENCUESTA = @IdEncuesta AND a.ESTADO = 1 ;";
+            var dataRespuesta = await db.ExecuteAsync(queryrespuesta, new { IdEncuesta = idEncuesta });
+
+
+            return dataRespuesta > 0;
+        }
     }
 }

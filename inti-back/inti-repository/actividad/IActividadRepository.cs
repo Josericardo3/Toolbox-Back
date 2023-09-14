@@ -13,7 +13,7 @@ namespace inti_repository.actividad
 {
     public interface IActividadRepository
     {
-        Task<IEnumerable<ResponseActividad>> GetAllActividades(int idAsesor);
+        Task<IEnumerable<ResponseActividad>> GetAllActividades(int idAsesor, int idTipoUsuario);
         Task<ResponseActividad> GetActividad(int id);
         Task<bool> InsertActividad(InputActividad actividades);
         Task<bool> UpdateActividad(Actividad actividades);

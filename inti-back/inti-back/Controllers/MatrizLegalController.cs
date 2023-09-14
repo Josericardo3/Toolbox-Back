@@ -21,17 +21,25 @@ namespace inti_back.Controllers
         [HttpGet("MatrizLegal")]
         public async Task<IActionResult> GetMatrizLegal(int IdDoc, int IdUsuario)
         {
-            var response = await _matrizlegalRepository.GetMatrizLegal(IdDoc, IdUsuario);
-
-            if (response == null)
+            try
             {
-                Ok(new
+
+                var response = await _matrizlegalRepository.GetMatrizLegal(IdDoc, IdUsuario);
+
+                if (response == null)
                 {
-                    StatusCode(200).StatusCode,
-                    valor = "la ley no se ha encontrado"
-                });
+                    Ok(new
+                    {
+                        StatusCode(200).StatusCode,
+                        valor = "la ley no se ha encontrado"
+                    });
+                }
+                return Ok(response);
             }
-            return Ok(response);
+            catch (Exception)
+            {
+                return StatusCode(500, new { mensaje = "Se produjo un error al procesar la solicitud" });
+            }
         }
 
         [HttpPost("InsertLey")]

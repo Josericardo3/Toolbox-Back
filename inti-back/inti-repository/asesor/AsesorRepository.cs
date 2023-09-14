@@ -64,11 +64,16 @@ namespace inti_repository.caracterizacion
             var queryPSTAsesor = "";
             IEnumerable<Asesor> dataPSTAsesor = new List<Asesor>();
 
-            if (idasesor == 0)
+
+            var sqluser = @"SELECT * FROM Usuario WHERE ID_USUARIO = @IdUsuario AND ESTADO = true ";
+            var datauser = await db.QueryFirstAsync<Usuario>(sqluser, new { Idusuario = idasesor });
+
+            if (datauser.ID_TIPO_USUARIO == 2)
             { 
                 queryPSTAsesor = @"
                       SELECT 
                         ps.ID_PST,
+                        ps.FK_ID_USUARIO,
                         ps.RNT,
                         ps.NOMBRE_PST AS RAZON_SOCIAL_PST,
                         a.NOMBRE AS ASESOR_ASIGNADO,
@@ -89,6 +94,7 @@ namespace inti_repository.caracterizacion
 							AND ma.ID_TABLA = @ID_TABLA
                             AND ma.ESTADO = 1 
                     UNION ALL SELECT 
+                        ID_PST,
                         FK_ID_USUARIO,
                         RNT,
                         NOMBRE_PST,
@@ -97,10 +103,10 @@ namespace inti_repository.caracterizacion
                     FROM
                         Pst
                     WHERE
-                        FK_ID_USUARIO NOT IN (SELECT 
-                                FK_ID_USUARIO
+                        ID_PST NOT IN (SELECT 
+                                FK_ID_PST
                             FROM
-                                AsesorPst)
+                                AsesorPst WHERE ESTADO=1)
                             AND ESTADO = 1";
                 dataPSTAsesor = await db.QueryAsync<Asesor>(queryPSTAsesor, new { ID_TABLA = idtablamaestro });
             }
@@ -109,6 +115,7 @@ namespace inti_repository.caracterizacion
                 queryPSTAsesor = @"
                       SELECT 
                         ps.ID_PST,
+                        ps.FK_ID_USUARIO,
 	                    ps.RNT,
                         ps.NOMBRE_PST AS RAZON_SOCIAL_PST,
                         a.NOMBRE AS ASESOR_ASIGNADO,
@@ -131,7 +138,7 @@ namespace inti_repository.caracterizacion
                             AND ma.ID_TABLA = @ID_TABLA
                             AND ma.ESTADO = 1";
 
-                dataPSTAsesor = await db.QueryAsync<Asesor>(queryPSTAsesor, new { FK_ID_ASESOR = idasesor, ID_TABLA = idtablamaestro });
+                dataPSTAsesor = await db.QueryAsync<Asesor>(queryPSTAsesor, new { FK_ID_ASESOR = datauser.FK_ID_ASESOR, ID_TABLA = idtablamaestro });
 
             }
 
@@ -170,10 +177,10 @@ namespace inti_repository.caracterizacion
                 result = await db.ExecuteAsync(sql, new { FK_ID_PST = objPST_Asesor.ID_PST });
 
             }
-            var insertAsesor = @"INSERT INTO AsesorPst (FK_ID_PST,FK_ID_ASESOR,ESTADO) VALUES (@FK_ID_PST,@FK_ID_ASESOR,1)";
+            var insertAsesor = @"INSERT INTO AsesorPst (FK_ID_PST,FK_ID_ASESOR,ESTADO,FECHA_REG) VALUES (@FK_ID_PST,@FK_ID_ASESOR,1,NOW())";
             result = await db.ExecuteAsync(insertAsesor, new { FK_ID_PST = objPST_Asesor.ID_PST, FK_ID_ASESOR = objPST_Asesor.ID_ASESOR });
 
-            var insertAtencionPST = @"INSERT INTO AtencionUsuarioPst (FK_ID_USUARIO,ESTADO) VALUES (@FK_ID_PST,1)";
+            var insertAtencionPST = @"INSERT INTO AtencionUsuarioPst (FK_ID_USUARIO,ESTADO,FECHA_REG) VALUES (@FK_ID_PST,1,NOW())";
             result = await db.ExecuteAsync(insertAtencionPST, new {FK_ID_PST = objPST_Asesor.ID_PST });
             return result > 0;
 

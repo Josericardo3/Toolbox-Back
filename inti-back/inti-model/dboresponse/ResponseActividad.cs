@@ -14,6 +14,7 @@ namespace inti_model.dboresponse
     public class ResponseActividad
     {
         public int ID_ACTIVIDAD { get; set; }
+        public string? NOMBRE_PST { get; set; }
         public int FK_ID_USUARIO_PST { get; set; }
         public int FK_ID_RESPONSABLE { get; set; }
         public string? TIPO_ACTIVIDAD { get; set; }

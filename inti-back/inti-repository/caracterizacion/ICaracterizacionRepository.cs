@@ -1,5 +1,6 @@
 ﻿using inti_model;
 using inti_model.caracterizacion;
+using inti_model.dboresponse;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,9 @@ namespace inti_repository.caracterizacion
         Task<bool> InsertRespuestaCaracterizacion(List<RespuestaCaracterizacion> respuestaCaracterizacion);
         Task<List<NormaTecnica>> GetNormaTecnica(int id);
         ResponseOrdenCaracterizacion GetOrdenCaracterizacion(int id);
+
+        Task<IEnumerable<ResponseRespuestaCaracterizacion>> GetRespuestaCaracterizacion(int IdUsuario);
+
 
     }
 }

@@ -270,6 +270,10 @@ namespace inti_back.Controllers
             }
 
         }
-
+        [HttpGet("usuarioPermisosPorPerfil")]
+        public async Task<IActionResult> GetPermisosPorPerfil(int idUsuarioPerfil)
+        {
+            return Ok(await _usuarioPstRepository.GetPermisoPorPerfil(idUsuarioPerfil));
+        }
     }
 }

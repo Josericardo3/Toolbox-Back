@@ -382,6 +382,23 @@ namespace inti_repository.usuario
 
         }
 
+        public async Task<IEnumerable<ResponseModuloUsuario>> GetPermisoPorPerfil(int idtipousuario)
+        {
+            var db = dbConnection();
+
+            var queryPermisos = $@"SELECT
+                                        *
+                                    FROM
+                                        MaeModuloUsuario
+                                    WHERE
+                                        TIPO_PERMISO = @idTipoUsuario";
+
+            var result = await db.QueryAsync<ResponseModuloUsuario>(queryPermisos, new { idTipoUsuario = idtipousuario });
+
+            return result;
+
+        }
+
     }
 }
 

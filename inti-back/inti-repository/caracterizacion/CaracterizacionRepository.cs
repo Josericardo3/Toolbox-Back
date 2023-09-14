@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using inti_model.caracterizacion;
+using inti_model.dboresponse;
 using inti_model;
 using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
@@ -65,7 +66,9 @@ namespace inti_repository.caracterizacion
         {
 
             if (fila.TIPO_DE_DATO == "string" || fila.TIPO_DE_DATO == "int" || fila.TIPO_DE_DATO == "float" || fila.TIPO_DE_DATO == "bool" || fila.TIPO_DE_DATO == "double" || fila.TIPO_DE_DATO == "number")
-            { }
+            {
+            
+            }
             else if ((fila.TIPO_DE_DATO == "option" || fila.TIPO_DE_DATO == "checkbox" || fila.TIPO_DE_DATO == "radio") && fila.MENSAJE != "municipios")
             {
 
@@ -188,6 +191,19 @@ namespace inti_repository.caracterizacion
             }
 
             return responseOrden;
+        }
+
+        public async Task<IEnumerable<ResponseRespuestaCaracterizacion>> GetRespuestaCaracterizacion(int IdUsuario)
+        {
+            var db = dbConnection();
+
+            string queryCaracterizacion = @"
+            SELECT b.ID_CARACTERIZACION_DINAMICA, b.NOMBRE, b.TABLA_RELACIONADA, a.VALOR, a.FK_ID_USUARIO, a.ESTADO FROM RespuestaCaracterizacion a INNER JOIN MaeCaracterizacionDinamica b ON a.FK_ID_CARACTERIZACION_DINAMICA = b.ID_CARACTERIZACION_DINAMICA
+            WHERE a.FK_ID_USUARIO = @iduser;";
+
+            List<ResponseRespuestaCaracterizacion> data = (await db.QueryAsync<ResponseRespuestaCaracterizacion>(queryCaracterizacion, new { iduser = IdUsuario })).ToList();
+           
+            return data;
         }
 
     }

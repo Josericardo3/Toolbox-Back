@@ -53,9 +53,9 @@ namespace inti_back.Controllers
         }
 
         [HttpGet("actividades")]
-        public async Task<IActionResult> GetAllActividades(int idUsuarioPst)
+        public async Task<IActionResult> GetAllActividades(int idUsuarioPst, int idTipoUsuario)
         {
-            return Ok(await _actividadRepository.GetAllActividades(idUsuarioPst));
+            return Ok(await _actividadRepository.GetAllActividades(idUsuarioPst, idTipoUsuario));
         }
 
         [HttpGet("actividades/{idActividad}")]

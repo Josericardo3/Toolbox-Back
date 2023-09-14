@@ -98,5 +98,36 @@ namespace inti_back.Controllers
         }
 
 
+        [HttpDelete("DeleteEncuesta")]
+        public async Task<IActionResult> DeleteEncuesta(int idEncuesta)
+        {
+            try
+            {
+                var response = await _encuestaRepository.DeleteEncuesta(idEncuesta);
+
+                if (response == true)
+                {
+                    return Ok(new
+                    {
+                        StatusCode(200).StatusCode,
+                        valor = "Encuesta ha sido borrada"
+                    });
+                }
+                else
+                {
+                    throw new Exception();
+                }
+            }
+            catch (Exception e)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "ocurrió un error al borrar la Encuesta",
+                    e.Message
+                });
+            }
+        }
+
     }
 }

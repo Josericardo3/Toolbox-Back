@@ -3,6 +3,7 @@ using inti_model.caracterizacion;
 using inti_model.matrizlegal;
 using inti_model.dboresponse;
 using inti_model.dboinput;
+using inti_model.usuario;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using MySql.Data.MySqlClient;
@@ -28,12 +29,24 @@ namespace inti_repository.matrizlegal
 
         {
             var db = dbConnection();
+            int iduser;
+            var sqluser = @"SELECT * FROM Usuario WHERE ID_USUARIO = @IdUsuario AND ESTADO = true ";
+            var datauser = await db.QueryFirstAsync<Usuario>(sqluser, new { Idusuario = IdUsuario });
+            iduser = IdUsuario;
+            if (datauser.ID_TIPO_USUARIO != 1)
+            {
+                var sqlpst = @"SELECT * FROM Pst WHERE Rnt = @rnt AND ESTADO = true ";
+                var datapst = await db.QueryFirstAsync<UsuarioPst>(sqlpst, new { rnt = datauser.RNT });
+                iduser = datapst.FK_ID_USUARIO;
+
+            }
+
             var sql = @"SELECT a.ID_MATRIZ,a.ID_DOCUMENTO, a.CATEGORIA,a.TIPO_NORMATIVIDAD, a.NUMERO, a.ANIO, a.EMISOR, a.DESCRIPCION, 
                         a.DOCS_ESPECIFICOS, b.FK_ID_USUARIO, b.ESTADO_CUMPLIMIENTO, b.RESPONSABLE_CUMPLIMIENTO,
                         b.DATA_CUMPLIMIENTO, b.PLAN_ACCIONES_A_REALIZAR, b.PLAN_RESPONSABLE_CUMPLIMIENTO,
                         b.PLAN_FECHA_EJECUCION, b.PLAN_ESTADO , a.ESTADO FROM MaeLegal a LEFT JOIN RespuestaMatrizLegal b ON a.ID_MATRIZ = b.FK_ID_MATRIZ
                         AND b.FK_ID_USUARIO = @IdUsuario  WHERE a.ID_DOCUMENTO = @IdDocumento AND  a.Estado = TRUE ";
-            return await db.QueryAsync<ResponseMatrizLegal>(sql, new { IdUsuario = IdUsuario, IdDocumento = IdDoc });
+            return await db.QueryAsync<ResponseMatrizLegal>(sql, new { IdUsuario = iduser, IdDocumento = IdDoc });
         }
 
         public async Task<bool> InsertLey(InputMatrizLegal oMatrizLegal)

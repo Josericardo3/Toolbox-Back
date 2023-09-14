@@ -201,8 +201,34 @@ namespace inti_repository.auditoria
 
             var sqluser = @"SELECT * FROM Usuario WHERE ID_USUARIO = @IdUsuario AND ESTADO = true ";
             var datauser = await db.QueryFirstAsync<Usuario>(sqluser, new { Idusuario = IdUsuario });
+            string queryAuditoria;
+            List<ResponseAuditorias> data;
+            if (datauser.ID_TIPO_USUARIO == 3 || datauser.ID_TIPO_USUARIO == 4 || datauser.ID_TIPO_USUARIO == 5)
+            {
 
-            var queryAsesor = @"
+                queryAuditoria = @"
+            SELECT 
+                ID_AUDITORIA, FK_ID_PST, FECHA_AUDITORIA, PROCESO, AUDITOR_LIDER, EQUIPO_AUDITOR,
+                FECHA_REUNION_APERTURA, HORA_REUNION_APERTURA, FECHA_REUNION_CIERRE, HORA_REUNION_CIERRE, 
+                FECHA_REG, COALESCE(FECHA_ACT, FECHA_REG) AS FECHA_ACT,
+                CASE 
+                    WHEN ESTADO_CONCLUIDO = 0 AND STR_TO_DATE(FECHA_REUNION_CIERRE, '%d/%m/%Y') < NOW() THEN 'Demorado'
+                    WHEN ESTADO_CONCLUIDO = 0 THEN 'Iniciado'
+                    WHEN ESTADO_CONCLUIDO = 1 THEN 'Terminado'
+                    ELSE 'Estado Desconocido'
+                END AS ESTADO_AUDITORIA
+            FROM 
+                Auditoria  
+            WHERE 
+                ESTADO = true 
+            ORDER BY 
+            FECHA_REG DESC;";
+
+                data = (await db.QueryAsync<ResponseAuditorias>(queryAuditoria)).ToList();
+            }
+            else
+            {
+                queryAuditoria = @"
             SELECT 
                 ID_AUDITORIA, FK_ID_PST, FECHA_AUDITORIA, PROCESO, AUDITOR_LIDER, EQUIPO_AUDITOR,
                 FECHA_REUNION_APERTURA, HORA_REUNION_APERTURA, FECHA_REUNION_CIERRE, HORA_REUNION_CIERRE, 
@@ -220,8 +246,8 @@ namespace inti_repository.auditoria
             ORDER BY 
             FECHA_REG DESC;";
 
-            var data = await db.QueryAsync<ResponseAuditorias>(queryAsesor, new { idpst = datauser.FK_ID_PST });
-
+                 data = (await db.QueryAsync<ResponseAuditorias>(queryAuditoria, new { idpst = datauser.FK_ID_PST })).ToList();
+            }
             return data;
         }
 

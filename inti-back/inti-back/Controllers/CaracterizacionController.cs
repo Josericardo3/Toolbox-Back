@@ -111,5 +111,25 @@ namespace inti_back.Controllers
 
         }
 
+        [HttpGet("RespuestaCaracterizacion")]
+        public async Task<IActionResult> GetRespuestaCaracterizacion(int iduser)
+        {
+            try
+            {
+                var response = await _caracterizacionRepository.GetRespuestaCaracterizacion(iduser);
+
+                if (response == null || response.Count() == 0)
+                {
+                    return NotFound(new { mensaje = "El usuario no cuenta con respuestas registradas" });
+                }
+
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { mensaje = "Se produjo un error al procesar la solicitud" });
+            }
+        }
+
     }
 }

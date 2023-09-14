@@ -16,6 +16,7 @@ namespace inti_model.usuario
         public string? RNT { get; set; }
         public string? NIT { get; set; }
         public int FK_ID_PST { get; set; }
+        public int FK_ID_ASESOR { get; set; }
         public bool ESTADO { get; set; }
         public int ID_TIPO_USUARIO { get; set; }
         public int ID_CARGO { get; set; }
