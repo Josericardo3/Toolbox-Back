@@ -208,11 +208,11 @@ namespace inti_repository.usuario
             var resultUsuario = await db.ExecuteAsync(queryUsuario, new { CORREO = usuariopst.CORREO_PST, NOMBRE =usuariopst.NOMBRE_PST, FK_ID_USUARIO = usuariopst.FK_ID_USUARIO });
             return resultPst.ToString();
         }
-        public async Task<UsuarioPstLogin> LoginUsuario(string user, string Password, string Correo)
+        public async Task<UsuarioPstLogin> LoginUsuario(InputLogin objLogin)
         {
             var db = dbConnection();
             ulong n;
-            bool isnumeric = ulong.TryParse(user, out n);
+            bool isnumeric = ulong.TryParse(objLogin.USER, out n);
             var sql = "";
             if (isnumeric)
             {
@@ -236,7 +236,7 @@ namespace inti_repository.usuario
                 sql = @"SELECT ID_USUARIO,PASSWORD,CORREO FROM Usuario WHERE RNT = @user AND PASSWORD = SHA1(@Password) AND CORREO = @Correopst";
             }
             UsuarioPstLogin objUsuarioLogin = new();
-            objUsuarioLogin = db.QueryFirstOrDefault<UsuarioPstLogin>(sql, new { user, Password, Correopst = Correo });
+            objUsuarioLogin = db.QueryFirstOrDefault<UsuarioPstLogin>(sql, new { objLogin.USER, objLogin.PASSWORD, Correopst = objLogin.CORREO });
 
             if (objUsuarioLogin != null)
             {

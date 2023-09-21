@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using inti_model.usuario;
+using inti_model;
 using inti_repository.usuario;
 using inti_repository.validaciones;
 using Org.BouncyCastle.Pkcs;
@@ -136,9 +137,9 @@ namespace inti_back.Controllers
             }
         }
         [HttpPost("LoginUsuario")]
-        public async Task<IActionResult> LoginUsuario(string usuario, string Password, string Correo)
+        public async Task<IActionResult> LoginUsuario(InputLogin objLogin)
         {
-            var objUsuarioLogin = await _usuarioPstRepository.LoginUsuario(usuario, Password, Correo);
+            var objUsuarioLogin = await _usuarioPstRepository.LoginUsuario(objLogin);
 
             if (objUsuarioLogin == null)
             {
@@ -149,9 +150,9 @@ namespace inti_back.Controllers
             string audience = this.Configuration.GetValue<string>("Jwt:Audience");
             string key = this.Configuration.GetValue<string>("Jwt:key");
 
-            objUsuarioLogin.TokenAcceso = objTokenConf.GenerarToken(usuario, 5, objUsuarioLogin.ID_USUARIO,
+            objUsuarioLogin.TokenAcceso = objTokenConf.GenerarToken(objLogin.USER, 5, objUsuarioLogin.ID_USUARIO,
               issuer, audience, key);
-            objUsuarioLogin.TokenRefresco = objTokenConf.GenerarToken(usuario, 20, objUsuarioLogin.ID_USUARIO,
+            objUsuarioLogin.TokenRefresco = objTokenConf.GenerarToken(objLogin.USER, 20, objUsuarioLogin.ID_USUARIO,
               issuer, audience, key);
             objUsuarioLogin.HoraLogueo = DateTime.Now.ToString("hh:mm:ss");
             var serialized = JsonSerializer.Serialize(objUsuarioLogin);
