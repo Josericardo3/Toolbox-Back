@@ -35,7 +35,11 @@ namespace inti_repository.validaciones
         {
             var db = dbConnection();
             var dataCorreo = @"SELECT CORREO FROM Usuario WHERE CORREO=@correo";
-            var result = db.Query(dataCorreo, new { correo = datoCorreo });
+            var parameters = new
+            {
+                correo = datoCorreo
+            };
+            var result = db.Query(dataCorreo, parameters);
 
             if (result.Count() > 0)
             {
@@ -51,7 +55,11 @@ namespace inti_repository.validaciones
         {
             var db = dbConnection();
             var dataTelefono = @"SELECT TELEFONO_PST FROM Pst WHERE TELEFONO_PST=@telefono";
-            var result = db.Query(dataTelefono, new { telefono = datoTelefono });
+            var parameters = new
+            {
+                telefono = datoTelefono
+            };
+            var result = db.Query(dataTelefono, parameters);
 
             if (result.Count() > 0)
             {
@@ -70,12 +78,20 @@ namespace inti_repository.validaciones
 
 
             var queryUsuario = @"SELECT * FROM Usuario WHERE ID_USUARIO = @id AND ESTADO = true";
-            Usuario dataUsuario = await db.QueryFirstOrDefaultAsync<Usuario>(queryUsuario, new { id = idUsuario });
+            var parameters = new
+            {
+                id = idUsuario
+            };
+            Usuario dataUsuario = await db.QueryFirstOrDefaultAsync<Usuario>(queryUsuario, parameters);
 
             if (dataUsuario != null)
             {
                 var query = @"SELECT a.FK_ID_USUARIO, b.RNT FROM RespuestaCaracterizacion a LEFT JOIN Usuario b ON a.FK_ID_USUARIO = b.ID_USUARIO WHERE b.RNT=@RNT";
-                int count = await db.ExecuteScalarAsync<int>(query, new { RNT = dataUsuario.RNT });
+                var parameterRnt = new
+                {
+                    RNT = dataUsuario.RNT
+                };
+                int count = await db.ExecuteScalarAsync<int>(query, parameterRnt);
 
                 if (count > 0)
                 {
@@ -95,12 +111,21 @@ namespace inti_repository.validaciones
         {
             var db = dbConnection();
             var queryUsuario = @"SELECT * FROM Usuario WHERE ID_USUARIO = @id AND ESTADO = true";
-            Usuario datausuario =  await db.QueryFirstOrDefaultAsync<Usuario>(queryUsuario, new { id = idUsuario });
+            var parameter = new
+            {
+                id = idUsuario
+            };
+            Usuario datausuario =  await db.QueryFirstOrDefaultAsync<Usuario>(queryUsuario, parameter);
             if (datausuario != null)
             {
                 var dataUsuario = @"SELECT COALESCE(MAX(a.ETAPA), 0) as ETAPA FROM RespuestaDiagnostico a LEFT JOIN  Usuario b ON a.FK_ID_USUARIO = b.ID_USUARIO
             WHERE b.RNT = @rnt AND a.FK_ID_NORMA = @idnorma";
-                var result = db.QueryFirstOrDefault<int?>(dataUsuario, new { rnt = datausuario.RNT, idnorma = idnorma });
+                var parameters = new
+                {
+                    rnt = datausuario.RNT,
+                    idnorma = idnorma
+                };
+                var result = db.QueryFirstOrDefault<int?>(dataUsuario, parameters);
 
                 var response = new ResponseValidacionDiagnostico();
                 if (result == 0)
@@ -141,7 +166,11 @@ namespace inti_repository.validaciones
         {
             var db = dbConnection();
             var dataRnt = @"SELECT RNT FROM Usuario WHERE RNT=@rnt AND ESTADO = TRUE";
-            var result = db.Query(dataRnt, new { rnt = datoRnt });
+            var parameter = new
+            {
+                rnt = datoRnt
+            };
+            var result = db.Query(dataRnt, parameter);
 
             if (result.Count() > 0)
             {
@@ -167,7 +196,12 @@ namespace inti_repository.validaciones
                               WHERE CODIGO_RECUPERACION = @CODIGO_RECUPERACION
                             )
                             AND ESTADO = 1";
-            var dataUpdate = await db.ExecuteAsync(queryUpdate, new { Password = password, CODIGO_RECUPERACION = id });
+            var parameters = new
+            {
+                Password = password,
+                CODIGO_RECUPERACION = id
+            };
+            var dataUpdate = await db.ExecuteAsync(queryUpdate, parameters);
             return dataUpdate > 0;
         }
 
@@ -181,7 +215,11 @@ namespace inti_repository.validaciones
             var encriptado = correos.Encriptacion(numerorand);
 
             var queryUsuario = @"SELECT ID_USUARIO, CORREO FROM Usuario WHERE CORREO = @correo and ESTADO = 1";
-            UsuarioPassword dataUsusario = await db.QueryFirstOrDefaultAsync<UsuarioPassword>(queryUsuario, new { correo });
+            var parameterCorreo = new
+            {
+                correo = correo
+            };
+            UsuarioPassword dataUsusario = await db.QueryFirstOrDefaultAsync<UsuarioPassword>(queryUsuario, parameterCorreo);
 
             
 
@@ -197,12 +235,16 @@ namespace inti_repository.validaciones
                                     MaeRecuperacion mr ON u.ID_USUARIO = mr.FK_ID_USUARIO
                                 WHERE
                                     u.CORREO = @correo AND u.ESTADO = 1";
-            var dataRecuperacion = await db.QueryFirstOrDefaultAsync<UsuarioPassword>(queryDataRecuperacion, new { correo });
-
+            var dataRecuperacion = await db.QueryFirstOrDefaultAsync<UsuarioPassword>(queryDataRecuperacion, parameterCorreo);
+            var parameters = new
+            {
+                CODIGO_RECUPERACION = encriptado,
+                FK_ID_USUARIO = dataUsusario.ID_USUARIO
+            };
             if (dataRecuperacion == null)
             {
                 var queryInsertRecuperacion = @"INSERT INTO MaeRecuperacion(CODIGO_RECUPERACION,FK_ID_USUARIO,FECHA_ACT,ESTADO) VALUES(@CODIGO_RECUPERACION,@FK_ID_USUARIO,NOW(),1) ";
-                var dataInsertRecuperacion = await db.ExecuteAsync(queryInsertRecuperacion, new { CODIGO_RECUPERACION = encriptado, FK_ID_USUARIO = dataUsusario.ID_USUARIO });
+                var dataInsertRecuperacion = await db.ExecuteAsync(queryInsertRecuperacion, parameters);
 
             }
             else
@@ -214,7 +256,7 @@ namespace inti_repository.validaciones
                                                 WHERE
                                                     FK_ID_USUARIO = @FK_ID_USUARIO
                                                         AND ESTADO = 1";
-                var dataInsertRecuperacion = await db.ExecuteAsync(queryUpdateRecuperacion, new { CODIGO_RECUPERACION = encriptado, FK_ID_USUARIO = dataUsusario.ID_USUARIO });
+                var dataInsertRecuperacion = await db.ExecuteAsync(queryUpdateRecuperacion, parameters);
 
             }
             queryDataRecuperacion = @"
@@ -229,7 +271,7 @@ namespace inti_repository.validaciones
                                     MaeRecuperacion mr ON u.ID_USUARIO = mr.FK_ID_USUARIO
                                 WHERE
                                     u.CORREO = @correo AND u.ESTADO = 1";
-            dataRecuperacion = await db.QueryFirstOrDefaultAsync<UsuarioPassword>(queryDataRecuperacion, new { correo }); 
+            dataRecuperacion = await db.QueryFirstOrDefaultAsync<UsuarioPassword>(queryDataRecuperacion, parameterCorreo); 
 
             dataRecuperacion.ENCRIPTACION = encriptado;
 

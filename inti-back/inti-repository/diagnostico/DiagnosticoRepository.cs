@@ -23,7 +23,12 @@ namespace inti_repository.diagnostico
         {
             var db = dbConnection();
             var queryDesplegableDiagnostico = @"SELECT * FROM MaeGeneral WHERE ID_TABLA = @idtabla and ITEM=@iditem";
-            var dataDesplegableDiagnostico = await db.QueryFirstOrDefaultAsync<DesplegableDiagnostico>(queryDesplegableDiagnostico, new { idtabla = idValorTituloFormulariodiagnostico, iditem = idnorma });
+            var parameters = new
+            {
+                idtabla = idValorTituloFormulariodiagnostico,
+                iditem = idnorma
+            };
+            var dataDesplegableDiagnostico = await db.QueryFirstOrDefaultAsync<DesplegableDiagnostico>(queryDesplegableDiagnostico, parameters);
 
             ResponseDiagnostico responseDiagnostico = new();
 
@@ -41,7 +46,11 @@ namespace inti_repository.diagnostico
                 AND dd.ESTADO = 1
                 AND d.ESTADO = 1
                 GROUP BY dd.FK_ID_NORMA,dd.NUMERAL_PRINCIPAL,d.TITULO_PRINCIPAL";
-            var dataagrupaciondiagnostico = db.Query<Diagnostico>(queryagrupaciondiagnostico, new { idnormatecnica = idnorma }).ToList();
+            var parameterNorma = new
+            {
+                idnormatecnica = idnorma
+            };
+            var dataagrupaciondiagnostico = db.Query<Diagnostico>(queryagrupaciondiagnostico, parameterNorma).ToList();
 
             responseDiagnostico.campos = dataagrupaciondiagnostico;
 
@@ -78,8 +87,12 @@ namespace inti_repository.diagnostico
                         AND dd.NUMERAL_PRINCIPAL = @numeralprincipal
                         AND dd.ESTADO = 1
                         AND d.ESTADO = 1";
-
-                datasubagrupaciondiagnostico = db.Query<SubGrupoDiagnostico>(querysubagrupaciondiagnostico, new { idnormatecnica = idnorma, numeralprincipal = item.NUMERAL_PRINCIPAL }).ToList();
+                var parametersNorma = new
+                {
+                    idnormatecnica = idnorma,
+                    numeralprincipal = item.NUMERAL_PRINCIPAL
+                };
+                datasubagrupaciondiagnostico = db.Query<SubGrupoDiagnostico>(querysubagrupaciondiagnostico, parametersNorma).ToList();
 
                 item.listacampos = datasubagrupaciondiagnostico;
 
@@ -100,7 +113,11 @@ namespace inti_repository.diagnostico
                     WHERE ID_TABLA=@idtabla
                     AND ESTADO =1
                     AND not ITEM=0";
-                    var responseDesplegable = db.Query<DesplegableDiagnostico>(datosDesplegable, new { idtabla = idValorMaestroDiagnostico }).ToList();
+                    var parameterIdTabla = new
+                    {
+                        idtabla = idValorMaestroDiagnostico
+                    };
+                    var responseDesplegable = db.Query<DesplegableDiagnostico>(datosDesplegable, parameterIdTabla).ToList();
 
                     l.desplegable = responseDesplegable;
                 }
@@ -116,7 +133,12 @@ namespace inti_repository.diagnostico
 
 
             var dataUsuario = @"SELECT COALESCE(MAX(ETAPA), 0) as ETAPA FROM RespuestaDiagnostico WHERE FK_ID_USUARIO=@idusuario AND FK_ID_NORMA =@idnorma";
-            var data = db.QueryFirstOrDefault<int?>(dataUsuario, new { idusuario = lstRespuestaDiagnostico[0].FK_ID_USUARIO, idnorma = lstRespuestaDiagnostico[0].FK_ID_NORMA });
+            var parameters = new
+            {
+                idusuario = lstRespuestaDiagnostico[0].FK_ID_USUARIO,
+                idnorma = lstRespuestaDiagnostico[0].FK_ID_NORMA
+            };
+            var data = db.QueryFirstOrDefault<int?>(dataUsuario, parameters);
 
             foreach (var respuestaDiagnostico in lstRespuestaDiagnostico)
             {
@@ -132,8 +154,7 @@ namespace inti_repository.diagnostico
 
                 var sql = @"INSERT INTO RespuestaDiagnostico(FK_ID_USUARIO, FK_ID_NORMA, NUMERAL_PRINCIPAL, NUMERAL_ESPECIFICO, VALOR, OBSERVACION, ETAPA,ESTADO)
                     VALUES (@FK_ID_USUARIO, @FK_ID_NORMA, @NUMERAL_PRINCIPAL, @NUMERAL_ESPECIFICO, TRIM(@VALOR), TRIM(@OBSERVACION), @ETAPA,1)";
-
-                result = await db.ExecuteAsync(sql, new
+                var parameterRespuesta = new
                 {
                     respuestaDiagnostico.FK_ID_USUARIO,
                     respuestaDiagnostico.FK_ID_NORMA,
@@ -141,8 +162,9 @@ namespace inti_repository.diagnostico
                     respuestaDiagnostico.NUMERAL_ESPECIFICO,
                     valor,
                     observacion,
-                    ETAPA = data+1
-                });
+                    ETAPA = data + 1
+                };
+                result = await db.ExecuteAsync(sql, parameterRespuesta);
             }
 
             return result > 0;
@@ -153,7 +175,14 @@ namespace inti_repository.diagnostico
         {
             var db = dbConnection();
             var dataRpta = @"INSERT INTO RespuestaAnalisisAsesor(FK_ID_NORMA,FK_ID_USUARIO,FK_ID_ASESOR,RESPUESTA_ANALISIS,ESTADO) VALUES(@FK_ID_NORMA,@FK_ID_USUARIO,@FK_ID_ASESOR,@RESPUESTA_ANALISIS,1)";
-            var insertRpta = await db.ExecuteAsync(dataRpta, new { respuestaAnalisis.FK_ID_NORMA, respuestaAnalisis.FK_ID_USUARIO, respuestaAnalisis.FK_ID_ASESOR, respuestaAnalisis.RESPUESTA_ANALISIS });
+            var parameterRespuesta = new
+            {
+                respuestaAnalisis.FK_ID_NORMA,
+                respuestaAnalisis.FK_ID_USUARIO,
+                respuestaAnalisis.FK_ID_ASESOR,
+                respuestaAnalisis.RESPUESTA_ANALISIS
+            };
+            var insertRpta = await db.ExecuteAsync(dataRpta, parameterRespuesta);
             return insertRpta > 0;
         }
 

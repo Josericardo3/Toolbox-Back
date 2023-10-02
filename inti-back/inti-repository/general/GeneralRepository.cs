@@ -25,7 +25,12 @@ namespace inti_repository.validaciones
         {
             var db = dbConnection();
             var sql = @"SELECT ID_TABLA,ITEM,DESCRIPCION,VALOR, ESTADO FROM MaeGeneral WHERE ID_TABLA =@IdTabla AND ITEM = @Item AND ESTADO = true; ";
-            Maestro data = await db.QueryFirstOrDefaultAsync<Maestro>(sql, new { IdTabla = idTabla, Item = item });
+            var parameter = new
+            {
+                IdTabla = idTabla,
+                Item = item
+            };
+            Maestro data = await db.QueryFirstOrDefaultAsync<Maestro>(sql, parameter);
             return data;
         }
 
@@ -33,7 +38,11 @@ namespace inti_repository.validaciones
         {
             var db = dbConnection();
             var sql = @"SELECT ID_TABLA,ITEM,DESCRIPCION,VALOR, ESTADO FROM MaeGeneral WHERE ID_TABLA =@IdTabla  AND ESTADO = true; ";
-            var data = await db.QueryAsync<Maestro>(sql, new { IdTabla = idTabla });
+            var parameter = new
+            {
+                IdTabla = idTabla,
+            };
+            var data = await db.QueryAsync<Maestro>(sql, parameter);
             return data;
         }
 
@@ -60,8 +69,11 @@ namespace inti_repository.validaciones
                                 MaeGeneral c ON b.ID_TIPO_USUARIO = c.ITEM AND c.ID_TABLA = 1
                             WHERE
                                 b.RNT = @rnt AND b.ESTADO = TRUE";
-
-            var data = await db.QueryAsync<ResponseResponsable>(query, new { rnt = rnt });
+            var parameter = new
+            {
+                rnt = rnt
+            };
+            var data = await db.QueryAsync<ResponseResponsable>(query, parameter);
 
             return data;
         }
@@ -109,12 +121,12 @@ namespace inti_repository.validaciones
                        WHERE FK_ID_USUARIO = @FK_ID_USUARIO 
                        AND MODULO = @MODULO 
                        AND DATE(FECHA_REG) = CURDATE()";
-
-            int count = await db.ExecuteScalarAsync<int>(queryCheck, new
+            var parameter = new
             {
                 data.FK_ID_USUARIO,
                 data.MODULO
-            });
+            };
+            int count = await db.ExecuteScalarAsync<int>(queryCheck, parameter);
 
             if (count > 0)
             {
@@ -123,13 +135,13 @@ namespace inti_repository.validaciones
 
             var queryPost = @"INSERT INTO MonitorizacionUsuario (FK_ID_USUARIO,TIPO,MODULO,FECHA_REG)
                               VALUES (@FK_ID_USUARIO, @TIPO, @MODULO, NOW())";
-
-            int i = await db.ExecuteAsync(queryPost, new
+            var parameters = new
             {
                 data.FK_ID_USUARIO,
                 data.TIPO,
                 data.MODULO
-            });
+            };
+            int i = await db.ExecuteAsync(queryPost, parameters);
 
             return i > 0;
         }

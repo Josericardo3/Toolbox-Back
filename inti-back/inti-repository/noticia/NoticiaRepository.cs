@@ -64,7 +64,11 @@ namespace inti_repository.noticia
                         WHERE a.ESTADO = true AND c.RNT = @RNT
                         GROUP BY a.ID_NOTICIA, a.FK_ID_USUARIO, c.NOMBRE,a.TITULO, a.DESCRIPCION, a.IMAGEN, a.FECHA_REG, a.FECHA_ACT
                         ORDER BY a.FECHA_REG DESC";
-                result = (await db.QueryAsync<ResponseNoticia>(data, new { RNT = rnt })).ToList();
+                var parameterRnt = new
+                {
+                    RNT = rnt
+                };
+                result = (await db.QueryAsync<ResponseNoticia>(data, parameterRnt)).ToList();
             }
 
             return result;
@@ -80,7 +84,11 @@ namespace inti_repository.noticia
                         WHERE a.ESTADO = true AND a.ID_NOTICIA =@ID_NOTICIA
                         GROUP BY a.ID_NOTICIA, a.FK_ID_USUARIO, c.NOMBRE,a.TITULO, a.DESCRIPCION, a.IMAGEN, a.FECHA_REG, a.FECHA_ACT
                         ";
-            var result = await db.QueryFirstAsync<ResponseNoticia>(data, new { ID_NOTICIA = idNoticia });
+            var parameter = new
+            {
+                ID_NOTICIA = idNoticia
+            };
+            var result = await db.QueryFirstAsync<ResponseNoticia>(data, parameter);
 
             return result;
         }
@@ -158,7 +166,14 @@ namespace inti_repository.noticia
             
             var dataInsert = @"INSERT INTO Noticia (FK_ID_USUARIO,TITULO,DESCRIPCION,IMAGEN,FECHA_REG)
                                VALUES (@FK_ID_USUARIO,@TITULO,@DESCRIPCION,@IMAGEN,NOW())";
-            var  insertresult = await db.ExecuteAsync(dataInsert, new { noticia.FK_ID_USUARIO, noticia.TITULO, noticia.DESCRIPCION, IMAGEN = imagen});
+            var parameters = new
+            {
+                FK_ID_USUARIO = noticia.FK_ID_USUARIO,
+                TITULO = noticia.TITULO,
+                DESCRIPCION = noticia.DESCRIPCION,
+                IMAGEN = imagen
+            };
+            var  insertresult = await db.ExecuteAsync(dataInsert, parameters);
 
             var consultInsert = @"SELECT ID_NOTICIA FROM Noticia WHERE FECHA_REG = (SELECT MAX(FECHA_REG) FROM Noticia)";
             var dataConsult = db.QueryFirst(consultInsert);
@@ -172,7 +187,12 @@ namespace inti_repository.noticia
                         SET 
                             IMAGEN = @IMAGEN
                         WHERE ID_NOTICIA = @ID_NOTICIA and ESTADO = 1";
-                var dataUpdate = await db.ExecuteAsync(updateImagen, new { ID_NOTICIA = id, IMAGEN = imagen });
+                var parametersIdNoticia = new
+                {
+                    ID_NOTICIA = id,
+                    IMAGEN = imagen
+                };
+                var dataUpdate = await db.ExecuteAsync(updateImagen, parametersIdNoticia);
             }
             
 
@@ -187,16 +207,21 @@ namespace inti_repository.noticia
             {
                 foreach (var pst in fkPst)
                 {
-                    resultpst = db.Execute(querypst, new
+                    var parametersPst = new
                     {
                         FK_ID_PST = noticia.FK_ID_USUARIO,
                         FK_ID_USUARIO = pst,
                         FK_ID_NOTICIA = idnoticia
-                    });
+                    };
+                    resultpst = db.Execute(querypst, parametersPst);
 
                     var querypstcorreo = @"SELECT CORREO_PST AS CORREO
                         FROM Pst WHERE ID_PST = @idpst";
-                    var lstcorreoPst = await db.QueryAsync<string>(querypstcorreo, new { idpst = pst });
+                    var parameterIdPst = new
+                    {
+                        idpst = pst
+                    };
+                    var lstcorreoPst = await db.QueryAsync<string>(querypstcorreo, parameterIdPst);
 
 
                     if (lstcorreoPst != null && lstcorreoPst.Any())
@@ -221,7 +246,11 @@ namespace inti_repository.noticia
                     });
                     var querypstdestinatario = @"SELECT CORREO
                         FROM Usuario WHERE ID_USUARIO = @destinatario";
-                    var lstcorreoDestinatario = await db.QueryAsync<string>(querypstdestinatario, new { destinatario = destinatario });
+                    var parameterDestinatario = new
+                    {
+                        destinatario = destinatario
+                    };
+                    var lstcorreoDestinatario = await db.QueryAsync<string>(querypstdestinatario, parameterDestinatario);
 
 
                     if (lstcorreoDestinatario != null && lstcorreoDestinatario.Any())
@@ -239,16 +268,21 @@ namespace inti_repository.noticia
             { 
                 foreach (var norma in fkNormas)
                 {
-                    resultnorma = db.Execute(querynorma, new
+                    var parameterNoticiaNorma = new
                     {
                         FK_ID_NOTICIA = idnoticia,
                         FK_ID_NORMA = norma
-                    });
+                    };
+                    resultnorma = db.Execute(querynorma, parameterNoticiaNorma);
 
                     var querypstnorma = @"SELECT DISTINCT a.CORREO_PST AS CORREO
                         FROM Pst a INNER JOIN MaeNorma b ON a.FK_ID_CATEGORIA_RNT = b.FK_ID_CATEGORIA_RNT 
                     WHERE b.ID_NORMA = @norma";
-                    var lstcorreoNorma = await db.QueryAsync<string>(querypstnorma, new { norma = norma });
+                    var parameterNorma = new
+                    {
+                        norma = norma
+                    };
+                    var lstcorreoNorma = await db.QueryAsync<string>(querypstnorma, parameterNorma);
 
                     if (lstcorreoNorma != null && lstcorreoNorma.Any())
                     {
@@ -263,15 +297,20 @@ namespace inti_repository.noticia
             {
                 foreach (var categoria in fkCategorias)
                 {
-                    resultcat = db.Execute(querycat, new
+                    var parametersNoticiaNorma = new
                     {
                         FK_ID_NOTICIA = idnoticia,
                         FK_ID_CATEGORIA = categoria
-                    });
+                    };
+                    resultcat = db.Execute(querycat, parametersNoticiaNorma);
 
                     var querypstcategoria = @"SELECT DISTINCT a.CORREO_PST AS CORREO
                         FROM Pst a WHERE a.FK_ID_CATEGORIA_RNT = @categoria";
-                    var lstcorreoCategoria = await db.QueryAsync<string>(querypstcategoria, new { categoria = categoria });
+                    var parameterCategoria= new
+                    {
+                        categoria = categoria
+                    };
+                    var lstcorreoCategoria = await db.QueryAsync<string>(querypstcategoria, parameterCategoria);
 
                     if (lstcorreoCategoria != null && lstcorreoCategoria.Any())
                     {
@@ -287,15 +326,20 @@ namespace inti_repository.noticia
             {
                 foreach (var subcategoria in fkSubCategorias)
                 {
-                    resultsubcat = db.Execute(querysubcat, new
+                    var parameterCategoriaNoticia = new
                     {
                         FK_ID_NOTICIA = idnoticia,
                         FK_ID_SUB_CATEGORIA = subcategoria
-                    });
+                    };
+                    resultsubcat = db.Execute(querysubcat, parameterCategoriaNoticia);
 
                     var querypstsubcategoria = @"SELECT DISTINCT a.CORREO_PST AS CORREO
                         FROM Pst a WHERE a.FK_ID_SUB_CATEGORIA_RNT = @subcategoria";
-                    var lstcorreoSubCategoria = await db.QueryAsync<string>(querypstsubcategoria, new { subcategoria = subcategoria });
+                    var parameterSubCat = new
+                    {
+                        subcategoria = subcategoria
+                    };
+                    var lstcorreoSubCategoria = await db.QueryAsync<string>(querypstsubcategoria, parameterSubCat);
 
                     if (lstcorreoSubCategoria != null && lstcorreoSubCategoria.Any())
                     {
@@ -328,8 +372,13 @@ namespace inti_repository.noticia
                             DESCRIPCION = @DESCRIPCION,
                             FECHA_ACT = NOW()
                         WHERE ID_NOTICIA = @ID_NOTICIA and ESTADO = TRUE";
-
-                result = await db.ExecuteAsync(sql, new { noticia.TITULO, noticia.DESCRIPCION, noticia.ID_NOTICIA });
+                var parameters = new
+                {
+                    noticia.TITULO,
+                    noticia.DESCRIPCION,
+                    noticia.ID_NOTICIA
+                };
+                result = await db.ExecuteAsync(sql, parameters);
             }
             else
             {
@@ -342,8 +391,14 @@ namespace inti_repository.noticia
                             IMAGEN = @IMAGEN,
                             FECHA_ACT = NOW()
                         WHERE ID_NOTICIA = @ID_NOTICIA and ESTADO = TRUE";
-
-                result = await db.ExecuteAsync(sql, new { noticia.TITULO, noticia.DESCRIPCION, IMAGEN = imagen, noticia.ID_NOTICIA });
+                var parametersNoticia = new
+                {
+                    noticia.TITULO,
+                    noticia.DESCRIPCION,
+                    IMAGEN = imagen,
+                    noticia.ID_NOTICIA
+                };
+                result = await db.ExecuteAsync(sql, parametersNoticia);
             }
             
             return result > 0;
@@ -356,7 +411,11 @@ namespace inti_repository.noticia
             var sql = @"UPDATE Noticia
                         SET ESTADO = FALSE
                         WHERE ID_NOTICIA = @ID_NOTICIA AND ESTADO = TRUE";
-            var result = await db.ExecuteAsync(sql, new { ID_NOTICIA = id });
+            var parameter = new
+            {
+                ID_NOTICIA = id
+            };
+            var result = await db.ExecuteAsync(sql, parameter);
 
             return result > 0;
         }
@@ -373,7 +432,11 @@ namespace inti_repository.noticia
             foreach (var data in dataselectnoticia)
             {
                 var sqldeletenoticia = @"UPDATE Notificacion SET ESTADO = false WHERE FK_ID_NOTICIA =@IdNoticia";
-                var resultdeletenoticia = await db.ExecuteAsync(sqldeletenoticia, new { IdNoticia = data.ID_NOTICIA });
+                var parameter = new
+                {
+                    IdNoticia = data.ID_NOTICIA
+                };
+                var resultdeletenoticia = await db.ExecuteAsync(sqldeletenoticia, parameter);
             }
 
 
@@ -386,7 +449,11 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
 
             foreach (var data in dataselectact) {
                 var sqldeleteact = @" UPDATE Notificacion SET ESTADO = false WHERE FK_ID_ACTIVIDAD =@IdActividad";
-                var resultdeleteact = await db.ExecuteAsync(sqldeleteact, new { IdActividad  = data.ID_ACTIVIDAD});
+                var parameterActividad = new
+                {
+                    IdActividad = data.ID_ACTIVIDAD
+                };
+                var resultdeleteact = await db.ExecuteAsync(sqldeleteact, parameterActividad);
             }
 
 
@@ -400,17 +467,31 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
             {
 
                 var querynotificacion = @"SELECT * FROM Notificacion WHERE FK_ID_ACTIVIDAD =@idactividad AND ESTADO = true ";
-                var dataNotificacion = await db.QueryAsync<Notificacion>(querynotificacion, new { idactividad= data.ID_ACTIVIDAD});
+                var parameterIdActividad = new
+                {
+                    idactividad = data.ID_ACTIVIDAD
+                };
+                var dataNotificacion = await db.QueryAsync<Notificacion>(querynotificacion, parameterIdActividad);
 
                 if (dataNotificacion.Count()==0)
                 {
 
                 var queryusuario = @"SELECT * FROM Usuario WHERE ID_USUARIO =@iduser AND ESTADO = true;";
-                var datausuario = await db.QueryFirstAsync<Usuario>(queryusuario, new { iduser = data.FK_ID_USUARIO_PST });
+                    var parameterPst = new
+                    {
+                        iduser = data.FK_ID_USUARIO_PST
+                    };
+                    var datausuario = await db.QueryFirstAsync<Usuario>(queryusuario, parameterPst);
 
                 var sqlinsertact = @"INSERT INTO Notificacion (FK_ID_PST,FK_ID_USUARIO,FK_ID_ACTIVIDAD,TIPO,FECHA_REG) VALUES (@FK_ID_PST, @FK_ID_USUARIO,
                 @FK_ID_ACTIVIDAD,'Actividad',NOW())";
-                result = await db.ExecuteAsync(sqlinsertact, new { FK_ID_PST= datausuario.FK_ID_PST, FK_ID_USUARIO= data.FK_ID_RESPONSABLE, FK_ID_ACTIVIDAD= data.ID_ACTIVIDAD});
+                    var parametersPst = new
+                    {
+                        FK_ID_PST = datausuario.FK_ID_PST,
+                        FK_ID_USUARIO = data.FK_ID_RESPONSABLE,
+                        FK_ID_ACTIVIDAD = data.ID_ACTIVIDAD
+                    };
+                    result = await db.ExecuteAsync(sqlinsertact, parametersPst);
 
                 }
             }
@@ -424,7 +505,11 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
             IEnumerable<ResponseNotificacion> result = new List<ResponseNotificacion>();
 
             var queryusuario = @"SELECT * FROM Usuario WHERE ID_USUARIO =@iduser AND ESTADO = true;";
-            var datausuario = await db.QueryFirstAsync<Usuario>(queryusuario, new { iduser = idusuario });
+            var parameterUser = new
+            {
+                iduser = idusuario
+            };
+            var datausuario = await db.QueryFirstAsync<Usuario>(queryusuario, parameterUser);
             if (datausuario.ID_TIPO_USUARIO == 1)
             {
                 data = @"SELECT * FROM (
@@ -489,7 +574,8 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
                     )
                 ) as result;
             ";
-                 result = await db.QueryAsync<ResponseNotificacion>(data, new { iduser = idusuario });
+              
+                result = await db.QueryAsync<ResponseNotificacion>(data, parameterUser);
             }
             else if (datausuario.ID_TIPO_USUARIO == 3 || datausuario.ID_TIPO_USUARIO == 4)
             {
@@ -548,7 +634,7 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
                         LIMIT 5
                     )
                 ) AS result;";
-                result = await db.QueryAsync<ResponseNotificacion>(data, new { iduser = idusuario });
+                result = await db.QueryAsync<ResponseNotificacion>(data, parameterUser);
             }
             else if (datausuario.ID_TIPO_USUARIO == 6 || datausuario.ID_TIPO_USUARIO == 7)
             {
@@ -607,7 +693,7 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
                         LIMIT 5
                     )
                 ) AS result;";
-                result = await db.QueryAsync<ResponseNotificacion>(data, new { iduser = idusuario });
+                result = await db.QueryAsync<ResponseNotificacion>(data, parameterUser);
             }
 
      
@@ -622,7 +708,11 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
             IEnumerable<ResponseNotificacion> result = new List<ResponseNotificacion>();
 
             var queryusuario = @"SELECT * FROM Usuario WHERE ID_USUARIO =@iduser AND ESTADO = true;";
-            var datausuario = await db.QueryFirstAsync<Usuario>(queryusuario, new { iduser = idusuario });
+            var parameterUser = new
+            {
+                iduser = idusuario
+            };
+            var datausuario = await db.QueryFirstAsync<Usuario>(queryusuario, parameterUser);
             if (datausuario.ID_TIPO_USUARIO == 1 )
             {
                 data = @" SELECT DISTINCT
@@ -652,7 +742,7 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
 							a.FK_ID_NORMA IN (SELECT mn.ID_NORMA FROM  Pst p JOIN MaeCategoriaRnt cr ON cr.ID_CATEGORIA_RNT = p.FK_ID_CATEGORIA_RNT JOIN MaeNorma mn ON mn.FK_ID_CATEGORIA_RNT = cr.ID_CATEGORIA_RNT WHERE  p.FK_ID_USUARIO = @iduser ))
 							ORDER BY d.FECHA_REG DESC, c.FECHA_FIN ASC;
             ";
-                 result = await db.QueryAsync<ResponseNotificacion>(data, new { iduser = idusuario });
+                 result = await db.QueryAsync<ResponseNotificacion>(data, parameterUser);
             }
             else if (datausuario.ID_TIPO_USUARIO == 3 || datausuario.ID_TIPO_USUARIO ==4)
             {
@@ -678,7 +768,7 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
                         WHERE
                             d.FK_ID_USUARIO = @iduser  and d.ESTADO = 1  
                         ORDER BY d.FECHA_REG DESC, c.FECHA_FIN ASC;";
-                result = await db.QueryAsync<ResponseNotificacion>(data, new { iduser = idusuario });
+                result = await db.QueryAsync<ResponseNotificacion>(data, parameterUser);
             }
             else if (datausuario.ID_TIPO_USUARIO == 6 || datausuario.ID_TIPO_USUARIO == 7)
             {
@@ -704,7 +794,7 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
                         WHERE
                             a.FK_ID_USUARIO = @iduser  and d.ESTADO = 1  
                         ORDER BY d.FECHA_REG DESC, c.FECHA_FIN ASC;";
-                result = await db.QueryAsync<ResponseNotificacion>(data, new { iduser = idusuario });
+                result = await db.QueryAsync<ResponseNotificacion>(data, parameterUser);
             }
             return result;
         }

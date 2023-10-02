@@ -43,10 +43,17 @@ namespace inti_repository.caracterizacion
                                     MaeTipoAvatar t2 ON t2.ID_TIPO_AVATAR = u.FK_ID_TIPO_AVATAR
                                 WHERE
                                     u.FK_ID_USUARIO = (SELECT b.FK_ID_USUARIO FROM Usuario a INNER JOIN Pst b ON a.RNT = b.RNT WHERE a.ID_USUARIO = @id_user )";
-
-            ResponseUsuario dataUsuario = await db.QueryFirstOrDefaultAsync<ResponseUsuario>(queryUsuario, new { id_user = id });
+            var parameter = new
+            {
+                id_user = id
+            };
+            ResponseUsuario dataUsuario = await db.QueryFirstOrDefaultAsync<ResponseUsuario>(queryUsuario, parameter);
             var queryCaracterizacion = @"SELECT * FROM MaeCaracterizacionDinamica WHERE ESTADO =TRUE AND ( FK_ID_CATEGORIA_RNT = @idcategoria OR FK_ID_CATEGORIA_RNT = 0)";
-            var dataCaracterizacion = db.Query<Caracterizacion>(queryCaracterizacion, new { idcategoria = dataUsuario.FK_ID_CATEGORIA_RNT }).ToList();
+            var parameterCat = new
+            {
+                idcategoria = dataUsuario.FK_ID_CATEGORIA_RNT
+            };
+            var dataCaracterizacion = db.Query<Caracterizacion>(queryCaracterizacion, parameterCat).ToList();
             ResponseCaracterizacion responseCaracterizacion = new();
             responseCaracterizacion.ID_USER = dataUsuario.FK_ID_USUARIO;
             var i = 0;
@@ -75,7 +82,12 @@ namespace inti_repository.caracterizacion
                 var desplegable = fila.ID_CARACTERIZACION_DINAMICA;
                 var vcodigo = fila.CODIGO;
                 var datosDesplegable = @"SELECT * FROM MaeDesplegableCaraterizacion WHERE ESTADO=TRUE AND (FK_ID_CARACTERIZACION_DINAMICA = @id_desplegable OR FK_ID_CARACTERIZACION_DINAMICA = @codigo)";
-                var responseDesplegable = db.Query<DesplegableCaracterizacion>(datosDesplegable, new { id_desplegable = desplegable, codigo = vcodigo }).ToList();
+                var parameters = new
+                {
+                    id_desplegable = desplegable,
+                    codigo = vcodigo
+                };
+                var responseDesplegable = db.Query<DesplegableCaracterizacion>(datosDesplegable, parameters).ToList();
                 foreach (DesplegableCaracterizacion i in responseDesplegable)
                 {
 
@@ -88,6 +100,7 @@ namespace inti_repository.caracterizacion
                 var tablarelacionada = fila.TABLA_RELACIONADA;
                 var datosTablarelacionada = string.Format("SELECT * FROM {0} WHERE ESTADO=TRUE", tablarelacionada);
                 var responseTablarelacionada = db.Query(datosTablarelacionada);
+
                 var json = JsonConvert.SerializeObject(new { table = responseTablarelacionada.ToList() });
                 fila.RELATIONS = json;
             }
@@ -103,7 +116,11 @@ namespace inti_repository.caracterizacion
 
                 var id = dataUsuario.FK_ID_CATEGORIA_RNT;
                 var queryNorma = @"SELECT * FROM MaeNorma WHERE FK_ID_CATEGORIA_RNT = @id_categoria";
-                var dataNorma = db.Query<NormaTecnica>(queryNorma, new { id_categoria = id });
+                var parameter = new
+                {
+                    id_categoria = id
+                };
+                var dataNorma = db.Query<NormaTecnica>(queryNorma, parameter);
                 var json = JsonConvert.SerializeObject(new { table = dataNorma.ToList() });
                 fila.RELATIONS = json;
 
@@ -123,13 +140,14 @@ namespace inti_repository.caracterizacion
 
             foreach (var respuestaCaracterizacion in lstRespuestaCaracterizacion)
             {
-                result += await db.ExecuteAsync(sql, new
+                var parameters = new
                 {
                     respuestaCaracterizacion.VALOR,
                     respuestaCaracterizacion.FK_ID_USUARIO,
                     respuestaCaracterizacion.FK_ID_CATEGORIA_RNT,
                     respuestaCaracterizacion.FK_ID_CARACTERIZACION_DINAMICA
-                });
+                };
+                result += await db.ExecuteAsync(sql, parameters);
             }
 
             return result > 0;
@@ -139,7 +157,11 @@ namespace inti_repository.caracterizacion
         {
             var db = dbConnection();
             var queryUsuarios = @"SELECT FK_ID_USUARIO,FK_ID_CATEGORIA_RNT FROM Pst WHERE ESTADO = TRUE AND FK_ID_USUARIO = (SELECT b.FK_ID_USUARIO FROM Usuario a INNER JOIN Pst b ON a.RNT = b.RNT WHERE a.ID_USUARIO = @id_user )";
-            var dataUsuarios = await db.QueryFirstOrDefaultAsync<ResponseNormaUsuario>(queryUsuarios, new { id_user = id });
+            var parameter = new
+            {
+                id_user = id
+            };
+            var dataUsuarios = await db.QueryFirstOrDefaultAsync<ResponseNormaUsuario>(queryUsuarios, parameter);
             var idCategoria = dataUsuarios.FK_ID_CATEGORIA_RNT;
             //var queryNorma = @"SELECT * FROM MaeNorma WHERE FK_ID_CATEGORIA_RNT = @id_categoria";
             //var dataNorma = db.Query<NormaTecnica>(queryNorma, new { id_categoria = idNorma }).ToList();
@@ -155,7 +177,12 @@ namespace inti_repository.caracterizacion
                     break;
             }
             var dataRespuesta = @"SELECT VALOR FROM RespuestaCaracterizacion WHERE ESTADO= TRUE and FK_ID_USUARIO=@idusuariopst and FK_ID_CARACTERIZACION_DINAMICA=@idcaracterizacion";
-            var result = await db.QueryFirstOrDefaultAsync<RespuestaCaracterizacion>(dataRespuesta, new { idusuariopst = id, idcaracterizacion = idPreguntaAdicional });
+            var parameters = new
+            {
+                idusuariopst = id,
+                idcaracterizacion = idPreguntaAdicional
+            };
+            var result = await db.QueryFirstOrDefaultAsync<RespuestaCaracterizacion>(dataRespuesta, parameters);
             string adicional ="";
             if (result != null)
             {
@@ -170,7 +197,11 @@ namespace inti_repository.caracterizacion
             }
                     
             var queryNorma_ = @"SELECT * FROM MaeNorma WHERE FK_ID_CATEGORIA_RNT = @id_categoria"+adicional;
-            var dataNorma = db.Query<NormaTecnica>(queryNorma_, new { id_categoria = idCategoria }).ToList();
+            var parameterCat = new
+            {
+                id_categoria = idCategoria
+            };
+            var dataNorma = db.Query<NormaTecnica>(queryNorma_, parameterCat).ToList();
 
             return dataNorma;
 
@@ -183,7 +214,11 @@ namespace inti_repository.caracterizacion
             ResponseOrdenCaracterizacion responseOrden = new();
             responseOrden.ID_CATEGORIA_RNT = id;
             var queryOrden = @"SELECT ID_ORDEN,FK_ID_CARACTERIZACION_DINAMICA FROM MaeOrdenCaracterizacion WHERE ESTADO = TRUE AND FK_ID_CATEGORIA_RNT = @id";
-            var dataOrden = db.Query<CamposOrdenCaracterizacion>(queryOrden, new { id = id }).ToList();
+            var parameter = new
+            {
+                id = id
+            };
+            var dataOrden = db.Query<CamposOrdenCaracterizacion>(queryOrden, parameter).ToList();
 
             foreach (CamposOrdenCaracterizacion item in dataOrden)
             {
@@ -200,8 +235,11 @@ namespace inti_repository.caracterizacion
             string queryCaracterizacion = @"
             SELECT b.ID_CARACTERIZACION_DINAMICA, b.NOMBRE, b.TABLA_RELACIONADA, a.VALOR, a.FK_ID_USUARIO, a.ESTADO FROM RespuestaCaracterizacion a INNER JOIN MaeCaracterizacionDinamica b ON a.FK_ID_CARACTERIZACION_DINAMICA = b.ID_CARACTERIZACION_DINAMICA
             WHERE a.FK_ID_USUARIO = @iduser;";
-
-            List<ResponseRespuestaCaracterizacion> data = (await db.QueryAsync<ResponseRespuestaCaracterizacion>(queryCaracterizacion, new { iduser = IdUsuario })).ToList();
+            var parameter = new
+            {
+                iduser = IdUsuario
+            };
+            List<ResponseRespuestaCaracterizacion> data = (await db.QueryAsync<ResponseRespuestaCaracterizacion>(queryCaracterizacion, parameter)).ToList();
            
             return data;
         }

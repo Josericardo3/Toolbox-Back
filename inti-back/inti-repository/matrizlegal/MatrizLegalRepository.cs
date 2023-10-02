@@ -31,12 +31,20 @@ namespace inti_repository.matrizlegal
             var db = dbConnection();
             int iduser;
             var sqluser = @"SELECT * FROM Usuario WHERE ID_USUARIO = @IdUsuario AND ESTADO = true ";
-            var datauser = await db.QueryFirstAsync<Usuario>(sqluser, new { Idusuario = IdUsuario });
+            var parameterUsuario = new
+            {
+                Idusuario = IdUsuario
+            };
+            var datauser = await db.QueryFirstAsync<Usuario>(sqluser, parameterUsuario);
             iduser = IdUsuario;
             if (datauser.ID_TIPO_USUARIO != 1)
             {
                 var sqlpst = @"SELECT * FROM Pst WHERE Rnt = @rnt AND ESTADO = true ";
-                var datapst = await db.QueryFirstAsync<UsuarioPst>(sqlpst, new { rnt = datauser.RNT });
+                var parameterRnt = new
+                {
+                    rnt = datauser.RNT
+                };
+                var datapst = await db.QueryFirstAsync<UsuarioPst>(sqlpst, parameterRnt);
                 iduser = datapst.FK_ID_USUARIO;
 
             }
@@ -46,7 +54,12 @@ namespace inti_repository.matrizlegal
                         b.DATA_CUMPLIMIENTO, b.PLAN_ACCIONES_A_REALIZAR, b.PLAN_RESPONSABLE_CUMPLIMIENTO,
                         b.PLAN_FECHA_EJECUCION, b.PLAN_ESTADO , a.ESTADO FROM MaeLegal a LEFT JOIN RespuestaMatrizLegal b ON a.ID_MATRIZ = b.FK_ID_MATRIZ
                         AND b.FK_ID_USUARIO = @IdUsuario  WHERE a.ID_DOCUMENTO = @IdDocumento AND  a.Estado = TRUE ";
-            return await db.QueryAsync<ResponseMatrizLegal>(sql, new { IdUsuario = iduser, IdDocumento = IdDoc });
+            var parameterUserDoc = new
+            {
+                IdUsuario = iduser,
+                IdDocumento = IdDoc
+            };
+            return await db.QueryAsync<ResponseMatrizLegal>(sql, parameterUserDoc);
         }
 
         public async Task<bool> InsertLey(InputMatrizLegal oMatrizLegal)
@@ -54,10 +67,18 @@ namespace inti_repository.matrizlegal
             var db = dbConnection();
             var sql = @"INSERT INTO MaeLegal(ID_TABLA,ID_DOCUMENTO,CATEGORIA,TIPO_NORMATIVIDAD,NUMERO,ANIO,EMISOR,DESCRIPCION,DOCS_ESPECIFICOS) 
                         VALUES (13,@idDoc,@categoria,@tipoNorma,@numero,@anio,@emisor,@descripcion,@docsEspecificos) ";
-            var result = await db.ExecuteAsync(sql, new { idDoc = oMatrizLegal.ID_DOCUMENTO, categoria = oMatrizLegal.CATEGORIA, tipoNorma = oMatrizLegal.TIPO_NORMATIVIDAD, numero = oMatrizLegal.NUMERO, anio = oMatrizLegal.ANIO, emisor = oMatrizLegal.EMISOR, descripcion = oMatrizLegal.DESCRIPCION, docsEspecificos = oMatrizLegal.DOCS_ESPECIFICOS });
-
-
-
+            var parameters = new
+            {
+                idDoc = oMatrizLegal.ID_DOCUMENTO,
+                categoria = oMatrizLegal.CATEGORIA,
+                tipoNorma = oMatrizLegal.TIPO_NORMATIVIDAD,
+                numero = oMatrizLegal.NUMERO,
+                anio = oMatrizLegal.ANIO,
+                emisor = oMatrizLegal.EMISOR,
+                descripcion = oMatrizLegal.DESCRIPCION,
+                docsEspecificos = oMatrizLegal.DOCS_ESPECIFICOS
+            };
+            var result = await db.ExecuteAsync(sql, parameters);
             return result > 0;
         }
         public async Task<bool> RespuestaMatrizLegal(RespuestaMatrizLegal respuestaMatrizLegal)
@@ -65,7 +86,12 @@ namespace inti_repository.matrizlegal
             var db = dbConnection();
             //var Fecha_seguimiento = DateTime.UtcNow.ToString();
             var busqueda = @"SELECT FK_ID_MATRIZ FROM RespuestaMatrizLegal WHERE FK_ID_MATRIZ = @FK_ID_MATRIZ AND FK_ID_USUARIO = @FK_ID_USUARIO";
-            var queryBusqueda = db.Query(busqueda, new { FK_ID_MATRIZ = respuestaMatrizLegal.FK_ID_MATRIZ_LEGAL, respuestaMatrizLegal.FK_ID_USUARIO });
+            var parameters = new
+            {
+                FK_ID_MATRIZ = respuestaMatrizLegal.FK_ID_MATRIZ_LEGAL,
+                respuestaMatrizLegal.FK_ID_USUARIO
+            };
+            var queryBusqueda = db.Query(busqueda, parameters);
             var queryRespuesta = 0;
             if (queryBusqueda.Count() > 0)
             {
@@ -87,7 +113,7 @@ namespace inti_repository.matrizlegal
 
                 foreach (var plan in respuestaMatrizLegal.PLAN_INTERVENCION)
                 {
-                    queryRespuesta = db.Execute(actualizacion, new
+                    var parametersPlan = new
                     {
                         respuestaMatrizLegal.FK_ID_USUARIO,
                         FK_ID_USUARIO_PARAM = respuestaMatrizLegal.FK_ID_USUARIO,
@@ -100,7 +126,8 @@ namespace inti_repository.matrizlegal
                         plan.PLAN_RESPONSABLE_CUMPLIMIENTO,
                         plan.PLAN_FECHA_EJECUCION,
                         plan.PLAN_ESTADO
-                    });
+                    };
+                    queryRespuesta = db.Execute(actualizacion, parametersPlan);
                 }
             }
             else
@@ -109,7 +136,7 @@ namespace inti_repository.matrizlegal
                                    VALUES(@FK_ID_USUARIO,@FK_ID_MATRIZ, @ESTADO_CUMPLIMIENTO, @RESPONSABLE_CUMPLIMIENTO, @DATA_CUMPLIMIENTO, @PLAN_ACCIONES_A_REALIZAR, @PLAN_RESPONSABLE_CUMPLIMIENTO, @PLAN_FECHA_EJECUCION, @PLAN_ESTADO,NOW());";
                 foreach (var plan in respuestaMatrizLegal.PLAN_INTERVENCION)
                 {
-                    queryRespuesta = db.Execute(dataRespuesta, new
+                    var parameterPlan = new
                     {
                         respuestaMatrizLegal.FK_ID_USUARIO,
                         FK_ID_MATRIZ = respuestaMatrizLegal.FK_ID_MATRIZ_LEGAL,
@@ -120,7 +147,8 @@ namespace inti_repository.matrizlegal
                         plan.PLAN_RESPONSABLE_CUMPLIMIENTO,
                         plan.PLAN_FECHA_EJECUCION,
                         plan.PLAN_ESTADO
-                    });
+                    };
+                    queryRespuesta = db.Execute(dataRespuesta, parameterPlan);
                 }
             }
             return queryRespuesta > 0;
@@ -165,8 +193,11 @@ namespace inti_repository.matrizlegal
                                 WHERE
                                     ml.ESTADO = TRUE
                                     AND rml.FK_ID_USUARIO = @ID_USUARIO";
-
-            dataUsuario = db.Query<MatrizUsuario>(queryUsuario, new { ID_USUARIO = idUsuario }).ToList();
+            var parameterIdUser = new
+            {
+                ID_USUARIO = idUsuario
+            };
+            dataUsuario = db.Query<MatrizUsuario>(queryUsuario, parameterIdUser).ToList();
 
             if (dataUsuario.Count == 0)
             {
@@ -197,8 +228,11 @@ namespace inti_repository.matrizlegal
                                 WHERE
                                     ID_DOCUMENTO = @ID_DOCUMENTO
                                         AND ESTADO = TRUE";
-
-            var responseMatriz = db.Query<DocumentoMatrizLegal>(queryMatriz, new { ID_DOCUMENTO = IdDocumento }).ToList();
+            var parameterIdDoc = new
+            {
+                ID_DOCUMENTO = IdDocumento
+            };
+            var responseMatriz = db.Query<DocumentoMatrizLegal>(queryMatriz, parameterIdDoc).ToList();
 
             var queryRespuestaDocumento = @"
                                 SELECT 
@@ -219,7 +253,12 @@ namespace inti_repository.matrizlegal
                                         AND rml.FK_ID_USUARIO = @ID_USUARIO
                                         AND ml.ESTADO = TRUE";
 
-            List<ResponseRespuestasMatriz> ResponseRespuestaDocumento = db.Query<ResponseRespuestasMatriz>(queryRespuestaDocumento, new { ID_DOCUMENTO = IdDocumento, ID_USUARIO = idUsuario }).ToList();
+            var parameterDocUser = new
+            {
+                ID_DOCUMENTO = IdDocumento,
+                ID_USUARIO = idUsuario
+            };
+            List<ResponseRespuestasMatriz> ResponseRespuestaDocumento = db.Query<ResponseRespuestasMatriz>(queryRespuestaDocumento, parameterDocUser).ToList();
 
             var respuestasPorMatriz = ResponseRespuestaDocumento.GroupBy(r => r.ID_MATRIZ).ToDictionary(g => g.Key, g => g.ToList());
 

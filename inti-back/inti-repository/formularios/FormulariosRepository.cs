@@ -35,14 +35,15 @@ namespace inti_repository.formularios
                         var queryPost = @"INSERT INTO RespuestaFormularios (FK_MAE_FORMULARIOS, PREGUNTA, RESPUESTA, FK_USUARIO, ORDEN, FECHA_REG)
                               VALUES (@FK_MAE_FORMULARIOS, @PREGUNTA, @RESPUESTA, @FK_USUARIO, @ORDEN, NOW())";
 
-                        data += await db.ExecuteAsync(queryPost, new
+                        var parameters = new
                         {
                             formulario.FK_MAE_FORMULARIOS,
                             formulario.PREGUNTA,
                             formulario.RESPUESTA,
                             formulario.FK_USUARIO,
                             formulario.ORDEN
-                        });
+                        };
+                        data += await db.ExecuteAsync(queryPost, parameters);
                     }
                     else
                     {
@@ -54,16 +55,16 @@ namespace inti_repository.formularios
                                 ORDEN = @ORDEN,
                                 FECHA_ACT = NOW()
                             WHERE ID_RESPUESTA_FORMULARIOS = @ID_RESPUESTA_FORMULARIOS";
-
-                        data += await db.ExecuteAsync(queryPut, new
+                        var parametersFormulario = new
                         {
-                            FK_MAE_FORMULARIOS= formulario.FK_MAE_FORMULARIOS,
-                            PREGUNTA= formulario.PREGUNTA,
-                            RESPUESTA= formulario.RESPUESTA,
-                            FK_USUARIO=formulario.FK_USUARIO,
+                            FK_MAE_FORMULARIOS = formulario.FK_MAE_FORMULARIOS,
+                            PREGUNTA = formulario.PREGUNTA,
+                            RESPUESTA = formulario.RESPUESTA,
+                            FK_USUARIO = formulario.FK_USUARIO,
                             ORDEN = formulario.ORDEN,
                             ID_RESPUESTA_FORMULARIOS = formulario.ID_RESPUESTA_FORMULARIOS
-                        });
+                        };
+                        data += await db.ExecuteAsync(queryPut, parametersFormulario);
                     }
             }
 
@@ -81,11 +82,11 @@ namespace inti_repository.formularios
                                 WHERE
                                     FK_ID_USUARIO = @FK_ID_USUARIO
                                         AND ESTADO = 1";
-
-            var dataFormulario = await db.QueryFirstOrDefaultAsync<DataFormulario>(queryUbicacionUsuario, new
+            var parameter = new
             {
                 FK_ID_USUARIO = ID_USUARIO
-            });
+            };
+            var dataFormulario = await db.QueryFirstOrDefaultAsync<DataFormulario>(queryUbicacionUsuario, parameter);
 
             var query = @"SELECT 
                     rf.ID_RESPUESTA_FORMULARIOS,
@@ -102,12 +103,12 @@ namespace inti_repository.formularios
                         AND FK_MAE_FORMULARIOS = @FK_MAE_FORMULARIOS
                         AND rf.ESTADO = 1 AND ORDEN = 0
                ";
-
-            var data = await db.QueryAsync<Formulario>(query, new
+            var parameters = new
             {
                 FK_MAE_FORMULARIOS = ID_FORMULARIO,
-                RNT
-            });
+                RNT = RNT
+            };
+            var data = await db.QueryAsync<Formulario>(query, parameters);
 
             var queryd = @"SELECT 
                     rf.ID_RESPUESTA_FORMULARIOS,
@@ -125,11 +126,7 @@ namespace inti_repository.formularios
                         AND rf.ESTADO = 1 AND ORDEN > 0
                 ORDER BY ORDEN";
 
-            var datad = await db.QueryAsync<Formulario>(queryd, new
-            {
-                FK_MAE_FORMULARIOS = ID_FORMULARIO,
-                RNT
-            });
+            var datad = await db.QueryAsync<Formulario>(queryd, parameters);
 
             dataFormulario.RESPUESTAS = data.ToList();
             dataFormulario.RESPUESTA_GRILLA = datad.ToList();
@@ -143,11 +140,13 @@ namespace inti_repository.formularios
                 var queryDelete = @"UPDATE RespuestaFormularios 
                                 SET ESTADO  = 0
                                 WHERE ID_RESPUESTA_FORMULARIOS = @ID_RESPUESTA_FORMULARIOS AND ESTADO = 1";
+            var parameter = new
+            {
+                ID_RESPUESTA_FORMULARIOS = idformulario
+            };
+            var dataDelete = await db.ExecuteAsync(queryDelete, parameter);
 
-            var dataDelete = await db.ExecuteAsync(queryDelete, new { ID_RESPUESTA_FORMULARIOS = idformulario });
-
-            return dataDelete > 0;  
-                                
+            return dataDelete > 0;       
         }
 
     }

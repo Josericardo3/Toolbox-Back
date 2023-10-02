@@ -74,7 +74,7 @@ namespace inti_repository
         {
             try
             {
-                string enlace = "http://10.4.3.140:8080/";
+                string enlace = "https://cajadeherramientasqa.mincit.gov.co/";
                 string senderEmail = this.Configuration.GetValue<string>("Email:User");
                 string senderPassword = this.Configuration.GetValue<string>("Email:Password");
 

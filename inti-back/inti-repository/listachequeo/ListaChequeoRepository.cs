@@ -26,13 +26,25 @@ namespace inti_repository.listachequeo
         {
             var db = dbConnection();
             var queryTitulo = @"SELECT * FROM MaeGeneral WHERE ID_TABLA = @idtabla and ITEM = 1";
-            var dataTitulo = await db.QueryFirstOrDefaultAsync<Maestro>(queryTitulo, new { idtabla = idValorTituloListaChequeo });
+            var parameterChequeo = new
+            {
+                idtabla = idValorTituloListaChequeo
+            };
+            var dataTitulo = await db.QueryFirstOrDefaultAsync<Maestro>(queryTitulo, parameterChequeo);
 
             var querySeccion = @"SELECT * FROM MaeGeneral WHERE ID_TABLA = @idtabla";
-            var dataSeccion = db.Query<Maestro>(querySeccion, new { idtabla = idValorSeccionListaChequeo }).ToList();
+            var parameterTabla = new
+            {
+                idtabla = idValorSeccionListaChequeo
+            };
+            var dataSeccion = db.Query<Maestro>(querySeccion, parameterTabla).ToList();
 
             var querydescCalificacion = @"SELECT * FROM MaeGeneral WHERE ID_TABLA = @idtabla";
-            var datadescCalificacion = db.Query<Maestro>(querydescCalificacion, new { idtabla = idValordescripcionCalificacion }).ToList();
+            var parameterCalificacion = new
+            {
+                idtabla = idValordescripcionCalificacion
+            };
+            var datadescCalificacion = db.Query<Maestro>(querydescCalificacion, parameterCalificacion).ToList();
 
             var sql = @"
                         SELECT 
@@ -61,8 +73,11 @@ namespace inti_repository.listachequeo
                         WHERE
                             FK_ID_USUARIO = @FK_ID_USUARIO
                                 AND ps.ESTADO = TRUE";
-
-            var datausuario = db.QueryFirstOrDefault<UsuarioPstArchivoDiagnostico>(sql, new { FK_ID_USUARIO = idusuario });
+            var parameterIdUsuario = new
+            {
+                FK_ID_USUARIO = idusuario
+            };
+            var datausuario = db.QueryFirstOrDefault<UsuarioPstArchivoDiagnostico>(sql, parameterIdUsuario);
 
             var queryCalificacion = @"
                         SELECT 
@@ -92,8 +107,13 @@ namespace inti_repository.listachequeo
                                 AND md.ESTADO = 1
                                 AND ma.ID_TABLA = 4
                         ORDER BY md.ID_DIAGNOSTICO";
-
-            var datacalificacion = db.Query<CalifListaChequeo>(queryCalificacion, new { ID_NORMA = idnorma, ETAPA = etapa,FK_ID_USUARIO = idusuario }).ToList();
+            var parameters = new
+            {
+                ID_NORMA = idnorma,
+                ETAPA = etapa,
+                FK_ID_USUARIO = idusuario
+            };
+            var datacalificacion = db.Query<CalifListaChequeo>(queryCalificacion, parameters).ToList();
             ResponseArchivoListaChequeo responseListaChequeo = new();
             responseListaChequeo.TITULO                 = dataTitulo.DESCRIPCION;
 
@@ -128,16 +148,32 @@ namespace inti_repository.listachequeo
           
             var db = dbConnection();
             var queryTitulo = @"SELECT * FROM MaeGeneral WHERE ID_TABLA = @idtabla and ITEM = 2";
-            var dataTitulo = await db.QueryFirstOrDefaultAsync<Maestro>(queryTitulo, new { idtabla = idValorTituloListaChequeo });
+            var parametersTitulo = new
+            {
+                idtabla = idValorTituloListaChequeo
+            };
+            var dataTitulo = await db.QueryFirstOrDefaultAsync<Maestro>(queryTitulo, parametersTitulo);
 
             var querySeccion = @"SELECT * FROM MaeGeneral WHERE ID_TABLA = @idtabla";
-            var dataSeccion = db.Query<Maestro>(querySeccion, new { idtabla = 10 }).ToList();
+            var parameterIdTabla = new
+            {
+                idtabla = 10
+            };
+            var dataSeccion = db.Query<Maestro>(querySeccion, parameterIdTabla).ToList();
 
             var querydescCalificacion = @"SELECT * FROM MaeGeneral WHERE ID_TABLA = @idtabla";
-            var datadescCalificacion = db.Query<Maestro>(querydescCalificacion, new { idtabla = idValordescripcionCalificacion }).ToList();
+            var parameterIdCalificacion = new
+            {
+                idtabla = idValordescripcionCalificacion
+            };
+            var datadescCalificacion = db.Query<Maestro>(querydescCalificacion, parameterIdCalificacion).ToList();
 
             var queryNorma = @"SELECT * FROM  MaeNorma WHERE ID_NORMA = @id";
-            var dataNorma = db.QueryFirstOrDefault<NormaTecnica>(queryNorma, new { id = idnorma });
+            var parameterIdNorma = new
+            {
+                id = idnorma
+            };
+            var dataNorma = db.QueryFirstOrDefault<NormaTecnica>(queryNorma, parameterIdNorma);
 
 
             var sql = @"
@@ -168,7 +204,11 @@ namespace inti_repository.listachequeo
                             FK_ID_USUARIO = @FK_ID_USUARIO
                                 AND ps.ESTADO = TRUE";
 
-            var datausuario = db.QueryFirstOrDefault<UsuarioPstArchivoDiagnostico>(sql, new { FK_ID_USUARIO = idusuario });
+            var parameterIdUsuario = new
+            {
+                FK_ID_USUARIO = idusuario
+            };
+            var datausuario = db.QueryFirstOrDefault<UsuarioPstArchivoDiagnostico>(sql, parameterIdUsuario);
 
 
             var queryagrupaciondiagnostico = @"
@@ -191,7 +231,11 @@ namespace inti_repository.listachequeo
                                 AND dd.ESTADO = 1
                                 AND d.ESTADO = 1
                         GROUP BY dd.FK_ID_NORMA , dd.NUMERAL_PRINCIPAL , d.TITULO_PRINCIPAL;";
-            var dataagrupaciondiagnostico = db.Query<ArchivoDiagnostico>(queryagrupaciondiagnostico, new { ID_NORMA = idnorma }).ToList();
+            var parameterNorma = new
+            {
+                ID_NORMA = idnorma
+            };
+            var dataagrupaciondiagnostico = db.Query<ArchivoDiagnostico>(queryagrupaciondiagnostico, parameterNorma).ToList();
 
             foreach (var item in dataagrupaciondiagnostico)
             {
@@ -229,8 +273,14 @@ namespace inti_repository.listachequeo
                                 AND dd.ESTADO = 1
                                 AND d.ESTADO = 1
                                 AND ma.ID_TABLA = 4";
-
-                var datacalificacion = db.Query<CalifDiagnostico>(queryCalificacion, new { ID_NORMA = idnorma, ETAPA= etapa, FK_ID_USUARIO = idusuario, NUMERAL_PRINCIPAL = item.NUMERAL_PRINCIPAL }).ToList();
+                var parametersNorma = new
+                {
+                    ID_NORMA = idnorma,
+                    ETAPA = etapa,
+                    FK_ID_USUARIO = idusuario,
+                    NUMERAL_PRINCIPAL = item.NUMERAL_PRINCIPAL
+                };
+                var datacalificacion = db.Query<CalifDiagnostico>(queryCalificacion, parametersNorma).ToList();
 
                 item.N_REQUISITO_NA             = datacalificacion.Where(x => x.VALOR_CALIFICADO == "4").Count() + "";
                 item.N_REQUISITO_NC             = datacalificacion.Where(x => x.VALOR_CALIFICADO == "3").Count() + "";
@@ -258,7 +308,11 @@ namespace inti_repository.listachequeo
                             WHERE
                                 us.ID_USUARIO = @FK_ID_USUARIO
                                     AND us.ESTADO = 1";
-            var dataAsesorPst = db.QueryFirstOrDefault<AsesorPst>(queryAsesorPst, new { datausuario.FK_ID_USUARIO });
+            var parameterDataUsuario = new
+            {
+                datausuario.FK_ID_USUARIO
+            };
+            var dataAsesorPst = db.QueryFirstOrDefault<AsesorPst>(queryAsesorPst, parameterDataUsuario);
 
             var queryAsesor = @"
                             SELECT 
@@ -267,7 +321,7 @@ namespace inti_repository.listachequeo
                                 Asesor
                             WHERE
                                 ESTADO = 1";
-            var dataAsesor = db.QueryFirstOrDefault<Asesor>(queryAsesor, new { });
+            var dataAsesor = db.QueryFirstOrDefault<Asesor>(queryAsesor);
 
             var queryRespuestaAnalisis = @"
                             SELECT 
@@ -277,7 +331,12 @@ namespace inti_repository.listachequeo
                             WHERE
                                 FK_ID_USUARIO = @FK_ID_USUARIO
                                     AND FK_ID_NORMA = @FK_ID_NORMA";
-            var dataRespuestaAnalisis = db.QueryFirstOrDefault<RespuestaAsesor>(queryRespuestaAnalisis, new { FK_ID_USUARIO = idusuario, FK_ID_NORMA = idnorma });
+            var parametersUsuario = new
+            {
+                FK_ID_USUARIO = idusuario,
+                FK_ID_NORMA = idnorma
+            };
+            var dataRespuestaAnalisis = db.QueryFirstOrDefault<RespuestaAsesor>(queryRespuestaAnalisis, parametersUsuario);
 
             Asesor objasesor = new();
             if (dataAsesor == null || dataAsesor.Equals(DBNull.Value))
@@ -293,7 +352,11 @@ namespace inti_repository.listachequeo
                                 Asesor
                             WHERE
                                ID_ASESOR = @ID_ASESOR AND  ESTADO = 1";
-                var dataUsuarioAsesor = db.Query<Asesor>(queryUsuario, new { ID_ASESOR = dataAsesor.ID_ASESOR });
+                var parameterAsesor = new
+                {
+                    ID_ASESOR = dataAsesor.ID_ASESOR
+                };
+                var dataUsuarioAsesor = db.Query<Asesor>(queryUsuario, parameterAsesor);
                 objasesor = dataUsuarioAsesor.FirstOrDefault(x => x.ID_ASESOR == dataAsesor.ID_ASESOR);
             }
 

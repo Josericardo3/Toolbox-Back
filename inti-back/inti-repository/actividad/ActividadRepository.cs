@@ -37,7 +37,11 @@ namespace inti_repository.actividad
                                         '%d-%m-%Y') = DATE_FORMAT(CURDATE(), '%d-%m-%Y')
                                     AND ESTADO_PLANIFICACION <> 'Finalizado'
                                     AND ESTADO = 1";
-            var dataActividades = await db.ExecuteAsync(queryActividades, new { ESTADO_PLANIFICACION  = "Demorado"});
+            var parameter = new
+            {
+                ESTADO_PLANIFICACION = "Demorado"
+            };
+            var dataActividades = await db.ExecuteAsync(queryActividades, parameter);
 
             return dataActividades > 0;
         }
@@ -69,7 +73,11 @@ namespace inti_repository.actividad
                     LEFT JOIN Pst p ON u.FK_ID_PST = p.ID_PST
                     LEFT JOIN MaeGeneral c ON b.ID_TIPO_USUARIO = c.ITEM AND c.ID_TABLA =1 
                     where a.FK_ID_USUARIO_PST = @id AND a.ESTADO = TRUE ORDER BY a.FECHA_REG DESC";
-                result = (await db.QueryAsync<ResponseActividad>(data, new { id = idUsuarioPst })).ToList();
+                var parameterId = new
+                {
+                    id = idUsuarioPst
+                };
+                result = (await db.QueryAsync<ResponseActividad>(data, parameterId)).ToList();
             }
            
             return result;
@@ -80,7 +88,11 @@ namespace inti_repository.actividad
             var db = dbConnection();
             var data = @"select a.ID_ACTIVIDAD,  a.FK_ID_USUARIO_PST, a.FK_ID_RESPONSABLE, b.NOMBRE as NOMBRE_RESPONSABLE, c.DESCRIPCION as CARGO, a.TIPO_ACTIVIDAD, a.DESCRIPCION, a.FECHA_INICIO,
                     a.FECHA_FIN, a.ESTADO_PLANIFICACION, a.FECHA_REG,COALESCE(a.FECHA_ACT, a.FECHA_REG) AS FECHA_ACT from  Actividad a INNER JOIN Usuario b ON a.FK_ID_RESPONSABLE = b.ID_USUARIO LEFT JOIN MaeGeneral c ON b.ID_TIPO_USUARIO = c.ITEM AND c.ID_TABLA =1 where a.ID_ACTIVIDAD = @idactividad AND a.ESTADO = TRUE";
-            var result = db.QueryFirstAsync<ResponseActividad>(data, new { idactividad = idActividad });
+            var parameter = new
+            {
+                idactividad = idActividad
+            };
+            var result = db.QueryFirstAsync<ResponseActividad>(data, parameter);
             return result;
         }
 
@@ -89,7 +101,17 @@ namespace inti_repository.actividad
             var db = dbConnection();
             var dataInsert = @"INSERT INTO Actividad ( FK_ID_USUARIO_PST, FK_ID_RESPONSABLE, TIPO_ACTIVIDAD, DESCRIPCION, FECHA_INICIO ,FECHA_FIN, ESTADO_PLANIFICACION,FECHA_REG)
                                VALUES (@FK_ID_USUARIO_PST,@FK_ID_RESPONSABLE,@TIPO_ACTIVIDAD, @DESCRIPCION,@FECHA_INICIO,@FECHA_FIN,@ESTADO_PLANIFICACION,NOW())";
-            var result = await db.ExecuteAsync(dataInsert, new { actividades.FK_ID_USUARIO_PST, actividades.FK_ID_RESPONSABLE, actividades.TIPO_ACTIVIDAD, actividades.DESCRIPCION, actividades.FECHA_INICIO, actividades.FECHA_FIN, actividades.ESTADO_PLANIFICACION });
+            var parameters = new
+            {
+                actividades.FK_ID_USUARIO_PST,
+                actividades.FK_ID_RESPONSABLE,
+                actividades.TIPO_ACTIVIDAD,
+                actividades.DESCRIPCION,
+                actividades.FECHA_INICIO,
+                actividades.FECHA_FIN,
+                actividades.ESTADO_PLANIFICACION
+            };
+            var result = await db.ExecuteAsync(dataInsert, parameters);
             return result > 0;
         }
 
@@ -105,7 +127,17 @@ namespace inti_repository.actividad
                             ESTADO_PLANIFICACION = @ESTADO_PLANIFICACION,
                             FECHA_ACT = NOW()
                         WHERE ID_ACTIVIDAD = @ID_ACTIVIDAD and ESTADO = TRUE";
-            var result = await db.ExecuteAsync(sql, new { actividades.FK_ID_RESPONSABLE, actividades.TIPO_ACTIVIDAD, actividades.DESCRIPCION, actividades.FECHA_INICIO, actividades.FECHA_FIN, actividades.ESTADO_PLANIFICACION, actividades.ID_ACTIVIDAD });
+            var parameters = new
+            {
+                actividades.FK_ID_RESPONSABLE,
+                actividades.TIPO_ACTIVIDAD,
+                actividades.DESCRIPCION,
+                actividades.FECHA_INICIO,
+                actividades.FECHA_FIN,
+                actividades.ESTADO_PLANIFICACION,
+                actividades.ID_ACTIVIDAD
+            };
+            var result = await db.ExecuteAsync(sql, parameters);
             return result > 0;
         }
 
@@ -116,7 +148,11 @@ namespace inti_repository.actividad
             var sql = @"UPDATE Actividad
                         SET ESTADO = FALSE
                         WHERE ID_ACTIVIDAD = @ID_ACTIVIDAD AND ESTADO = TRUE";
-            var result = await db.ExecuteAsync(sql, new { ID_ACTIVIDAD= id });
+            var parameter = new
+            {
+                ID_ACTIVIDAD = id
+            };
+            var result = await db.ExecuteAsync(sql, parameter);
 
             return result > 0;
         }
@@ -127,8 +163,11 @@ namespace inti_repository.actividad
                 SELECT 
                    b.ID_USUARIO, b.NOMBRE, c.VALOR AS CARGO,b.RNT FROM Usuario b LEFT JOIN MaeGeneral c ON b.ID_TIPO_USUARIO = c.ITEM AND c.ID_TABLA =1
                 WHERE b.RNT = @rnt AND b.ESTADO = true ;";
-
-            var dataAsesor = await db.QueryAsync<ResponseActividadResponsable>(queryAsesor, new { rnt = rnt });
+            var parameter = new
+            {
+                    rnt = rnt
+            };
+            var dataAsesor = await db.QueryAsync<ResponseActividadResponsable>(queryAsesor, parameter);
 
             return dataAsesor;
 
@@ -152,7 +191,12 @@ namespace inti_repository.actividad
             var sql = @"UPDATE Usuario 
                         SET FK_ID_AVATAR = @idAvatar
                         WHERE ID_USUARIO = @id and ESTADO = TRUE";
-            var result = await db.ExecuteAsync(sql, new { idAvatar = idavatar, id = idusuariopst });
+            var parameters = new
+            {
+                idAvatar = idavatar,
+                id = idusuariopst
+            };
+            var result = await db.ExecuteAsync(sql, parameters);
             return result > 0;
         }
         public async Task<bool> AsignarLogo(UsuarioLogo usuario)
@@ -161,7 +205,12 @@ namespace inti_repository.actividad
             var sql = @"UPDATE Pst a  LEFT JOIN Usuario b  ON b.RNT = a.RNT
                         SET a.LOGO = @logo
                         WHERE b.ID_USUARIO = @id and b.ESTADO = TRUE; ";
-            var result = await db.ExecuteAsync(sql, new { logo = usuario.LOGO, id = usuario.ID_USUARIO });
+            var parameters = new
+            {
+                logo = usuario.LOGO,
+                id = usuario.ID_USUARIO
+            };
+            var result = await db.ExecuteAsync(sql, parameters);
             return result > 0;
         }
     }

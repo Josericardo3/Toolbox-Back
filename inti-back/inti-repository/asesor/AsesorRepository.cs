@@ -31,7 +31,13 @@ namespace inti_repository.caracterizacion
             var db = dbConnection();
             var fecha_registro = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
             var queryAsesor = @"INSERT INTO Asesor(RNT,CORREO,NOMBRE) VALUES(@RNT,@CORREO,@NOMBRE)";
-            var insertAsesor = await db.ExecuteAsync(queryAsesor, new { RNT = objAsesor.RNT, CORREO = objAsesor.CORREO, NOMBRE = objAsesor.NOMBRE});
+            var parameters = new
+            {
+                RNT = objAsesor.RNT,
+                CORREO = objAsesor.CORREO,
+                NOMBRE = objAsesor.NOMBRE
+            };
+            var insertAsesor = await db.ExecuteAsync(queryAsesor, parameters);
    
             Asesor oAsesor = new Asesor();
             Usuario oUser = new Usuario();
@@ -39,19 +45,37 @@ namespace inti_repository.caracterizacion
             {
 
                 var sqlobtenerasesor = @"SELECT ID_ASESOR, RNT, CORREO, NOMBRE FROM Asesor WHERE RNT = @user AND CORREO = @Correo";
-
-                oAsesor = db.QueryFirstOrDefault<Asesor>(sqlobtenerasesor, new { user = objAsesor.RNT, Correo = objAsesor.CORREO });
+                var parametersCorreo = new
+                {
+                    user = objAsesor.RNT,
+                    Correo = objAsesor.CORREO
+                };
+                oAsesor = db.QueryFirstOrDefault<Asesor>(sqlobtenerasesor, parametersCorreo);
 
 
                 var insertUsuario = @"INSERT INTO Usuario(FK_ID_ASESOR,NOMBRE,RNT,ID_TIPO_USUARIO,CORREO,PASSWORD,FECHA_REG) Values (@FK_ID_ASESOR,@NOMBRE,@RNT,@ID_TIPO_USUARIO,@CORREO,SHA1(@PASSWORD),@FECHA_REG)";
-                var result = await db.ExecuteAsync(insertUsuario, new { FK_ID_ASESOR = oAsesor.ID_ASESOR, NOMBRE = objAsesor.NOMBRE,objAsesor.RNT, ID_TIPO_USUARIO = 8, objAsesor.CORREO, password = 123, FECHA_REG = fecha_registro });
+                var parametersUsuario = new
+                {
+                    FK_ID_ASESOR = oAsesor.ID_ASESOR,
+                    NOMBRE = objAsesor.NOMBRE,
+                    RNT = objAsesor.RNT,
+                    ID_TIPO_USUARIO = 8,
+                    CORREO = objAsesor.CORREO,
+                    PASSWORD = 123,
+                    FECHA_REG = fecha_registro
+                };
+                var result = await db.ExecuteAsync(insertUsuario, parametersUsuario);
 
                 var queryusuario = @"SELECT LAST_INSERT_ID() FROM Usuario limit 1;";
                 var idusuario = await db.QueryFirstAsync<int>(queryusuario);
 
 
                 var insertPermisoAsesor = @"INSERT INTO MaePermiso(ID_TABLA,ITEM,FK_ID_USUARIO,ESTADO,TIPO_USUARIO) Values (1,8,@result,1,8)";
-                var resultPermiso = await db.ExecuteAsync(insertPermisoAsesor, new { result = idusuario });
+                var parameterIdUsuario = new
+                {
+                    result = idusuario
+                };
+                var resultPermiso = await db.ExecuteAsync(insertPermisoAsesor, parameterIdUsuario);
 
             }
 
@@ -66,7 +90,11 @@ namespace inti_repository.caracterizacion
 
 
             var sqluser = @"SELECT * FROM Usuario WHERE ID_USUARIO = @IdUsuario AND ESTADO = true ";
-            var datauser = await db.QueryFirstAsync<Usuario>(sqluser, new { Idusuario = idasesor });
+            var parameterIdUsuario = new
+            {
+                Idusuario = idasesor
+            };
+            var datauser = await db.QueryFirstAsync<Usuario>(sqluser, parameterIdUsuario);
 
             if (datauser.ID_TIPO_USUARIO == 2)
             { 
@@ -108,7 +136,11 @@ namespace inti_repository.caracterizacion
                             FROM
                                 AsesorPst WHERE ESTADO=1)
                             AND ESTADO = 1";
-                dataPSTAsesor = await db.QueryAsync<Asesor>(queryPSTAsesor, new { ID_TABLA = idtablamaestro });
+                var parameter = new
+                {
+                    ID_TABLA = idtablamaestro
+                };
+                dataPSTAsesor = await db.QueryAsync<Asesor>(queryPSTAsesor, parameter);
             }
             else
             {
@@ -138,7 +170,12 @@ namespace inti_repository.caracterizacion
                             AND ma.ID_TABLA = @ID_TABLA
                             AND ma.ESTADO = 1";
 
-                dataPSTAsesor = await db.QueryAsync<Asesor>(queryPSTAsesor, new { FK_ID_ASESOR = datauser.FK_ID_ASESOR, ID_TABLA = idtablamaestro });
+                var parameters = new
+                {
+                    FK_ID_ASESOR = datauser.FK_ID_ASESOR,
+                    ID_TABLA = idtablamaestro
+                };
+                dataPSTAsesor = await db.QueryAsync<Asesor>(queryPSTAsesor, parameters);
 
             }
 
@@ -163,7 +200,12 @@ namespace inti_repository.caracterizacion
                 WHERE
                     FK_ID_PST = @FK_ID_PST
                         AND ESTADO = 1";
-            var dataPSTxAsesor = await db.QueryAsync<Asesor>(queryPSTxAsesor, new { FK_ID_PST = objPST_Asesor.ID_PST });
+
+            var parameter = new
+            {
+                FK_ID_PST = objPST_Asesor.ID_PST
+            };
+            var dataPSTxAsesor = await db.QueryAsync<Asesor>(queryPSTxAsesor, parameter);
             var result = 0;
             var conteo = dataPSTxAsesor.Count();
             if (conteo > 0)
@@ -174,14 +216,27 @@ namespace inti_repository.caracterizacion
                                 ESTADO = 0
                             WHERE FK_ID_PST = @FK_ID_PST
                                 AND ESTADO = 1";
-                result = await db.ExecuteAsync(sql, new { FK_ID_PST = objPST_Asesor.ID_PST });
+                var parameterIdPst = new
+                {
+                    FK_ID_PST = objPST_Asesor.ID_PST
+                };
+                result = await db.ExecuteAsync(sql, parameterIdPst);
 
             }
             var insertAsesor = @"INSERT INTO AsesorPst (FK_ID_PST,FK_ID_ASESOR,ESTADO,FECHA_REG) VALUES (@FK_ID_PST,@FK_ID_ASESOR,1,NOW())";
-            result = await db.ExecuteAsync(insertAsesor, new { FK_ID_PST = objPST_Asesor.ID_PST, FK_ID_ASESOR = objPST_Asesor.ID_ASESOR });
+            var parametersPst = new
+            {
+                FK_ID_PST = objPST_Asesor.ID_PST,
+                FK_ID_ASESOR = objPST_Asesor.ID_ASESOR
+            };
+            result = await db.ExecuteAsync(insertAsesor, parametersPst);
 
             var insertAtencionPST = @"INSERT INTO AtencionUsuarioPst (FK_ID_USUARIO,ESTADO,FECHA_REG) VALUES (@FK_ID_PST,1,NOW())";
-            result = await db.ExecuteAsync(insertAtencionPST, new {FK_ID_PST = objPST_Asesor.ID_PST });
+            var parameterPst = new
+            {
+                FK_ID_PST = objPST_Asesor.ID_PST
+            };
+            result = await db.ExecuteAsync(insertAtencionPST, parameterPst);
             return result > 0;
 
         }
@@ -197,7 +252,14 @@ namespace inti_repository.caracterizacion
                     NOMBRE = @NOMBRE
                 WHERE
                     FK_ID_USUARIO = @ID_USUARIO AND ESTADO = 1";
-            var result = await db.ExecuteAsync(sql, new { objAsesor.RNT, objAsesor.CORREO, objAsesor.NOMBRE, objAsesor.ID_USUARIO });
+            var parameters = new
+            {
+                objAsesor.RNT,
+                objAsesor.CORREO,
+                objAsesor.NOMBRE,
+                objAsesor.ID_USUARIO
+            };
+            var result = await db.ExecuteAsync(sql, parameters);
 
             var queryUsuario = @"
                 UPDATE Usuario
@@ -206,7 +268,13 @@ namespace inti_repository.caracterizacion
                     CORREO = @CORREO
                 WHERE
                     ID_USUARIO = @ID_USUARIO AND ESTADO = 1";
-            var updUsuario = await db.ExecuteAsync(queryUsuario, new { objAsesor.RNT, objAsesor.CORREO, ID_USUARIO = objAsesor.ID_USUARIO });
+            var parametersUsuario = new
+            {
+                RNT= objAsesor.RNT,
+                CORREO = objAsesor.CORREO,
+                ID_USUARIO = objAsesor.ID_USUARIO
+            };
+            var updUsuario = await db.ExecuteAsync(queryUsuario, parametersUsuario);
             return result >0 & updUsuario > 0;
         }
         public async Task<IEnumerable<Asesor>> ListAsesor()
@@ -219,7 +287,7 @@ namespace inti_repository.caracterizacion
                     Asesor
                 WHERE
                     ESTADO = 1";
-            var dataUsuario = await db.QueryAsync<Asesor>(queryAsesor, new { });
+            var dataUsuario = await db.QueryAsync<Asesor>(queryAsesor);
 
             return dataUsuario;
 
@@ -230,10 +298,13 @@ namespace inti_repository.caracterizacion
             var db = dbConnection();
 
             var sql = @"INSERT INTO RespuestaAnalisisAsesor(FK_ID_USUARIO,FK_ID_NORMA,RESPUESTA_ANALISIS) Values (@FK_ID_USUARIO,@FK_ID_NORMA,@RESPUESTA_ANALISIS)";
-            var result = await db.ExecuteAsync(sql, new { objRespuestaAsesor.FK_ID_USUARIO, objRespuestaAsesor.FK_ID_NORMA, objRespuestaAsesor.RESPUESTA_ANALISIS });
-
-           
-
+            var parameters = new
+            {
+                objRespuestaAsesor.FK_ID_USUARIO,
+                objRespuestaAsesor.FK_ID_NORMA,
+                objRespuestaAsesor.RESPUESTA_ANALISIS
+            };
+            var result = await db.ExecuteAsync(sql, parameters);
             return result > 0;
         }
 
