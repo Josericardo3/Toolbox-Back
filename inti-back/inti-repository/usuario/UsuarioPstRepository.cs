@@ -287,7 +287,7 @@ namespace inti_repository.usuario
                 Password = objLogin.PASSWORD,
                 Correopst = objLogin.CORREO
             };
-            objUsuarioLogin = db.QueryFirstOrDefault<UsuarioPstLogin>(sql,parameters);
+            objUsuarioLogin = await db.QueryFirstOrDefaultAsync<UsuarioPstLogin>(sql,parameters);
 
             if (objUsuarioLogin != null)
             {
