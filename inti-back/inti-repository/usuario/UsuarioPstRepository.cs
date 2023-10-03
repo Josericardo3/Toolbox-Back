@@ -299,7 +299,7 @@ namespace inti_repository.usuario
             }
 
 
-            return await Task.FromResult<UsuarioPstLogin>(objUsuarioLogin);
+            return objUsuarioLogin;
 
         }
         public IEnumerable<Permiso> ObtenerPermisosUsuario(int id)
