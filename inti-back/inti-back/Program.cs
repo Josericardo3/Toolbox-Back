@@ -92,12 +92,26 @@ builder.Services.AddSwaggerGen(c =>
 
 });
 
-builder.Services.AddCors(options => {
+/*builder.Services.AddCors(options => {
   options.AddPolicy("AllowAll", builder => {
     builder.AllowAnyOrigin()
       .AllowAnyMethod()
       .AllowAnyHeader();
   });
+});*/
+builder.Services.AddCors(options =>
+
+{    options.AddPolicy("AllowAll",
+
+                      builder =>
+
+                      {
+                          builder.WithOrigins("*")
+                          .AllowAnyHeader()
+                           .AllowAnyMethod().AllowAnyOrigin();
+
+                      });
+
 });
 builder.Services.AddHttpClient();
 
@@ -191,12 +205,12 @@ app.MapControllers();
     context.Response.Headers.Add("X-Frame-Options", "SAMEORIGIN");
     await next();
 });*/
-app.Use(async (context, next) =>
+/*app.Use(async (context, next) =>
 {
     // context.Response.Headers.Add("X-XSS-Protection", "1; mode=block");
     Console.WriteLine($"Request from: {context.Request.Host} {context.Request.Method}: {context.Request.Path}");
     await next();
-});
+});*/
 /*app.UseCors(x => x
                .AllowAnyMethod()
 
