@@ -66,6 +66,28 @@ Console.WriteLine(to_use_urls);
 
 builder.WebHost.UseUrls(to_use_urls);
 builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddHttpClient();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(o =>
+{
+    o.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true
+    };
+});
+builder.Services.AddAuthorization();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Inti Back Solutions", Version = "v1" });
@@ -101,21 +123,15 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.AddCors(options => options.AddPolicy("AllowAll",
+builder => builder.AllowAnyOrigin()
+.AllowAnyHeader()
+.AllowAnyMethod()));
 
-
-builder.Services.AddCors(options => {
-    options.AddPolicy("AllowAll", builder => {
-        builder.WithOrigins("*")
-            .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowAnyOrigin();
-    });
+builder.Services.Configure<JsonOptions>(options =>
+{
+    options.JsonSerializerOptions.PropertyNamingPolicy = null;
 });
-
-
-
-builder.Services.AddHttpClient();
-
 
 
 var MySqlConfiguration = new MySQLConfiguration(builder.Configuration.GetConnectionString("MySqlConnectionDev"));
@@ -136,52 +152,25 @@ builder.Services.AddScoped<IFormularioRepository, FormulariosRepository>();
 builder.Services.AddScoped<IEncuestasRepository, EncuestasRepository>();
 builder.Services.AddScoped<IMonitorizacionRepository, MonitorizacionRepository>();
 
-
-
-builder.Services.AddAuthorization();
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(o =>
-{
-    o.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true
-    };
-});
-
-
-
-builder.Services.Configure<JsonOptions>(options =>
-{
-    options.JsonSerializerOptions.PropertyNamingPolicy = null;
-});
-
-
-
 var app = builder.Build();
 
 
 
 // Configure the HTTP request pipeline.
-
-
-
-app.UseHttpsRedirection();
 app.UseCors("AllowAll");
+app.UseRouting();
+app.UseHttpsRedirection();
+
 app.UseAuthentication();
 app.UseMiddleware<CustomDelegatingHandler>();
 app.UseAuthorization();
 
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+});
 
+app.MapControllers();
 
 app.UseSwagger();
 app.UseSwaggerUI();
@@ -190,13 +179,9 @@ app.UseSwaggerUI();
 
 app.Use(async (context, next) =>
 {
-    Console.WriteLine($"Request from: {context.Request.Host} {context.Request.Method}: {context.Request.Path}");
+    //Console.WriteLine($"Request from: {context.Request.Host} {context.Request.Method}: {context.Request.Path}");
     await next();
 });
-
-
-
-app.MapControllers();
 
 
 
