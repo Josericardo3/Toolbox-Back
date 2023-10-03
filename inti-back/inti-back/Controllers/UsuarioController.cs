@@ -136,6 +136,7 @@ namespace inti_back.Controllers
                 });
             }
         }
+        [AllowAnonymous]
         [HttpPost("LoginUsuario")]
         public async Task<IActionResult> LoginUsuario(InputLogin objLogin)
         {
