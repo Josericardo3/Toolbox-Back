@@ -27,9 +27,15 @@ using Seguridad.API.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
-const String default_url = "http://{0}:{1};https://{2}:{3}"; 
 
-var builder = WebApplication.CreateBuilder(args); 
+
+const String default_url = "http://{0}:{1};https://{2}:{3}";
+
+
+
+var builder = WebApplication.CreateBuilder(args);
+
+
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -37,23 +43,26 @@ builder.Services.AddScoped<NoticiaController>();
 builder.Services.AddScoped<ActividadController>();
 
 
-//var port = int.Parse(Environment.GetEnvironmentVariable("INTI_BACK_PORT"));
 
-//var host = Environment.GetEnvironmentVariable("INTI_BACK_HOST");
 var env = Environment.GetEnvironmentVariable("INTI_BACK_ENV");
-var port = 8050; 
-//var port = 8050;
+var port = 8050;
 var host = "0.0.0.0";
 String connectionString = env != "DEV" ? "MySqlConnectionDev" : "MySqlConnection";
+
+
 
 Console.WriteLine("env->" + connectionString);
 Console.WriteLine("Connection string {0}", connectionString);
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 
 String to_use_urls = String.Format(default_url, host, port, host, port + 1);
 
+
+
 Console.WriteLine(to_use_urls);
+
+
 
 builder.WebHost.UseUrls(to_use_urls);
 builder.Services.AddEndpointsApiExplorer();
@@ -71,49 +80,41 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "Bearer"
     });
 
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement()
-      {
-        {
-          new OpenApiSecurityScheme
-          {
-            Reference = new OpenApiReference
-              {
-                Type = ReferenceType.SecurityScheme,
-                Id = "Bearer"
-              },
-              Scheme = "oauth2",
-              Name = "Bearer",
-              In = ParameterLocation.Header,
 
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                },
+                Scheme = "oauth2",
+                Name = "Bearer",
+                In = ParameterLocation.Header,
             },
             new List<string>()
-          }
-        });
-
+        }
+    });
 });
 
-/*builder.Services.AddCors(options => {
-  options.AddPolicy("AllowAll", builder => {
-    builder.AllowAnyOrigin()
-      .AllowAnyMethod()
-      .AllowAnyHeader();
-  });
-});*/
-builder.Services.AddCors(options =>
 
-{    options.AddPolicy("AllowAll",
 
-                      builder =>
-
-                      {
-                          builder.WithOrigins("*")
-                          .AllowAnyHeader()
-                           .AllowAnyMethod().AllowAnyOrigin();
-
-                      });
-
+builder.Services.AddCors(options => {
+    options.AddPolicy("AllowAll", builder => {
+        builder.AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
 });
+
+
+
 builder.Services.AddHttpClient();
+
 
 
 var MySqlConfiguration = new MySQLConfiguration(builder.Configuration.GetConnectionString("MySqlConnectionDev"));
@@ -134,6 +135,8 @@ builder.Services.AddScoped<IFormularioRepository, FormulariosRepository>();
 builder.Services.AddScoped<IEncuestasRepository, EncuestasRepository>();
 builder.Services.AddScoped<IMonitorizacionRepository, MonitorizacionRepository>();
 
+
+
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(options =>
 {
@@ -146,14 +149,15 @@ builder.Services.AddAuthentication(options =>
     {
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey
-        (Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true
     };
 });
+
+
 
 builder.Services.Configure<JsonOptions>(options =>
 {
@@ -164,70 +168,35 @@ builder.Services.Configure<JsonOptions>(options =>
 
 var app = builder.Build();
 
-// obtenemos una instancia del NoticiaController para la tarea programada
-using(var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    
-    var controller = services.GetRequiredService<NoticiaController>();
-    var actividadServices = scope.ServiceProvider;
-
-    var actividadController = actividadServices.GetRequiredService<ActividadController>();
-
-    actividadController.StartTimer();
-
-    controller.StartTimer();
-
-    
-}
-
-
 
 
 // Configure the HTTP request pipeline.
 
 
-app.UseSwagger();
-app.UseSwaggerUI();
-app.UseCors("AllowAll");
-
 
 app.UseHttpsRedirection();
-
+app.UseCors("AllowAll");
 app.UseAuthentication();
 app.UseMiddleware<CustomDelegatingHandler>();
-
 app.UseAuthorization();
 
-app.MapControllers();
-/*app.Use(async (context, next) =>
+
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
+
+
+app.Use(async (context, next) =>
 {
-    context.Response.Headers.Add("X-Frame-Options", "SAMEORIGIN");
-    await next();
-});*/
-/*app.Use(async (context, next) =>
-{
-    // context.Response.Headers.Add("X-XSS-Protection", "1; mode=block");
     Console.WriteLine($"Request from: {context.Request.Host} {context.Request.Method}: {context.Request.Path}");
     await next();
-});*/
-/*app.UseCors(x => x
-               .AllowAnyMethod()
+});
 
-               .AllowAnyHeader()
-               .SetIsOriginAllowed(origin => true)
-               .SetIsOriginAllowed(origin =>
-                {
-                    List<string> allowedOrigins = new List<string>
-                   {
-                      "http://172.18.72.20:8080",
-                       "https://cajadeherramientasqa.mincit.gov.co"
-                   };
 
-                    return allowedOrigins.Contains(origin);
-                })
-               .AllowCredentials());*/
+
+app.MapControllers();
+
+
 
 app.Run();
-
-
