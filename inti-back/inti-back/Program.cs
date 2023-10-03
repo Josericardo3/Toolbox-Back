@@ -192,7 +192,8 @@ app.MapControllers();
 });*/
 app.Use(async (context, next) =>
 {
-    context.Response.Headers.Add("X-XSS-Protection", "1; mode=block");
+    // context.Response.Headers.Add("X-XSS-Protection", "1; mode=block");
+    Console.WriteLine($"Request from: {context.Request.Host} {context.Request.Method}: {context.Request.Path}");
     await next();
 });
 app.UseCors("AllowAll");
