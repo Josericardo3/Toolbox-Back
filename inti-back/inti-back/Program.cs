@@ -175,6 +175,7 @@ using(var scope = app.Services.CreateScope())
 
 app.UseSwagger();
 app.UseSwaggerUI();
+app.UseCors("AllowAll");
 
 
 app.UseHttpsRedirection();
@@ -196,7 +197,6 @@ app.Use(async (context, next) =>
     Console.WriteLine($"Request from: {context.Request.Host} {context.Request.Method}: {context.Request.Path}");
     await next();
 });
-app.UseCors("AllowAll");
 /*app.UseCors(x => x
                .AllowAnyMethod()
 
