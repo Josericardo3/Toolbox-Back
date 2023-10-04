@@ -123,7 +123,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddCors(options => options.AddPolicy(MyCors,
-builder => builder.WithOrigins("https://cajadeherramientasqa.mincit.gov.co")
+builder => builder.WithOrigins("*")
 .AllowAnyHeader()
 .AllowAnyMethod()
 .Build()));
@@ -162,7 +162,7 @@ var app = builder.Build();
 //app.UseCors(MyCors);
 app.UseCors(options =>
 {
-    options.WithOrigins("https://cajadeherramientasqa.mincit.gov.co")
+    options.WithOrigins("*")
     .AllowAnyMethod()
     .AllowAnyHeader()
     .Build();
