@@ -158,7 +158,13 @@ var app = builder.Build();
 
 
 // Configure the HTTP request pipeline.
-app.UseCors(MyCors);
+//app.UseCors(MyCors);
+app.UseCors(options =>
+{
+    options.WithOrigins("https://cajadeherramientasqa.mincit.gov.co")
+    .AllowAnyMethod()
+    .AllowAnyHeader();
+});
 app.UseRouting();
 app.UseHttpsRedirection();
 
