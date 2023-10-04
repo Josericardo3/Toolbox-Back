@@ -125,7 +125,8 @@ builder.Services.AddSwaggerGen(c =>
 builder.Services.AddCors(options => options.AddPolicy(MyCors,
 builder => builder.WithOrigins("https://cajadeherramientasqa.mincit.gov.co")
 .AllowAnyHeader()
-.AllowAnyMethod()));
+.AllowAnyMethod()
+.Build()));
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -163,7 +164,8 @@ app.UseCors(options =>
 {
     options.WithOrigins("https://cajadeherramientasqa.mincit.gov.co")
     .AllowAnyMethod()
-    .AllowAnyHeader();
+    .AllowAnyHeader()
+    .Build();
 });
 app.UseRouting();
 app.UseHttpsRedirection();
