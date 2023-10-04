@@ -32,7 +32,7 @@ using Microsoft.Extensions.DependencyInjection;
 const String default_url = "http://{0}:{1};https://{2}:{3}";
 
 
-
+var MyCors = "AllowAll"; 
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -123,8 +123,8 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-builder.Services.AddCors(options => options.AddPolicy("AllowAll",
-builder => builder.WithOrigins("*")
+builder.Services.AddCors(options => options.AddPolicy(MyCors,
+builder => builder.WithOrigins("https://cajadeherramientasqa.mincit.gov.co")
 .AllowAnyHeader()
 .AllowAnyMethod()));
 
@@ -157,7 +157,7 @@ var app = builder.Build();
 
 
 // Configure the HTTP request pipeline.
-app.UseCors("AllowAll");
+app.UseCors(MyCors);
 app.UseRouting();
 app.UseHttpsRedirection();
 
