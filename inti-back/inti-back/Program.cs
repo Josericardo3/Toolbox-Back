@@ -87,6 +87,17 @@ builder.Services.AddAuthentication(options =>
     };
 });
 builder.Services.AddAuthorization();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(MyCors, builder =>
+    {
+        builder.WithOrigins("*").WithMethods("GET","POST","PUT","DELETE")
+          .AllowAnyHeader();
+    });
+});
+
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Inti Back Solutions", Version = "v1" });
@@ -122,12 +133,6 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-builder.Services.AddCors(options => options.AddPolicy(MyCors,
-builder => builder.WithOrigins("*")
-.AllowAnyHeader()
-.AllowAnyMethod()
-.Build()));
-
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.Configure<JsonOptions>(options =>
@@ -160,13 +165,8 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 //app.UseCors(MyCors);
-app.UseCors(options =>
-{
-    options.WithOrigins("*")
-    .AllowAnyMethod()
-    .AllowAnyHeader()
-    .Build();
-});
+app.UseCors(MyCors);
+
 app.UseRouting();
 app.UseHttpsRedirection();
 
