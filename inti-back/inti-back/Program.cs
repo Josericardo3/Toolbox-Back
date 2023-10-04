@@ -124,7 +124,7 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 builder.Services.AddCors(options => options.AddPolicy("AllowAll",
-builder => builder.WithOrigins("https://cajadeherramientasqa.mincit.gov.co")
+builder => builder.WithOrigins("*")
 .AllowAnyHeader()
 .AllowAnyMethod()));
 
