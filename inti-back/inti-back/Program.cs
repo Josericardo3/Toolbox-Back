@@ -65,7 +65,6 @@ Console.WriteLine(to_use_urls);
 
 
 builder.WebHost.UseUrls(to_use_urls);
-builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddHttpClient();
 
@@ -127,6 +126,8 @@ builder.Services.AddCors(options => options.AddPolicy(MyCors,
 builder => builder.WithOrigins("https://cajadeherramientasqa.mincit.gov.co")
 .AllowAnyHeader()
 .AllowAnyMethod()));
+
+builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.Configure<JsonOptions>(options =>
 {
