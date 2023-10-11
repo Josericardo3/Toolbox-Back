@@ -2,10 +2,12 @@
 using inti_model.usuario;
 using inti_model.dboinput;
 using inti_repository.actividad;
+using inti_repository.noticia;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System.Timers;
 using Microsoft.Extensions.Hosting.Internal;
+using inti_repository;
 
 namespace inti_back.Controllers
 {
@@ -14,15 +16,19 @@ namespace inti_back.Controllers
     public class ActividadController : Controller
     {
         private readonly IActividadRepository _actividadRepository;
+        private readonly INoticiaRepository _noticiaRepository;
         private static System.Timers.Timer timer;
         private readonly IWebHostEnvironment _hostingEnvironment;
         private static ActividadController _instance;
+        private IConfiguration Configuration;
 
-        public ActividadController(IActividadRepository actividadRepository, IWebHostEnvironment hostingEnvironment)
+        public ActividadController(IActividadRepository actividadRepository, IWebHostEnvironment hostingEnvironment, INoticiaRepository noticiaRepository, IConfiguration _configuration)
         {
             _actividadRepository = actividadRepository;
+            _noticiaRepository = noticiaRepository;
             _instance = this;
             _hostingEnvironment = hostingEnvironment;
+            Configuration = _configuration;
 
         }
         [NonAction]
@@ -82,10 +88,14 @@ namespace inti_back.Controllers
         [HttpPost("actividades")]
         public async Task<IActionResult> InsertActividad([FromBody] InputActividad actividades)
         {
+            Correos envio = new(Configuration);
 
             try
             {
-                var create = await _actividadRepository.InsertActividad(actividades);
+                string subject = "Notificación de Actividad";
+                List<string> create = await _actividadRepository.InsertActividad(actividades);
+                var estado = envio.EnvioCorreoActividad(create, subject);
+                await _noticiaRepository.ActualizarNotificaciones();
                 return Ok(new
                 {
                     StatusCode(201).StatusCode,

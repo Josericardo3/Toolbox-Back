@@ -221,21 +221,21 @@ namespace inti_repository.auditoria
 
                 queryAuditoria = @"
             SELECT 
-                ID_AUDITORIA, FK_ID_PST, FECHA_AUDITORIA, PROCESO, AUDITOR_LIDER, EQUIPO_AUDITOR,
-                FECHA_REUNION_APERTURA, HORA_REUNION_APERTURA, FECHA_REUNION_CIERRE, HORA_REUNION_CIERRE, 
-                FECHA_REG, COALESCE(FECHA_ACT, FECHA_REG) AS FECHA_ACT,
+                a.ID_AUDITORIA, a.FK_ID_PST, b.NOMBRE_PST, a.FECHA_AUDITORIA, a.PROCESO, a.AUDITOR_LIDER, a.EQUIPO_AUDITOR,
+                a.FECHA_REUNION_APERTURA, a.HORA_REUNION_APERTURA, a.FECHA_REUNION_CIERRE, a.HORA_REUNION_CIERRE, 
+                a.FECHA_REG, COALESCE(a.FECHA_ACT, a.FECHA_REG) AS FECHA_ACT,
                 CASE 
-                    WHEN ESTADO_CONCLUIDO = 0 AND STR_TO_DATE(FECHA_REUNION_CIERRE, '%d/%m/%Y') < NOW() THEN 'Demorado'
-                    WHEN ESTADO_CONCLUIDO = 0 THEN 'Iniciado'
-                    WHEN ESTADO_CONCLUIDO = 1 THEN 'Terminado'
+                    WHEN a.ESTADO_CONCLUIDO = 0 AND STR_TO_DATE(a.FECHA_REUNION_CIERRE, '%d/%m/%Y') < NOW() THEN 'Demorado'
+                    WHEN a.ESTADO_CONCLUIDO = 0 THEN 'Iniciado'
+                    WHEN a.ESTADO_CONCLUIDO = 1 THEN 'Terminado'
                     ELSE 'Estado Desconocido'
                 END AS ESTADO_AUDITORIA
             FROM 
-                Auditoria  
+                Auditoria a LEFT JOIN Pst b ON a.FK_ID_PST = b.ID_PST
             WHERE 
-                ESTADO = true 
+                a.ESTADO = true 
             ORDER BY 
-            FECHA_REG DESC;";
+            a.FECHA_REG DESC;";
 
                 data = (await db.QueryAsync<ResponseAuditorias>(queryAuditoria)).ToList();
             }
@@ -243,21 +243,21 @@ namespace inti_repository.auditoria
             {
                 queryAuditoria = @"
             SELECT 
-                ID_AUDITORIA, FK_ID_PST, FECHA_AUDITORIA, PROCESO, AUDITOR_LIDER, EQUIPO_AUDITOR,
-                FECHA_REUNION_APERTURA, HORA_REUNION_APERTURA, FECHA_REUNION_CIERRE, HORA_REUNION_CIERRE, 
-                FECHA_REG, COALESCE(FECHA_ACT, FECHA_REG) AS FECHA_ACT,
+                a.ID_AUDITORIA, a.FK_ID_PST, b.NOMBRE_PST, a.FECHA_AUDITORIA, a.PROCESO, a.AUDITOR_LIDER, a.EQUIPO_AUDITOR,
+                a.FECHA_REUNION_APERTURA, a.HORA_REUNION_APERTURA, a.FECHA_REUNION_CIERRE, a.HORA_REUNION_CIERRE, 
+                a.FECHA_REG, COALESCE(a.FECHA_ACT, a.FECHA_REG) AS FECHA_ACT,
                 CASE 
-                    WHEN ESTADO_CONCLUIDO = 0 AND STR_TO_DATE(FECHA_REUNION_CIERRE, '%d/%m/%Y') < NOW() THEN 'Demorado'
-                    WHEN ESTADO_CONCLUIDO = 0 THEN 'Iniciado'
-                    WHEN ESTADO_CONCLUIDO = 1 THEN 'Terminado'
+                    WHEN a.ESTADO_CONCLUIDO = 0 AND STR_TO_DATE(a.FECHA_REUNION_CIERRE, '%d/%m/%Y') < NOW() THEN 'Demorado'
+                    WHEN a.ESTADO_CONCLUIDO = 0 THEN 'Iniciado'
+                    WHEN a.ESTADO_CONCLUIDO = 1 THEN 'Terminado'
                     ELSE 'Estado Desconocido'
                 END AS ESTADO_AUDITORIA
             FROM 
-                Auditoria  
+                Auditoria a LEFT JOIN Pst b ON a.FK_ID_PST = b.ID_PST
             WHERE 
-                FK_ID_PST = @idpst AND ESTADO = true 
+                a.FK_ID_PST = @idpst AND a.ESTADO = true 
             ORDER BY 
-            FECHA_REG DESC;";
+            a.FECHA_REG DESC;";
                 var parameterIdPst = new
                 {
                     idpst = datauser.FK_ID_PST

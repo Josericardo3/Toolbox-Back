@@ -15,7 +15,7 @@ namespace inti_repository.actividad
     {
         Task<IEnumerable<ResponseActividad>> GetAllActividades(int idAsesor, int idTipoUsuario);
         Task<ResponseActividad> GetActividad(int id);
-        Task<bool> InsertActividad(InputActividad actividades);
+        Task<List<string>> InsertActividad(InputActividad actividades);
         Task<bool> UpdateActividad(Actividad actividades);
         Task<bool> DeleteActividad(int id);
         Task<IEnumerable<ResponseActividadResponsable>> ListarResponsable(string rnt);

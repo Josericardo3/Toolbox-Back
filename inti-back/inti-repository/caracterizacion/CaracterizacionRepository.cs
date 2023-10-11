@@ -162,7 +162,7 @@ namespace inti_repository.caracterizacion
                 id_user = id
             };
             var dataUsuarios = await db.QueryFirstOrDefaultAsync<ResponseNormaUsuario>(queryUsuarios, parameter);
-            var idCategoria = dataUsuarios.FK_ID_CATEGORIA_RNT;
+            var idCategoria = dataUsuarios?.FK_ID_CATEGORIA_RNT;
             //var queryNorma = @"SELECT * FROM MaeNorma WHERE FK_ID_CATEGORIA_RNT = @id_categoria";
             //var dataNorma = db.Query<NormaTecnica>(queryNorma, new { id_categoria = idNorma }).ToList();
             int idPreguntaAdicional = 0;

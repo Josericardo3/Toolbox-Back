@@ -72,7 +72,7 @@ namespace inti_repository.actividad
                     LEFT JOIN Usuario u ON a.FK_ID_USUARIO_PST = u.ID_USUARIO
                     LEFT JOIN Pst p ON u.FK_ID_PST = p.ID_PST
                     LEFT JOIN MaeGeneral c ON b.ID_TIPO_USUARIO = c.ITEM AND c.ID_TABLA =1 
-                    where a.FK_ID_USUARIO_PST = @id AND a.ESTADO = TRUE ORDER BY a.FECHA_REG DESC";
+                    where (a.FK_ID_USUARIO_PST = @id OR a.FK_ID_RESPONSABLE = @id) AND a.ESTADO = TRUE ORDER BY a.FECHA_REG DESC";
                 var parameterId = new
                 {
                     id = idUsuarioPst
@@ -96,9 +96,11 @@ namespace inti_repository.actividad
             return result;
         }
 
-        public async Task<bool> InsertActividad(InputActividad actividades)
+        public async Task<List<string>> InsertActividad(InputActividad actividades)
         {
             var db = dbConnection();
+            List<string> lstCorreos = new List<string>();
+
             var dataInsert = @"INSERT INTO Actividad ( FK_ID_USUARIO_PST, FK_ID_RESPONSABLE, TIPO_ACTIVIDAD, DESCRIPCION, FECHA_INICIO ,FECHA_FIN, ESTADO_PLANIFICACION,FECHA_REG)
                                VALUES (@FK_ID_USUARIO_PST,@FK_ID_RESPONSABLE,@TIPO_ACTIVIDAD, @DESCRIPCION,@FECHA_INICIO,@FECHA_FIN,@ESTADO_PLANIFICACION,NOW())";
             var parameters = new
@@ -112,7 +114,16 @@ namespace inti_repository.actividad
                 actividades.ESTADO_PLANIFICACION
             };
             var result = await db.ExecuteAsync(dataInsert, parameters);
-            return result > 0;
+
+            var data = @"SELECT CORREO FROM Usuario WHERE ID_USUARIO = @id";
+            var parameter = new
+            {
+                id = actividades.FK_ID_RESPONSABLE
+            };
+            var lstcorreoDestinatario = await db.QueryAsync<string>(data, parameter);
+            lstCorreos.AddRange(lstcorreoDestinatario);
+
+            return lstCorreos;
         }
 
         public async Task<bool> UpdateActividad(Actividad actividades)

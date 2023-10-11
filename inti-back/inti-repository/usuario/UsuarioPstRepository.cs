@@ -287,7 +287,7 @@ namespace inti_repository.usuario
                 Password = objLogin.PASSWORD,
                 Correopst = objLogin.CORREO
             };
-            objUsuarioLogin = await db.QueryFirstOrDefaultAsync<UsuarioPstLogin>(sql,parameters);
+            objUsuarioLogin = db.QueryFirstOrDefault<UsuarioPstLogin>(sql,parameters);
 
             if (objUsuarioLogin != null)
             {
@@ -299,7 +299,7 @@ namespace inti_repository.usuario
             }
 
 
-            return objUsuarioLogin;
+            return await Task.FromResult<UsuarioPstLogin>(objUsuarioLogin);
 
         }
         public IEnumerable<Permiso> ObtenerPermisosUsuario(int id)

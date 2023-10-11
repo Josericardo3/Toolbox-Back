@@ -136,7 +136,6 @@ namespace inti_back.Controllers
                 });
             }
         }
-        [AllowAnonymous]
         [HttpPost("LoginUsuario")]
         public async Task<IActionResult> LoginUsuario(InputLogin objLogin)
         {
@@ -188,7 +187,7 @@ namespace inti_back.Controllers
                     if (create != null)
                     {
                         Correos envio = new(Configuration);
-                        var send = envio.EnviarCambioContraseña(correo, "Cambio de contraseña", create);
+                        var send = envio.EnviarCambioContraseña(correo, "Registro de Usuario", create);
                         if (send == 0)
                         {
                             throw new Exception();

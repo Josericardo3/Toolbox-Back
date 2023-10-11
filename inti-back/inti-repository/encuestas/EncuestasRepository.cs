@@ -109,7 +109,6 @@ namespace inti_repository.encuestas
         public async Task<bool> DeleteEncuesta(int idEncuesta)
         {
             var db = dbConnection();
-            int i = 0;
 
             var parameter = new
             {
