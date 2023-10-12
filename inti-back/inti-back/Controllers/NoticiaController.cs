@@ -65,11 +65,11 @@ namespace inti_back.Controllers
             timer.Start();
         }
         [HttpGet("noticia")]
-        public async Task<IActionResult> GetAllNoticias(string Rnt, int IdTipoUsuario)
+        public async Task<IActionResult> GetAllNoticias(string Rnt, int id,int IdTipoUsuario)
         {
             try
             {
-                var response = await _noticiaRepository.GetAllNoticias(Rnt, IdTipoUsuario);
+                var response = await _noticiaRepository.GetAllNoticias(Rnt, id, IdTipoUsuario);
                 var results = new List<object>();
 
                 foreach (var notificacion in response)

@@ -29,7 +29,7 @@ namespace inti_repository.noticia
             return new MySqlConnection(_connectionString.ConnectionString);
         }
 
-        public async Task<IEnumerable<ResponseNoticia>> GetAllNoticias(string rnt, int idTipoUsuario)
+        public async Task<IEnumerable<ResponseNoticia>> GetAllNoticias(string rnt, int iduser, int idTipoUsuario)
         {
             var db = dbConnection();
             var result = new List<ResponseNoticia>();
@@ -45,10 +45,14 @@ namespace inti_repository.noticia
                         LEFT JOIN MaeNorma d ON d.ID_NORMA = n.FK_ID_NORMA
                         LEFT JOIN MaeCategoriaRnt e ON e.ID_CATEGORIA_RNT = n.FK_ID_CATEGORIA
                         LEFT JOIN MaeSubCategoriaRnt f ON f.ID_SUB_CATEGORIA_RNT = n.FK_ID_SUB_CATEGORIA
-                        WHERE a.ESTADO = true 
+                        WHERE a.ESTADO = true AND a.FK_ID_USUARIO = @iduser
                         GROUP BY a.ID_NOTICIA, a.FK_ID_USUARIO, c.NOMBRE,a.TITULO, a.DESCRIPCION, a.IMAGEN, a.FECHA_REG, a.FECHA_ACT
                         ORDER BY a.FECHA_REG DESC";
-                result = (await db.QueryAsync<ResponseNoticia>(data)).ToList();
+                var parameterId = new
+                {
+                    iduser = iduser
+                };
+                result = (await db.QueryAsync<ResponseNoticia>(data, parameterId)).ToList();
             }
             else
             {
@@ -614,9 +618,7 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
                             LEFT JOIN Usuario u ON d.FK_ID_USUARIO = u.ID_USUARIO
                         WHERE
                             a.ESTADO = TRUE AND d.ESTADO = true
-                            AND (d.FK_ID_USUARIO = @iduser OR
-                            d.FK_ID_USUARIO in  (SELECT p.ID_USUARIO FROM Usuario p WHERE 
-                            p.RNT = (SELECT u.RNT FROM Usuario u WHERE ID_USUARIO = @iduser)))
+                            AND d.FK_ID_USUARIO = @iduser 
                             AND d.FECHA_REG >= CURDATE() - INTERVAL 1 WEEK
                         ORDER BY d.FECHA_REG DESC
                         LIMIT 5
@@ -642,9 +644,7 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
                             LEFT JOIN Actividad c ON a.FK_ID_ACTIVIDAD = c.ID_ACTIVIDAD
                         WHERE
                             a.ESTADO = TRUE AND c.ESTADO = true
-                            AND (c.FK_ID_USUARIO_PST = @iduser OR
-                            c.FK_ID_USUARIO_PST in  (SELECT p.ID_USUARIO FROM Usuario p WHERE 
-                            p.RNT = (SELECT u.RNT FROM Usuario u WHERE ID_USUARIO = @iduser)))
+                            AND c.FK_ID_USUARIO_PST = @iduser 
                             AND DATE_FORMAT(STR_TO_DATE(c.FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d') >= CURDATE()
                             AND DATE_FORMAT(STR_TO_DATE(c.FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d') <= DATE_ADD(CURDATE(), INTERVAL 1 WEEK)
                         ORDER BY c.FECHA_FIN ASC
@@ -780,14 +780,14 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
                             a.TIPO,
                             a.ESTADO
                         FROM
-                            Notificacion a
+                            Notificacion a 
                             LEFT JOIN Noticia d ON a.FK_ID_NOTICIA = d.ID_NOTICIA
                             LEFT JOIN Usuario u ON d.FK_ID_USUARIO = u.ID_USUARIO
                             LEFT JOIN Actividad c ON a.FK_ID_ACTIVIDAD = c.ID_ACTIVIDAD
                         WHERE
-                            d.ESTADO = 1  
+                            d.ESTADO = 1   AND (a.FK_ID_PST = @iduser OR a.FK_ID_USUARIO = @iduser)
                         ORDER BY d.FECHA_REG DESC, c.FECHA_FIN ASC;";
-                result = await db.QueryAsync<ResponseNotificacion>(data);
+                result = await db.QueryAsync<ResponseNotificacion>(data, parameterUser);
             }
             /*else if (datausuario.ID_TIPO_USUARIO == 6 || datausuario.ID_TIPO_USUARIO == 7)
             {

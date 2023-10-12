@@ -13,7 +13,7 @@ namespace inti_repository.noticia
 {
     public interface INoticiaRepository
     {
-        Task<IEnumerable<ResponseNoticia>> GetAllNoticias(string rnt, int idTipoUsuario);
+        Task<IEnumerable<ResponseNoticia>> GetAllNoticias(string rnt, int iduser,int idTipoUsuario);
         Task<ResponseNoticia> GetNoticia(int id);
         Task<ReturnInsertNoticia> InsertNoticia(InputNoticiaString noticia);
         Task<bool> UpdateNoticia(Noticia noticia);

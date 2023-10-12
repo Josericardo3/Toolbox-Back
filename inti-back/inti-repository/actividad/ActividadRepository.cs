@@ -51,6 +51,10 @@ namespace inti_repository.actividad
             var db = dbConnection();
             List<ResponseActividad> result;
             string data;
+            var parameterId = new
+            {
+                id = idUsuarioPst
+            };
             if (idTipoUsuario == 3 || idTipoUsuario == 4 || idTipoUsuario == 5)
             {
                 data = @"select a.ID_ACTIVIDAD, p.NOMBRE_PST,a.FK_ID_USUARIO_PST, a.FK_ID_RESPONSABLE, b.NOMBRE as NOMBRE_RESPONSABLE, c.DESCRIPCION as CARGO,
@@ -60,8 +64,8 @@ namespace inti_repository.actividad
                         LEFT JOIN Usuario u ON a.FK_ID_USUARIO_PST = u.ID_USUARIO
                         LEFT JOIN Pst p ON u.FK_ID_PST = p.ID_PST
                         LEFT JOIN MaeGeneral c ON b.ID_TIPO_USUARIO = c.ITEM AND c.ID_TABLA =1 
-                        where a.ESTADO = TRUE ORDER BY a.FECHA_REG DESC";
-                result = (await db.QueryAsync<ResponseActividad>(data)).ToList();
+                        where a.ESTADO = TRUE AND (a.FK_ID_USUARIO_PST = @id OR a.FK_ID_RESPONSABLE =@id) ORDER BY a.FECHA_REG DESC";
+                result = (await db.QueryAsync<ResponseActividad>(data,parameterId)).ToList();
             }
             else
             {
@@ -73,10 +77,7 @@ namespace inti_repository.actividad
                     LEFT JOIN Pst p ON u.FK_ID_PST = p.ID_PST
                     LEFT JOIN MaeGeneral c ON b.ID_TIPO_USUARIO = c.ITEM AND c.ID_TABLA =1 
                     where (a.FK_ID_USUARIO_PST = @id OR a.FK_ID_RESPONSABLE = @id) AND a.ESTADO = TRUE ORDER BY a.FECHA_REG DESC";
-                var parameterId = new
-                {
-                    id = idUsuarioPst
-                };
+          
                 result = (await db.QueryAsync<ResponseActividad>(data, parameterId)).ToList();
             }
            
