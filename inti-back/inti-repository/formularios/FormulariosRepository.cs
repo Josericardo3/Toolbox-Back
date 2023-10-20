@@ -75,13 +75,10 @@ namespace inti_repository.formularios
         {
             var db = dbConnection();
 
-            var queryUbicacionUsuario = @"SELECT 
-                                    FK_ID_USUARIO as ID_USUARIO, DEPARTAMENTO, MUNICIPIO
-                                FROM
-                                    Pst
-                                WHERE
-                                    FK_ID_USUARIO = @FK_ID_USUARIO
-                                        AND ESTADO = 1";
+            var queryUbicacionUsuario = @"SELECT a.FK_ID_USUARIO as ID_USUARIO, a.DEPARTAMENTO, a.MUNICIPIO, b.VALOR
+                                        FROM Pst as a join RespuestaCaracterizacion as b
+                                        WHERE
+                                        a.FK_ID_USUARIO = 99 AND a.ESTADO = 1 and b.FK_ID_CARACTERIZACION_DINAMICA=10;";
             var parameter = new
             {
                 FK_ID_USUARIO = ID_USUARIO

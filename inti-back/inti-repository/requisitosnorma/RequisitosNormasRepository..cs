@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using inti_model.normas;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
@@ -25,7 +26,7 @@ namespace inti_repository.requisitosnorma
         public async Task<List<Data1>> GetResponseRequisitosNormas(int idnorma)
         {
             var db = dbConnection();
-            var estructuraList = new List<Data1>(); // Inicializamos una lista de Data1
+            var estructuraList = new List<Data1>();
             var requisitos = new List<Data>();
 
             if (idnorma == 10)
@@ -123,6 +124,22 @@ namespace inti_repository.requisitosnorma
             return estructuraList;
         }
 
+        public async Task<IEnumerable<dynamic>> GetRequisitosNormas(int idnorma)
+        {
+            var db = dbConnection();
+
+            var query = @"SELECT 
+                            TITULO
+                        FROM
+                            MaeRequisitoNorma
+                        WHERE
+                            NORMA = @ID_NORMA";
+
+            var result = await db.QueryAsync<dynamic>(query, new { ID_NORMA  = idnorma });
+
+            return result.ToList();
+
+        }
     }
 
 }

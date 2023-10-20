@@ -35,23 +35,84 @@ namespace inti_repository.encuestas
                 var queryEncuestaId = @"SELECT LAST_INSERT_ID() FROM MaeEncuesta limit 1;";
                 var idEncuesta = await db.QueryFirstAsync<int>(queryEncuestaId);
 
-                    foreach (var pregunta in encuesta.MAE_ENCUESTA_RESPUESTAS)
+                    foreach (var pregunta in encuesta.MAE_ENCUESTA_PREGUNTAS)
                     {
                         pregunta.FK_MAE_ENCUESTA = idEncuesta;
 
-                        var querypregunta = @"INSERT INTO MaeEncuestaPregunta (FK_MAE_ENCUESTA,DESCRIPCION,VALOR,OBLIGATORIO,FECHA_REG)
-                                       VALUES(@FK_MAE_ENCUESTA,@DESCRIPCION,@VALOR,@OBLIGATORIO,NOW())";
+                        var querypregunta = @"INSERT INTO MaeEncuestaPregunta (FK_MAE_ENCUESTA,DESCRIPCION,TIPO,VALOR,OBLIGATORIO,FECHA_REG)
+                                       VALUES(@FK_MAE_ENCUESTA,@DESCRIPCION,@TIPO,@VALOR,@OBLIGATORIO,NOW())";
 
                         var parameterPregunta = new
                         {
                             pregunta.FK_MAE_ENCUESTA,
                             pregunta.DESCRIPCION,
+                            pregunta.TIPO,
                             pregunta.VALOR,
                             pregunta.OBLIGATORIO
                         };
                          var dataPregunta = await db.ExecuteAsync(querypregunta, parameterPregunta);
                     }
             return idEncuesta;
+        }
+        public async Task<int> UpdateMaeEncuestas(MaeEncuesta encuesta)
+        {
+            var db = dbConnection();
+
+            var queryEncuesta = @"UPDATE MaeEncuesta  set 
+                                    TITULO = @TITULO,
+                                    DESCRIPCION = @DESCRIPCION,
+                                    ESTADO = 1,
+                                    FECHA_ACT = NOW() 
+                                    WHERE ID_MAE_ENCUESTA = @ID_MAE_ENCUESTA";
+            var parameters = new
+            {
+                encuesta.TITULO,
+                encuesta.DESCRIPCION,
+                encuesta.ID_MAE_ENCUESTA
+            };
+            var dataEncuesta = await db.ExecuteAsync(queryEncuesta, parameters);
+
+            foreach (var pregunta in encuesta.MAE_ENCUESTA_PREGUNTAS)
+            {
+                if (pregunta.ID_MAE_ENCUESTA_PREGUNTA == 0)
+                {
+                    pregunta.FK_MAE_ENCUESTA = encuesta.ID_MAE_ENCUESTA;
+
+                    var querypregunta = @"INSERT INTO MaeEncuestaPregunta (FK_MAE_ENCUESTA,DESCRIPCION,TIPO,VALOR,OBLIGATORIO,FECHA_REG)
+                                       VALUES(@FK_MAE_ENCUESTA,@DESCRIPCION,@TIPO,@VALOR,@OBLIGATORIO,NOW())";
+
+                    var parameterPregunta = new
+                    {
+                        pregunta.FK_MAE_ENCUESTA,
+                        pregunta.DESCRIPCION,
+                        pregunta.TIPO,
+                        pregunta.VALOR,
+                        pregunta.OBLIGATORIO
+                    };
+                    var dataPregunta = await db.ExecuteAsync(querypregunta, parameterPregunta);
+                }
+                else
+                {
+                    var querypregunta = @"UPDATE MaeEncuestaPregunta SET
+                                        DESCRIPCION = @DESCRIPCION, 
+                                        TIPO = @TIPO,
+                                        VALOR = @VALOR,
+                                        OBLIGATORIO = @OBLIGATORIO,
+                                        FECHA_ACT = NOW() WHERE 
+                                        ID_MAE_ENCUESTA_PREGUNTA = @ID_MAE_ENCUESTA_PREGUNTA";
+
+                    var parameterPregunta = new
+                    {
+                        pregunta.DESCRIPCION,
+                        pregunta.TIPO,
+                        pregunta.VALOR,
+                        pregunta.OBLIGATORIO,
+                        pregunta.ID_MAE_ENCUESTA_PREGUNTA
+                    };
+                    var dataPregunta = await db.ExecuteAsync(querypregunta, parameterPregunta);
+                }
+            }
+            return encuesta.ID_MAE_ENCUESTA;
         }
         public async Task<IEnumerable<ResponseEncuestaGeneral>> GetEncuestaGeneral()
         {
@@ -73,6 +134,39 @@ namespace inti_repository.encuestas
 
             return dataEncuesta;
         }
+
+        public async Task<MaeEncuesta> GetEncuestaPregunta( int idEncuesta)
+        {
+            var db = dbConnection();
+
+            var queryEncuesta = @"
+                                    SELECT 
+                                        ID_MAE_ENCUESTA,TITULO,DESCRIPCION
+                                    FROM
+                                        MaeEncuesta
+                                    WHERE
+                                     ESTADO = 1 AND ID_MAE_ENCUESTA = @ID_ENCUESTA;";
+            var parameterid = new
+            {
+                ID_ENCUESTA = idEncuesta
+            };
+
+            MaeEncuesta dataEncuesta = await db.QueryFirstAsync<MaeEncuesta>(queryEncuesta, parameterid);
+
+            var queryEncuestaPreg = @"
+                                    SELECT ID_MAE_ENCUESTA_PREGUNTA, FK_MAE_ENCUESTA, DESCRIPCION, VALOR, OBLIGATORIO 
+                                    FROM inti.MaeEncuestaPregunta WHERE ESTADO = 1 AND FK_MAE_ENCUESTA =@ID_ENCUESTA;";
+   
+            var queryEncuestap = await db.QueryAsync<MaeEncuestaPregunta>(queryEncuestaPreg, parameterid);
+
+            foreach (MaeEncuestaPregunta item in queryEncuestap)
+            {
+                dataEncuesta.MAE_ENCUESTA_PREGUNTAS.Add(item);
+            }
+            
+            return dataEncuesta;
+        }
+
 
         public async Task<bool> PostRespuestas(List<RespuestaEncuestas> respuestas)
         {
@@ -121,6 +215,23 @@ namespace inti_repository.encuestas
             var dataPregunta = await db.ExecuteAsync(querypreguntas, parameter);
 
             var queryrespuesta = @"UPDATE RespuestaEncuesta a INNER JOIN MaeEncuestaPregunta b ON a.FK_ID_MAE_ENCUESTA_PREGUNTA = b.ID_MAE_ENCUESTA_PREGUNTA SET a.ESTADO = 0 WHERE b.FK_MAE_ENCUESTA = @IdEncuesta AND a.ESTADO = 1 ;";
+            var dataRespuesta = await db.ExecuteAsync(queryrespuesta, parameter);
+
+
+            return dataRespuesta > 0;
+        }
+        public async Task<bool> DeletePregunta(int idPregunta)
+        {
+            var db = dbConnection();
+
+            var parameter = new
+            {
+                idPregunta = idPregunta
+            };
+            var querypreguntas = @"UPDATE MaeEncuestaPregunta SET ESTADO = 0 WHERE ID_MAE_ENCUESTA_PREGUNTA = @idPregunta AND ESTADO = 1";
+            var dataPregunta = await db.ExecuteAsync(querypreguntas, parameter);
+
+            var queryrespuesta = @"UPDATE RespuestaEncuesta SET ESTADO = 0 WHERE FK_ID_MAE_ENCUESTA_PREGUNTA = @idPregunta AND ESTADO = 1 ;";
             var dataRespuesta = await db.ExecuteAsync(queryrespuesta, parameter);
 
 

@@ -44,6 +44,34 @@ namespace inti_back.Controllers
             }
 
         }
+        [HttpPut]
+        public async Task<IActionResult> UpdateMaeEncuestas(MaeEncuesta encuesta)
+        {
+            try
+            {
+                var data = _encuestaRepository.UpdateMaeEncuestas(encuesta);
+
+
+                return Ok(new
+                {
+                    Id = data.Result,
+                    StatusCode(200).StatusCode,
+                    valor = "Se actualizó la encuesta"
+                });
+
+
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    StatusCode = 500,
+                    Valor = "Ocurrió un error en la actualización",
+                    Mensaje = ex.Message
+                });
+            }
+
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetEncuestasGeneral()
@@ -74,6 +102,34 @@ namespace inti_back.Controllers
             }
         }
 
+        [HttpGet("Preguntas")]
+        public async Task<IActionResult> GetEncuestaPregunta(int IdEncuesta)
+        {
+            try
+            {
+                var data = await _encuestaRepository.GetEncuestaPregunta(IdEncuesta);
+
+                if (data == null)
+                {
+                    return Ok(new
+                    {
+                        valor = "No se encontraron datos para mostrar"
+                    });
+                }
+
+                return Ok(data);
+
+
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    mensaje = ex.Message,
+                    valor = "Ocurrió un error"
+                });
+            }
+        }
         [HttpPost("respuestas")]
         public async Task<IActionResult> PostRespuesta(List<RespuestaEncuestas> respuesta)
         {
@@ -129,5 +185,36 @@ namespace inti_back.Controllers
             }
         }
 
+
+        [HttpDelete("DeletePregunta")]
+        public async Task<IActionResult> DeletePregunta(int idPregunta)
+        {
+            try
+            {
+                var response = await _encuestaRepository.DeletePregunta(idPregunta);
+
+                if (response == true)
+                {
+                    return Ok(new
+                    {
+                        StatusCode(200).StatusCode,
+                        valor = "La Pregunta ha sido borrada"
+                    });
+                }
+                else
+                {
+                    throw new Exception();
+                }
+            }
+            catch (Exception e)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "ocurrió un error al borrar la Pregunta",
+                    e.Message
+                });
+            }
+        }
     }
 }

@@ -37,5 +37,25 @@ namespace inti_back.Controllers
 
         }
 
+        [HttpGet("requisitos/{idnorma}")]
+        public async Task<IActionResult> GetRequisitosNormas(int idnorma)
+        {
+
+            try
+            {
+                var response = await _requisitosNormasRepository.GetRequisitosNormas(idnorma);
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "Error al momento de obtener los requisitos"
+                });
+            }
+
+        }
+
     }
 }

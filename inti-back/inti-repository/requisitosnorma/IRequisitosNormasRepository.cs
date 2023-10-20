@@ -12,5 +12,7 @@ namespace inti_repository.requisitosnorma
     {
         Task<List<Data1>> GetResponseRequisitosNormas(int idnorma);
 
+        Task<IEnumerable<dynamic>> GetRequisitosNormas(int idnorma);
+
     }
 }

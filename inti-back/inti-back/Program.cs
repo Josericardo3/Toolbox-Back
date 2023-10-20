@@ -26,16 +26,15 @@ using inti_repository.encuestas;
 using Seguridad.API.Middleware;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using inti_repository.requisitosnorma;
+using inti_repository.mantenedorformularios;
+using inti_repository.mejoracontinua;
+using inti_repository.matrizpartesinteresadas;
+using inti_repository.mapaproceso;
 
+const String default_url = "http://{0}:{1};https://{2}:{3}"; 
 
-
-const String default_url = "http://{0}:{1};https://{2}:{3}";
-
-
-var MyCors = "AllowAll"; 
-var builder = WebApplication.CreateBuilder(args);
-
-
+var builder = WebApplication.CreateBuilder(args); 
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -43,61 +42,26 @@ builder.Services.AddScoped<NoticiaController>();
 builder.Services.AddScoped<ActividadController>();
 
 
+//var port = int.Parse(Environment.GetEnvironmentVariable("INTI_BACK_PORT"));
 
+//var host = Environment.GetEnvironmentVariable("INTI_BACK_HOST");
 var env = Environment.GetEnvironmentVariable("INTI_BACK_ENV");
-var port = 8050;
+var port = 8050; 
+//var port = 8050;
 var host = "0.0.0.0";
 String connectionString = env != "DEV" ? "MySqlConnectionDev" : "MySqlConnection";
-
-
 
 Console.WriteLine("env->" + connectionString);
 Console.WriteLine("Connection string {0}", connectionString);
 
-
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 
 String to_use_urls = String.Format(default_url, host, port, host, port + 1);
 
-
-
 Console.WriteLine(to_use_urls);
 
-
-
 builder.WebHost.UseUrls(to_use_urls);
-
-builder.Services.AddHttpClient();
-
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(o =>
-{
-    o.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true
-    };
-});
-builder.Services.AddAuthorization();
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(MyCors, builder =>
-    {
-        builder.WithOrigins("*").WithMethods("GET","POST","PUT","DELETE")
-          .AllowAnyHeader();
-    });
-});
-
-
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Inti Back Solutions", Version = "v1" });
@@ -112,33 +76,32 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "Bearer"
     });
 
-
-
     c.AddSecurityRequirement(new OpenApiSecurityRequirement()
-    {
+      {
         {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                },
-                Scheme = "oauth2",
-                Name = "Bearer",
-                In = ParameterLocation.Header,
+          new OpenApiSecurityScheme
+          {
+            Reference = new OpenApiReference
+              {
+                Type = ReferenceType.SecurityScheme,
+                Id = "Bearer"
+              },
+              Scheme = "oauth2",
+              Name = "Bearer",
+              In = ParameterLocation.Header,
+
             },
             new List<string>()
-        }
-    });
+          }
+        });
+
 });
 
-builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddCors(
 
-builder.Services.Configure<JsonOptions>(options =>
-{
-    options.JsonSerializerOptions.PropertyNamingPolicy = null;
-});
+
+);
+builder.Services.AddHttpClient();
 
 
 var MySqlConfiguration = new MySQLConfiguration(builder.Configuration.GetConnectionString("MySqlConnectionDev"));
@@ -158,40 +121,104 @@ builder.Services.AddScoped<INoticiaRepository, NoticiaRepository>();
 builder.Services.AddScoped<IFormularioRepository, FormulariosRepository>();
 builder.Services.AddScoped<IEncuestasRepository, EncuestasRepository>();
 builder.Services.AddScoped<IMonitorizacionRepository, MonitorizacionRepository>();
+builder.Services.AddScoped<IRequisitosNormasRepository, RequisitosNormasRepository>();
+builder.Services.AddScoped<IMantenedorFormulariosRepository, MantenedorFormulariosRepository>();
+builder.Services.AddScoped<IMejoraContinuaRepository, MejoraContinuaRepository>();
+builder.Services.AddScoped<IMatrizPartesInteresadasRepository, MatrizPartesInteresadasRepository>();
+builder.Services.AddScoped<IMapaProcesoRepository, MapaProcesoRepository>();
+
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(o =>
+{
+    o.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey
+        (Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true
+    };
+});
+
+builder.Services.Configure<JsonOptions>(options =>
+{
+    options.JsonSerializerOptions.PropertyNamingPolicy = null;
+});
+
+
 
 var app = builder.Build();
+
+// obtenemos una instancia del NoticiaController para la tarea programada
+using(var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    
+    var controller = services.GetRequiredService<NoticiaController>();
+    var actividadServices = scope.ServiceProvider;
+
+    var actividadController = actividadServices.GetRequiredService<ActividadController>();
+
+    actividadController.StartTimer();
+
+    controller.StartTimer();
+
+    
+}
+
 
 
 
 // Configure the HTTP request pipeline.
-//app.UseCors(MyCors);
-app.UseCors(MyCors);
 
-app.UseRouting();
-app.UseHttpsRedirection();
-
-app.UseAuthentication();
-app.UseMiddleware<CustomDelegatingHandler>();
-app.UseAuthorization();
-
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-});
-
-app.MapControllers();
 
 app.UseSwagger();
 app.UseSwaggerUI();
 
 
+app.UseHttpsRedirection();
 
+app.UseAuthentication();
+app.UseMiddleware<CustomDelegatingHandler>();
+
+app.UseAuthorization();
+
+app.MapControllers();
+/*app.Use(async (context, next) =>
+{
+    context.Response.Headers.Add("X-Frame-Options", "SAMEORIGIN");
+    await next();
+});*/
 app.Use(async (context, next) =>
 {
-    //Console.WriteLine($"Request from: {context.Request.Host} {context.Request.Method}: {context.Request.Path}");
+    context.Response.Headers.Add("X-XSS-Protection", "1; mode=block");
     await next();
 });
 
+app.UseCors(x => x
+                .AllowAnyMethod()
+                
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(origin => true)
+                 /*.SetIsOriginAllowed(origin =>
+                 {
+                     List<string> allowedOrigins = new List<string>
+                    {
+                     
+                    };
 
+                     return allowedOrigins.Contains(origin);
+                 })*/
+                .AllowCredentials());
 
 app.Run();
+
+

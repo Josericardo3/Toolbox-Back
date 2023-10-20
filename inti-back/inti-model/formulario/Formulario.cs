@@ -11,6 +11,7 @@ namespace inti_model.formulario
         public int ID_USUARIO { get; set; }
         public string DEPARTAMENTO { get; set; }
         public string MUNICIPIO { get; set; }
+        public string VALOR { get; set; }
         public List<Formulario> RESPUESTAS { get; set; }
         public List<Formulario> RESPUESTA_GRILLA { get; set; }
 
