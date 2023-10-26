@@ -24,12 +24,12 @@ namespace inti_repository
             try
             {
                 string senderEmail = this.Configuration.GetValue<string>("Email:User");
-                string senderPassword = this.Configuration.GetValue<string>("Email:Password");
+               // string senderPassword = this.Configuration.GetValue<string>("Email:Password");
                 string body = CambioContraseña(encriptado);
 
                 var smtpClient = new SmtpClient(this.Configuration.GetValue<string>("Email:Server"), this.Configuration.GetValue<int>("Email:Port"));
                 smtpClient.EnableSsl = false;
-                smtpClient.Credentials = new NetworkCredential(senderEmail, senderPassword);
+                //smtpClient.Credentials = new NetworkCredential(senderEmail, senderPassword);
 
                 var message = new MailMessage(senderEmail, correousuario, subject, body);
                 message.IsBodyHtml = true;
