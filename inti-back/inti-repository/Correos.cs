@@ -28,7 +28,7 @@ namespace inti_repository
                 string body = CambioContraseña(encriptado);
 
                 var smtpClient = new SmtpClient(this.Configuration.GetValue<string>("Email:Server"), this.Configuration.GetValue<int>("Email:Port"));
-                smtpClient.EnableSsl = true;
+                smtpClient.EnableSsl = false;
                 smtpClient.Credentials = new NetworkCredential(senderEmail, senderPassword);
 
                 var message = new MailMessage(senderEmail, correousuario, subject, body);
