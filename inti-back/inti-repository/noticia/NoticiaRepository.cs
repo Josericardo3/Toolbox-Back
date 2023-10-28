@@ -248,9 +248,7 @@ namespace inti_repository.noticia
                         FK_ID_USUARIO = destinatario,
                         FK_ID_NOTICIA = idnoticia
                     });
-                    var querypstdestinatario = @"
-                        Select a.CORREO FROM Usuario a WHERE a.RNT = (SELECT RNT AS CORREO
-                        FROM Usuario WHERE ID_USUARIO = @destinatario)";
+                    var querypstdestinatario = @"Select a.CORREO FROM Usuario a WHERE a.ID_USUARIO = @destinatario";
                     var parameterDestinatario = new
                     {
                         destinatario = destinatario
@@ -269,7 +267,7 @@ namespace inti_repository.noticia
             var querynorma = @"INSERT INTO Notificacion (FK_ID_NOTICIA,FK_ID_NORMA,TIPO,FECHA_REG) VALUES
             (@FK_ID_NOTICIA,@FK_ID_NORMA,'Noticia',NOW())";
             var resultnorma = 0;
-            if (fkNormas != null && fkNormas.Count > 0)
+            if (fkNormas != null && fkNormas.Count > 0 && (fkCategorias == null || fkCategorias.Count == 0))
             { 
                 foreach (var norma in fkNormas)
                 {
@@ -298,7 +296,7 @@ namespace inti_repository.noticia
             var querycat = @"INSERT INTO Notificacion (FK_ID_NOTICIA,FK_ID_CATEGORIA,TIPO,FECHA_REG) VALUES
             (@FK_ID_NOTICIA,@FK_ID_CATEGORIA,'Noticia',NOW())";
             var resultcat = 0;
-            if (fkCategorias != null && fkCategorias.Count > 0)
+            if (fkCategorias != null && fkCategorias.Count > 0 && (fkSubCategorias == null || fkSubCategorias.Count == 0))
             {
                 foreach (var categoria in fkCategorias)
                 {
@@ -327,7 +325,7 @@ namespace inti_repository.noticia
             var querysubcat = @"INSERT INTO Notificacion (FK_ID_NOTICIA,FK_ID_SUB_CATEGORIA,TIPO,FECHA_REG) VALUES
             (@FK_ID_NOTICIA,@FK_ID_SUB_CATEGORIA,'Noticia',NOW())";
             var resultsubcat = 0;
-            if (fkSubCategorias != null && fkSubCategorias.Count > 0)
+            if (fkSubCategorias != null && fkSubCategorias.Count > 0 && (fkPst == null || fkPst.Count == 0))
             {
                 foreach (var subcategoria in fkSubCategorias)
                 {

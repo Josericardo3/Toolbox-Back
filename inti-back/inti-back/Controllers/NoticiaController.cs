@@ -154,7 +154,11 @@ namespace inti_back.Controllers
                 if (noticia.FOTO == null)
                 {
                     var create = await _noticiaRepository.InsertNoticia(noticia);
-                    var estado = envio.EnviarCorreoMasivoNoticia(create.CORREO, subject);
+                    if (noticia.ENVIO_CORREO ==  true)
+                    {
+                        var estado = envio.EnviarCorreoMasivoNoticia(create.CORREO, subject);
+
+                    }
 
                     return Ok(new
                     {
@@ -165,7 +169,10 @@ namespace inti_back.Controllers
                 else
                 {
                     var create = await _noticiaRepository.InsertNoticia(noticia);
-                    var estado = envio.EnviarCorreoMasivoNoticia(create.CORREO, subject);
+                    if (noticia.ENVIO_CORREO == true)
+                    {
+                        var estado = envio.EnviarCorreoMasivoNoticia(create.CORREO, subject);
+                    }
 
                     if (noticia.FOTO == null || noticia.FOTO.Length == 0)
 

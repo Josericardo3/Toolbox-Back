@@ -168,7 +168,7 @@ namespace inti_back.Controllers
 
         }
         [HttpPost("registrarEmpleadoPst")]
-        public async Task<IActionResult> RegistrarEmpleadoPst(int id, string nombre, string correo, int idcargo)
+        public async Task<IActionResult> RegistrarEmpleadoPst(int id, string nombre, string correo, int idcargo, bool ENVIO_CORREO)
         {
             try
             {
@@ -184,14 +184,19 @@ namespace inti_back.Controllers
                 else
                 {
                     var create = await _usuarioPstRepository.RegistrarEmpleadoPst(id, nombre, correo, idcargo);
+                    UsuarioPassword dataUsuario = await _validacionesRepository.RecuperacionContraseña(correo);
                     if (create != null)
                     {
                         Correos envio = new(Configuration);
-                        var send = envio.EnviarCambioContraseña(correo, "Registro de Usuario", create);
-                        if (send == 0)
+                        if (ENVIO_CORREO == true)
                         {
-                            throw new Exception();
+                            var send = envio.EnviarCambioContraseña(correo, "Registro de Usuario", dataUsuario.ENCRIPTACION);
+                            if (send == 0)
+                            {
+                                throw new Exception();
+                            }
                         }
+                
                         return Ok(new
                         {
                             StatusCode(201).StatusCode,

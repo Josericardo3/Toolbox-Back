@@ -18,12 +18,12 @@ namespace inti_back.Controllers
             _mantenedorRepository = mantenedorRepository;
         }
 
-        [HttpGet("{ID_USUARIO}")]
-        public async Task<IActionResult> Get(int ID_USUARIO)
+        [HttpGet("{ID_RNT}")]
+        public async Task<IActionResult> Get(int ID_RNT)
         {
             try
             {
-                var formulario = await _mantenedorRepository.Get(ID_USUARIO);
+                var formulario = await _mantenedorRepository.Get(ID_RNT);
                 if (formulario != null)
                 {
                     return Ok(formulario);
@@ -109,6 +109,7 @@ namespace inti_back.Controllers
                 if (borrado == false)
                 {
                     throw new Exception();
+
                 }
                 return Ok(new
                 {

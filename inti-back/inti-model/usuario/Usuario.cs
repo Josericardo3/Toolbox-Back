@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ namespace inti_model.usuario
 {
     public class Usuario
     {
+        [Key]
         public int ID_USUARIO { get; set; }
         public string? NOMBRE { get; set; }
         public string? CORREO { get; set; }

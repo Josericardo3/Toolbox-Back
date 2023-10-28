@@ -17,6 +17,7 @@ namespace inti_model.dboinput
         public string? FECHA_INICIO { get; set; }
         public string? FECHA_FIN { get; set; }
         public string? ESTADO_PLANIFICACION { get; set; }
+        public bool ENVIO_CORREO { get; set; } = false;
     }
 
 }

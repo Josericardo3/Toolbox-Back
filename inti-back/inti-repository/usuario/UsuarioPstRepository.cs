@@ -51,6 +51,7 @@ namespace inti_repository.usuario
         public async Task<ResponseUsuarioPst> GetUsuarioPst(int id)
         {
             var db = dbConnection();
+            //AGREGADO CURDATE() PARA OBTENER FECHA ACTUAL
             var sql = @"SELECT
                             a.ID_PST,
                             a.FK_ID_USUARIO,
@@ -68,7 +69,8 @@ namespace inti_repository.usuario
                             b.CORREO,                            
                             b.FK_ID_AVATAR as FK_ID_TIPO_AVATAR,
                             b.ID_TIPO_USUARIO,
-                            a.ESTADO
+                            a.ESTADO,
+                            NOW() AS FECHA_CONSULTA
                         FROM
                             Pst a LEFT JOIN Usuario b  ON b.RNT = a.RNT
                             LEFT JOIN MaeCategoriaRnt c ON a.FK_ID_CATEGORIA_RNT = c.ID_CATEGORIA_RNT

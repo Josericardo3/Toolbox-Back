@@ -408,7 +408,27 @@ namespace inti_repository.listachequeo
             responseDiagnostico.NO_CUMPLE_TOTAL                         = listConsolidado.Sum(x => Convert.ToInt32(x.NO_CUMPLE)) + "";
             responseDiagnostico.NO_APLICA_TOTAL                         = listConsolidado.Sum(x => Convert.ToInt32(x.NO_APLICA)) + "";
             responseDiagnostico.PORC_CUMPLE_TOTAL                       = listConsolidado.Sum(x => Convert.ToInt32(x.PORC_CUMPLE_NUMERO)) / listConsolidado.Count() + "%";
-            responseDiagnostico.ETAPA_INICIAL                           = responseDiagnostico.PORC_CUMPLE_TOTAL;
+            responseDiagnostico.ETAPA_INICIAL = "-";
+            responseDiagnostico.ETAPA_INTERMEDIA = "-";
+            responseDiagnostico.ETAPA_FINAL = "-";
+
+            switch (etapa)
+            {
+                case 1:
+                    responseDiagnostico.ETAPA_INICIAL = responseDiagnostico.PORC_CUMPLE_TOTAL;
+                    break;
+
+                case 2:
+                    responseDiagnostico.ETAPA_INTERMEDIA = responseDiagnostico.PORC_CUMPLE_TOTAL;
+                    break;
+                case 3:
+                    responseDiagnostico.ETAPA_FINAL = responseDiagnostico.PORC_CUMPLE_TOTAL;
+                    break;
+                default:
+                    break;
+            }
+          
+
             responseDiagnostico.ANALISIS                                = dataRespuestaAnalisis.RESPUESTA_ANALISIS;
             responseDiagnostico.FECHA_INFORME                           = DateTime.Now.ToString("dd 'de' MMMM 'de' yyyy");
             responseDiagnostico.USUARIO_NORMA_RESPUESTA                 = "El Prestador de Servicios Turisticos-PST " + datausuario.NOMBRE_PST + "  cumple en un " + responseDiagnostico.PORC_CUMPLE_TOTAL + "%" + "los requisitos de la norma " + dataNorma.NORMA;

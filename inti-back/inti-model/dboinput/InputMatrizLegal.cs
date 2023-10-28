@@ -17,5 +17,9 @@ namespace inti_model.dboinput
         public string EMISOR { get; set; }
         public string DESCRIPCION { get; set; }
         public string DOCS_ESPECIFICOS { get; set; }
+
+        public int ES_FIJO { get; set; }
+
+        public int ID_USUARIO_REG { get; set; }
     }
 }

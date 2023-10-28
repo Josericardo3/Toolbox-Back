@@ -154,8 +154,8 @@ namespace inti_repository.encuestas
             MaeEncuesta dataEncuesta = await db.QueryFirstAsync<MaeEncuesta>(queryEncuesta, parameterid);
 
             var queryEncuestaPreg = @"
-                                    SELECT ID_MAE_ENCUESTA_PREGUNTA, FK_MAE_ENCUESTA, DESCRIPCION, VALOR, OBLIGATORIO 
-                                    FROM inti.MaeEncuestaPregunta WHERE ESTADO = 1 AND FK_MAE_ENCUESTA =@ID_ENCUESTA;";
+                                    SELECT ID_MAE_ENCUESTA_PREGUNTA, FK_MAE_ENCUESTA, DESCRIPCION, TIPO,VALOR, OBLIGATORIO 
+                                    FROM MaeEncuestaPregunta WHERE ESTADO = 1 AND FK_MAE_ENCUESTA =@ID_ENCUESTA;";
    
             var queryEncuestap = await db.QueryAsync<MaeEncuestaPregunta>(queryEncuestaPreg, parameterid);
 

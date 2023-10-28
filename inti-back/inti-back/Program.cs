@@ -28,13 +28,25 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using inti_repository.requisitosnorma;
 using inti_repository.mantenedorformularios;
+using System.Configuration;
+using Microsoft.EntityFrameworkCore;
+using inti_repository.kpisRepo.Indicadores;
+using inti_repository.kpisRepo;
+using inti_repository.kpisRepo.ObjetivosRepo;
+using inti_repository.kpisRepo.VariablesRepository;
+using inti_repository.kpisRepo.PeriodosMedicionRepo;
+using inti_repository.kpisRepo.ProcesosRepo;
+using inti_repository.kpisRepo.PaqueteRepo;
+using inti_repository.kpisRepo.AccionRepo;
+using inti_repository.kpisRepo.FuenteDatoRepo;
 using inti_repository.mejoracontinua;
 using inti_repository.matrizpartesinteresadas;
 using inti_repository.mapaproceso;
+using inti_repository.DocumentoRequerimientoRepo;
 
 const String default_url = "http://{0}:{1};https://{2}:{3}"; 
 
-var builder = WebApplication.CreateBuilder(args); 
+var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -59,6 +71,10 @@ Console.WriteLine("Connection string {0}", connectionString);
 String to_use_urls = String.Format(default_url, host, port, host, port + 1);
 
 Console.WriteLine(to_use_urls);
+builder.Services.AddDbContext<IntiDBContext>(options =>
+{
+    options.UseMySQL(builder.Configuration.GetConnectionString(connectionString));
+});
 
 builder.WebHost.UseUrls(to_use_urls);
 builder.Services.AddEndpointsApiExplorer();
@@ -127,6 +143,17 @@ builder.Services.AddScoped<IMejoraContinuaRepository, MejoraContinuaRepository>(
 builder.Services.AddScoped<IMatrizPartesInteresadasRepository, MatrizPartesInteresadasRepository>();
 builder.Services.AddScoped<IMapaProcesoRepository, MapaProcesoRepository>();
 
+builder.Services.AddScoped<IKpiRepository, KpiRepository>();
+builder.Services.AddScoped<IObjetivoRepository, ObjetivoRepository>();
+builder.Services.AddScoped<IVariableRepository, VariableRepository>();
+builder.Services.AddScoped<IPeriodoMedicionRepository, PeriodoMedicionRepository>();
+builder.Services.AddScoped<IProcesoRepository, ProcesoRepository>();
+builder.Services.AddScoped<IPaqueteRepository, PaqueteRepository>();
+builder.Services.AddScoped<IAccionRepository, AccionRepository>();
+builder.Services.AddScoped<IFuenteDatoRepository, FuenteDatoRepository>();
+
+builder.Services.AddScoped<IDocumentoRequerimientoRepository, DocumentoRequerimientoRepository>();
+
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(options =>
 {
@@ -190,7 +217,7 @@ app.UseAuthentication();
 app.UseMiddleware<CustomDelegatingHandler>();
 
 app.UseAuthorization();
-
+app.UseStaticFiles();
 app.MapControllers();
 /*app.Use(async (context, next) =>
 {
@@ -212,7 +239,7 @@ app.UseCors(x => x
                  {
                      List<string> allowedOrigins = new List<string>
                     {
-                     
+                  
                     };
 
                      return allowedOrigins.Contains(origin);

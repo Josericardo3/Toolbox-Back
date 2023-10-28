@@ -3,6 +3,7 @@ using inti_model.dboinput;
 using inti_repository.matrizlegal;
 using Microsoft.AspNetCore.Mvc;
 using MySqlX.XDevAPI;
+using inti_model.usuario;
 
 namespace inti_back.Controllers
 {
@@ -122,6 +123,59 @@ namespace inti_back.Controllers
             }
 
         }
+
+
+        [HttpPost("RespuestaMatrizLegalResumen")]
+        public async Task<IActionResult> RespuestaMatrizLegalResumen([FromBody] RespuestaMatrizLegalResumen respuestaMatrizLegalResumen)
+        {
+            try
+            {
+                // Lógica para procesar el modelo RespuestaMatrizLegalV2
+                var create = await _matrizlegalRepository.RespuestaMatrizLegalResumen(respuestaMatrizLegalResumen);
+
+                if (create == null)
+                {
+                    return Ok(new
+                    {
+                        StatusCode(404).StatusCode,
+                        Mensaje = "No se ingresaron correctamente los datos de la ley"
+                    });
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    return Ok(new
+                    {
+                        StatusCode(200).StatusCode,
+                        Mensaje = "El modelo no es válido"
+                    });
+                }
+
+                return Ok(new
+                {
+                    StatusCode(201).StatusCode,
+                    Valor = "La respuesta se registró correctamente"
+                });
+            }
+            catch (Exception e)
+            {
+                return Ok(new
+                {
+                    StatusCode(404).StatusCode,
+                    Mensaje = e.Message,
+                    Valor = "No se ingresaron correctamente los datos de la respuesta"
+                });
+            }
+        }
+
+
+
+
+
+
+
+
+
         [HttpGet("ArchivoMatrizLegal")]
         public IActionResult ArchivoMatrizLegal(int IdDocumento, int idUsuario)
 
@@ -148,10 +202,37 @@ namespace inti_back.Controllers
                     e.Message
                 });
             }
+
+       
                 
 
         }
-
+        [HttpGet("DataHeaderMatrizLegal")]
+        public IActionResult DatosHeaderMatriz(String RNT)
+        {
+            try
+            {
+                var response = _matrizlegalRepository.GetDatosHeaderMatriz(RNT);
+                if (response == null)
+                {
+                    return Ok(new
+                    {
+                        StatusCode(200).StatusCode,
+                        valor = "Datos no encontrados"
+                    });
+                }
+                return Ok(response);
+            }
+            catch (Exception e)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "No se hallaron datos para la solicitud",
+                    e.Message
+                });
+            }
+        }
             
     }
 }

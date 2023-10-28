@@ -94,7 +94,10 @@ namespace inti_back.Controllers
             {
                 string subject = "Notificación de Actividad";
                 List<string> create = await _actividadRepository.InsertActividad(actividades);
-                var estado = envio.EnvioCorreoActividad(create, subject);
+                if (actividades.ENVIO_CORREO == true)
+                {
+                    var estado = envio.EnvioCorreoActividad(create, subject);
+                }
                 await _noticiaRepository.ActualizarNotificaciones();
                 return Ok(new
                 {

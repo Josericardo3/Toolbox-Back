@@ -20,9 +20,11 @@ namespace inti_model.dboresponse
         public string DOCS_ESPECIFICOS { get; set; }
         public int FK_ID_USUARIO { get; set; }
         public string? ESTADO_CUMPLIMIENTO { get; set; }
+        public int? ID_RESPONSABLE_CUMPLIMIENTO { get; set; }
         public string? RESPONSABLE_CUMPLIMIENTO { get; set; }
         public string? DATA_CUMPLIMIENTO { get; set; }
         public string? PLAN_ACCIONES_A_REALIZAR { get; set; }
+        public int? ID_PLAN_RESPONSABLE_CUMPLIMIENTO { get; set; }
         public string? PLAN_RESPONSABLE_CUMPLIMIENTO { get; set; }
         public string? PLAN_FECHA_EJECUCION { get; set; }
         public string? PLAN_ESTADO { get; set; }

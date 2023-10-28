@@ -11,6 +11,7 @@ namespace inti_model.mejoracontinua
     {
         public int ID_MEJORA_CONTINUA { get; set; }
         public int ID_USUARIO { get; set; }
+        public string RESPONSABLE { get; set; }
         public string DESCRIPCION { get; set; }
         public string NTC { get; set; }
         public string REQUISITOS { get; set; }

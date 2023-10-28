@@ -21,5 +21,8 @@ namespace inti_model.matrizpartesinteresadas
         public int ESTADO_ACTIVO_INACTIVO { get; set; }
         public int ID_USUARIO { get; set; }
         public string? FECHA_EJECUCION { get; set; }
+        public string? FECHA_REGISTRO { get; set; }
+        public int MEJORA_CONTINUA { get; set; }
+        public string? ID_RNT { get; set; }
     }
 }

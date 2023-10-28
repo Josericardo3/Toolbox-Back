@@ -28,8 +28,8 @@ namespace inti_repository.mejoracontinua
         {
             var db = dbConnection();
 
-            var query = @"INSERT INTO MejoraContinua(ID_USUARIO, DESCRIPCION, NTC, REQUISITOS, TIPO, ESTADO, FECHA_INICIO, FECHA_FIN, FECHA_REGISTRO) 
-                  VALUES (@ID_USUARIO, @DESCRIPCION, @NTC, @REQUISITOS, @TIPO, @ESTADO, @FECHA_INICIO, @FECHA_FIN, NOW())";
+            var query = @"INSERT INTO MejoraContinua(ID_USUARIO, RESPONSABLE, DESCRIPCION, NTC, REQUISITOS, TIPO, ESTADO, FECHA_INICIO, FECHA_FIN, FECHA_REGISTRO) 
+                  VALUES (@ID_USUARIO, @RESPONSABLE, @DESCRIPCION, @NTC, @REQUISITOS, @TIPO, @ESTADO, @FECHA_INICIO, @FECHA_FIN, NOW())";
 
             var insert = await db.ExecuteAsync(query, entity);
 
@@ -54,7 +54,7 @@ namespace inti_repository.mejoracontinua
             var db = dbConnection();
             var result = new List<MejoraContinua>();
 
-            string query = @"SELECT * FROM inti.MejoraContinua WHERE ID_USUARIO = @ID_USUARIO";
+            string query = @"SELECT * FROM inti.MejoraContinua WHERE ID_USUARIO = @ID_USUARIO ORDER BY FECHA_REGISTRO DESC";
 
             result = (await db.QueryAsync<MejoraContinua>(query, new { ID_USUARIO })).ToList();
 
@@ -67,6 +67,7 @@ namespace inti_repository.mejoracontinua
             var query = @"UPDATE MejoraContinua
                   SET
                     ID_USUARIO = @ID_USUARIO,
+                    RESPONSABLE = @RESPONSABLE,
                     DESCRIPCION = @DESCRIPCION,
                     NTC = @NTC,
                     REQUISITOS = @REQUISITOS
@@ -75,6 +76,7 @@ namespace inti_repository.mejoracontinua
             var update = await db.ExecuteAsync(query, new
             {
                 entity.ID_USUARIO,
+                entity.RESPONSABLE,
                 entity.DESCRIPCION,
                 entity.NTC,
                 entity.REQUISITOS,

@@ -82,36 +82,88 @@ namespace inti_repository.validaciones
         {
             var db = dbConnection();
             var sql = @"
-                        SELECT 
-                            ms.ID_SUB_CATEGORIA_RNT as ID, mc.ID_CATEGORIA_RNT,mc.CATEGORIA_RNT, ms.SUB_CATEGORIA_RNT
-                        FROM
-                            MaeCategoriaRnt mc
-                                INNER JOIN
-                            MaeSubCategoriaRnt ms ON mc.ID_CATEGORIA_RNT = ms.FK_ID_CATEGORIA_RNT
-                        WHERE
-                            mc.ESTADO = 1 AND ms.ESTADO=1";
+                SELECT 
+                    ms.ID_SUB_CATEGORIA_RNT as ID,
+                    mc.ID_CATEGORIA_RNT,
+                    mc.CATEGORIA_RNT,
+                    ms.SUB_CATEGORIA_RNT,
+                    n.ID_NORMA
+                FROM
+                    MaeCategoriaRnt mc
+                        INNER JOIN
+                    MaeSubCategoriaRnt ms ON mc.ID_CATEGORIA_RNT = ms.FK_ID_CATEGORIA_RNT
+                        LEFT JOIN
+                    MaeNorma n ON mc.ID_CATEGORIA_RNT = n.FK_ID_CATEGORIA_RNT
+                WHERE
+                    mc.ESTADO = 1 AND ms.ESTADO = 1";
+
             var data = await db.QueryAsync(sql);
 
-            return data;
+            // Realizar el mapeo y agrupación por ID_CATEGORIA_RNT para agregar las subcategorías y normas a cada categoría
+            var result = data.GroupBy(row => new
+            {
+                ID = row.ID,
+                ID_CATEGORIA_RNT = row.ID_CATEGORIA_RNT,
+                CATEGORIA_RNT = row.CATEGORIA_RNT,
+                SUB_CATEGORIA_RNT = row.SUB_CATEGORIA_RNT
+            })
+            .Select(group => new
+            {
+                ID = group.Key.ID,
+                ID_CATEGORIA_RNT = group.Key.ID_CATEGORIA_RNT,
+                CATEGORIA_RNT = group.Key.CATEGORIA_RNT,
+                SUB_CATEGORIA_RNT = group.Key.SUB_CATEGORIA_RNT,
+                ID_NORMAS = group.Select(row => new
+                {
+                    ID_NORMA = row.ID_NORMA
+                }).ToList()
+            });
+
+            return result;
         }
 
         public async Task<IEnumerable<dynamic>> ListarPst()
         {
             var db = dbConnection();
             var sql = @"
-                        SELECT 
-	                        ps.ID_PST,
-                             u.ID_USUARIO,
-                            ps.NOMBRE_PST
-                        FROM
-                            Pst ps
-                                INNER JOIN
-                            Usuario u ON ps.FK_ID_USUARIO = u.ID_USUARIO
-                        WHERE
-                            u.ID_TIPO_USUARIO = 1 AND u.ESTADO = 1 AND ps.ESTADO = 1";
+                SELECT 
+                    ps.ID_PST,
+                    u.ID_USUARIO,
+                    ps.NOMBRE_PST,
+                    ps.FK_ID_CATEGORIA_RNT,
+                    ps.FK_ID_SUB_CATEGORIA_RNT,
+                    n.ID_NORMA
+                FROM
+                    Pst ps
+                        INNER JOIN
+                    Usuario u ON ps.FK_ID_USUARIO = u.ID_USUARIO
+                        LEFT JOIN
+                    MaeNorma n ON ps.FK_ID_CATEGORIA_RNT = n.FK_ID_CATEGORIA_RNT
+                WHERE
+                    u.ID_TIPO_USUARIO = 1 AND u.ESTADO = 1 AND ps.ESTADO = 1";
+
             var data = await db.QueryAsync(sql);
 
-            return data;
+            // Realizar el mapeo y agrupación por ID_PST para agregar las Normas a cada fila
+            var result = data.GroupBy(row => new
+            {
+                ID_PST = row.ID_PST,
+                ID_USUARIO = row.ID_USUARIO,
+                NOMBRE_PST = row.NOMBRE_PST,
+                FK_ID_CATEGORIA_RNT = row.FK_ID_CATEGORIA_RNT,
+                FK_ID_SUB_CATEGORIA_RNT = row.FK_ID_SUB_CATEGORIA_RNT
+            })
+            .Select(group => new
+            {
+                ID_PST = group.Key.ID_PST,
+                ID_USUARIO = group.Key.ID_USUARIO,
+                NOMBRE_PST = group.Key.NOMBRE_PST,
+                FK_ID_CATEGORIA_RNT = group.Key.FK_ID_CATEGORIA_RNT,
+                FK_ID_SUB_CATEGORIA_RNT = group.Key.FK_ID_SUB_CATEGORIA_RNT,
+                ID_NORMAS = group.Select(row => row.ID_NORMA).ToList()
+            });
+
+            return result;
         }
 
         public async Task<bool> PostMonitorizacionUsuario(ResponseMonitorizacionUsuario data)

@@ -31,6 +31,8 @@ namespace inti_model.dboresponse
         public int FK_ID_TIPO_AVATAR { get; set; }
         public int ID_TIPO_USUARIO { get; set; }
         public bool ESTADO { get; set; }
+        //REFERENCIA A NOW()
+        public string? FECHA_CONSULTA { get; set; }   
 
     }
 

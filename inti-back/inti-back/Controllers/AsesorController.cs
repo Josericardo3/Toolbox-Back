@@ -3,6 +3,7 @@ using inti_model.usuario;
 using inti_model.dboinput;
 using inti_repository;
 using inti_repository.caracterizacion;
+using inti_repository.validaciones;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -14,9 +15,11 @@ namespace inti_back.Controllers
     {
 
         private readonly IAsesorRepository _asesorRepository;
+        private readonly IValidacionesRepository _validacionRepository;
         private IConfiguration Configuration;
-        public AsesorController(IAsesorRepository asesorRepository, IConfiguration _configuration)
+        public AsesorController(IAsesorRepository asesorRepository, IConfiguration _configuration, IValidacionesRepository validacionRepository)
         {
+            _validacionRepository = validacionRepository;
             _asesorRepository = asesorRepository;
             Configuration = _configuration;
         }
@@ -48,7 +51,9 @@ namespace inti_back.Controllers
                 var create = await _asesorRepository.RegistrarAsesor(asesor);
                 Correos envio = new(Configuration);
                 String subject = "Cambio de contraseña";
-                envio.EnviarCambioContraseña(asesor.CORREO, subject, create);
+                UsuarioPassword dataUsuario = await _validacionRepository.RecuperacionContraseña(asesor.CORREO);
+
+                envio.EnviarCambioContraseña(asesor.CORREO, subject, dataUsuario.ENCRIPTACION);
                 return Ok(new
                 {
                     StatusCode(201).StatusCode,
