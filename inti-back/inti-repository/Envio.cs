@@ -32,7 +32,7 @@ namespace inti_repository
 
                 var smtpClient = new SmtpClient(this.Configuration.GetValue<String>("Email:Server"), this.Configuration.GetValue<int>("Email:Port"));
                 smtpClient.EnableSsl = true;
-                smtpClient.Credentials = new NetworkCredential(senderEmail, senderPassword);
+                //smtpClient.Credentials = new NetworkCredential(senderEmail, senderPassword);
                 var message = new MailMessage(senderEmail, correousuario, subject, body);
                 message.IsBodyHtml = true;
                 smtpClient.Send(message);
