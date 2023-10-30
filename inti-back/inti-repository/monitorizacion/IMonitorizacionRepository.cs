@@ -14,6 +14,8 @@ namespace inti_repository.monitorizacion
     public interface IMonitorizacionRepository
     {
         Task<IEnumerable<ResponseMonitorizacionIndicador>> GetAllMonitorizacionIndicador();
+        Task<IEnumerable<dynamic>> GetContadorMonitorizacion();
+
 
     }
 }

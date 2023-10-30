@@ -40,7 +40,24 @@ namespace inti_back.Controllers
             return Ok(response);
         }
 
-
+        [HttpGet("GetContadorMonitorizacion")]
+        public async Task<IActionResult> GetContadorMonitorizacion()
+        {
+            try
+            {
+                var response = await _monitorizacionRepository.GetContadorMonitorizacion();
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "Ocurrió un error al consultar la data",
+                    ex.Message
+                });
+            }
+        }
 
     }
 }

@@ -40,5 +40,70 @@ namespace inti_repository.monitorizacion
             return result;
         }
 
+        public async Task<IEnumerable<dynamic>> GetContadorMonitorizacion()
+        {
+            var db = dbConnection();
+            var sql = @"
+                        SELECT
+                        c.DEPARTAMENTO,
+                        c.RAZON_SOCIAL_PST,
+                        c.RNT,
+                        a.MODULO,
+                        d.NORMA,
+                        d.ID_NORMA,
+                            c.FK_ID_CATEGORIA_RNT,
+                        e.CATEGORIA_RNT,
+                        COUNT(*) AS CANTIDAD_CONEXIONES
+                    FROM
+                        MonitorizacionUsuario a
+                        INNER JOIN Usuario b ON a.FK_ID_USUARIO = b.ID_USUARIO
+                        INNER JOIN Pst c ON b.RNT = c.RNT
+                        INNER JOIN MaeNorma d ON c.FK_ID_CATEGORIA_RNT = d.FK_ID_CATEGORIA_RNT
+                        INNER JOIN MaeCategoriaRnt e ON c.FK_ID_CATEGORIA_RNT = e.ID_CATEGORIA_RNT
+                    WHERE
+                        a.TIPO = 'Login'
+                    GROUP BY
+                        c.DEPARTAMENTO,
+                        c.RNT,
+                         c.RAZON_SOCIAL_PST,
+                        a.MODULO,    d.NORMA , d.ID_NORMA, c.FK_ID_CATEGORIA_RNT,     e.CATEGORIA_RNT
+                    ORDER BY
+                        c.DEPARTAMENTO,
+                        c.RNT,
+                        c.RAZON_SOCIAL_PST;";
+
+            var data = await db.QueryAsync(sql);
+
+            var result = data.GroupBy(row => new
+            {
+                DEPARTAMENTO = row.DEPARTAMENTO
+            })
+               .Select(group => new
+               {
+                   DEPARTAMENTO = group.Key.DEPARTAMENTO,
+                   PSTs = group.GroupBy(pst => new
+                   {
+                       RNT = pst.RNT,
+                       RAZON_SOCIAL_PST = pst.RAZON_SOCIAL_PST
+                   })
+                .Select(pstGroup => new
+                {
+                    RNT = pstGroup.Key.RNT,
+                    RAZON_SOCIAL_PST = pstGroup.Key.RAZON_SOCIAL_PST,
+                    CANTIDAD_CONEXIONES = pstGroup.First().CANTIDAD_CONEXIONES,
+                    MODULO = pstGroup.First().MODULO,
+                    FK_ID_CATEGORIA_RNT = pstGroup.First().FK_ID_CATEGORIA_RNT,
+                    CATEGORIA_RNT = pstGroup.First().CATEGORIA_RNT,
+                    NORMAS = pstGroup.Select(row => new
+                    {
+                        ID_NORMA = row.ID_NORMA,
+                        NORMA = row.NORMA
+                    }).ToList()
+                }).ToList()
+               });
+
+            return result;
+        }
+
     }
 }
