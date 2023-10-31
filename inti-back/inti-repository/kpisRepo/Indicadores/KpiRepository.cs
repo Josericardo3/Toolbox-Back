@@ -414,7 +414,7 @@ namespace inti_repository.kpisRepo
                         ID_VARIABLE_EVALUACION_INDICADOR = y.ID_VARIABLE_EVALUACION_INDICADOR,
                         ID_VARIABLE = y.ID_VARIABLE,
                         NOMBRE = y.Variable.NOMBRE.ToUpper(),
-                        VALOR = y.VALOR.ToString(),
+                        VALOR = y.Variable.NOMBRE == "100" ? "100" : y.VALOR.ToString(),
 
                     }).ToList(),
 
@@ -613,7 +613,8 @@ namespace inti_repository.kpisRepo
                     return response;
                 }
                 DateTime fechaRecordatorio;
-                if(DateTime.Parse(model.FECHA_RECORDATORIO)<existeAsignacion.FECHA_INICIO_MEDICION)
+
+                if(DateTime.Parse(model.FECHA_RECORDATORIO).Date<existeAsignacion.FECHA_INICIO_MEDICION.Date)
                 {
                     response.Mensaje = $"NO PUEDE ASIGNAR RECORDATORIO PARA UNA FECHA MENOR A LA DEL INICIO DE LA MEDICION";
 
@@ -647,7 +648,9 @@ namespace inti_repository.kpisRepo
 
                     return response;
                 }
-                if (fechaRecordatorio < baseHelpers.DateTimePst())
+                var datetime = baseHelpers.DateTimePst();
+                var datetimes = datetime.AddSeconds(-datetime.Second);
+                if (fechaRecordatorio < datetimes.AddSeconds(-1))
                 {
                     response.Mensaje = $"NO PUEDE ASIGNAR A UNA HORA MENOR DE LA FECHA ACTUAL";
 

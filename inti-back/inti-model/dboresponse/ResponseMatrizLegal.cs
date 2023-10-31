@@ -34,6 +34,8 @@ namespace inti_model.dboresponse
         public int ID_USUARIO_ACT { get; set; }
         public DateTime FECHA_ACT { get; set; }
 
+        public int ES_FIJO { get; set; }
+
 
 
     }

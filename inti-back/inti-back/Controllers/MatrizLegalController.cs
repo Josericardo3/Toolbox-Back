@@ -124,6 +124,33 @@ namespace inti_back.Controllers
 
         }
 
+        [HttpDelete("DeleteLey")]
+        public async Task<IActionResult> DeleteLey(int id)
+        {
+            try
+            {
+                var borrado = await _matrizlegalRepository.DeleteLey(id);
+                if (borrado == false)
+                {
+                    throw new Exception();
+                }
+                return Ok(new
+                {
+                    Id = id,
+                    StatusCode(204).StatusCode,
+                    valor = "Se borró correctamente la ley"
+                });
+            }
+            catch (Exception)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "la ley no se ha encontrado"
+                });
+            }
+        }
+
 
         [HttpPost("RespuestaMatrizLegalResumen")]
         public async Task<IActionResult> RespuestaMatrizLegalResumen([FromBody] RespuestaMatrizLegalResumen respuestaMatrizLegalResumen)

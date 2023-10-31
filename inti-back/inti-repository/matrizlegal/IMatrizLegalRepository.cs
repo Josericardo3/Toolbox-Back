@@ -18,7 +18,6 @@ namespace inti_repository.matrizlegal
         Task<bool> RespuestaMatrizLegalResumen(RespuestaMatrizLegalResumen respuestaMatrizLegalResumen);
         List<CategoriaMatrizLegal> ArchivoMatrizLegal(int IdDocumento, int idUsuario);
         List<DatosHeader> GetDatosHeaderMatriz(String RNT);
-
-
+        Task<bool> DeleteLey(int id);
     }
 }

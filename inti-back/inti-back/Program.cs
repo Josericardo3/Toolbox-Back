@@ -239,8 +239,7 @@ app.UseCors(x => x
                  {
                      List<string> allowedOrigins = new List<string>
                     {
-                        "http://10.4.3.140:8080",
-                        "http://0.0.0.0:4200"
+
                     };
 
                      return allowedOrigins.Contains(origin);

@@ -67,48 +67,47 @@ namespace inti_repository.matrizlegal
             //return await db.QueryAsync<ResponseMatrizLegal>(sql, parameterUserDoc);
 
             var sql = @"SELECT a.ID_MATRIZ, a.ID_DOCUMENTO, a.CATEGORIA, a.TIPO_NORMATIVIDAD, a.NUMERO, a.ANIO, a.EMISOR, a.DESCRIPCION, 
-       a.DOCS_ESPECIFICOS, 
-       a.ID_USUARIO_REG, b.ESTADO_CUMPLIMIENTO, b.ID_RESPONSABLE_CUMPLIMIENTO,b.RESPONSABLE_CUMPLIMIENTO, b.DATA_CUMPLIMIENTO, 
-       b.PLAN_ACCIONES_A_REALIZAR, b.PLAN_RESPONSABLE_CUMPLIMIENTO, b.ID_PLAN_RESPONSABLE_CUMPLIMIENTO,
-       b.PLAN_FECHA_EJECUCION, b.PLAN_ESTADO, a.ESTADO 
-FROM MaeLegal a 
-LEFT JOIN RespuestaMatrizLegal b ON a.ID_MATRIZ = b.FK_ID_MATRIZ
-LEFT JOIN Usuario u ON u.ID_USUARIO = b.FK_ID_USUARIO
-WHERE a.ID_DOCUMENTO = @IdDocumento AND a.Estado = TRUE AND a.ES_FIJO = 1
-AND (u.RNT = @RNT OR u.RNT IS NULL)
+                               a.DOCS_ESPECIFICOS, 
+                               a.ID_USUARIO_REG, b.ESTADO_CUMPLIMIENTO, b.ID_RESPONSABLE_CUMPLIMIENTO,b.RESPONSABLE_CUMPLIMIENTO, b.DATA_CUMPLIMIENTO, 
+                               b.PLAN_ACCIONES_A_REALIZAR, b.PLAN_RESPONSABLE_CUMPLIMIENTO, b.ID_PLAN_RESPONSABLE_CUMPLIMIENTO,
+                               b.PLAN_FECHA_EJECUCION, b.PLAN_ESTADO, a.ESTADO, a.ES_FIJO  
+                        FROM MaeLegal a 
+                             LEFT JOIN RespuestaMatrizLegal b ON a.ID_MATRIZ = b.FK_ID_MATRIZ
+                             LEFT JOIN Usuario u ON u.ID_USUARIO = b.FK_ID_USUARIO
+                        WHERE a.ID_DOCUMENTO = @IdDocumento AND a.Estado = TRUE AND a.ES_FIJO = 1
+                              AND (u.RNT = @RNT OR u.RNT IS NULL)
  
-UNION ALL
+                        UNION ALL
  
-SELECT a.ID_MATRIZ, a.ID_DOCUMENTO, a.CATEGORIA, a.TIPO_NORMATIVIDAD, a.NUMERO, a.ANIO, a.EMISOR, a.DESCRIPCION, 
-       a.DOCS_ESPECIFICOS, 
-       a.ID_USUARIO_REG, b.ESTADO_CUMPLIMIENTO, b.ID_RESPONSABLE_CUMPLIMIENTO, b.RESPONSABLE_CUMPLIMIENTO, b.DATA_CUMPLIMIENTO, 
-       b.PLAN_ACCIONES_A_REALIZAR, b.PLAN_RESPONSABLE_CUMPLIMIENTO, b.ID_PLAN_RESPONSABLE_CUMPLIMIENTO,
-       b.PLAN_FECHA_EJECUCION, b.PLAN_ESTADO, a.ESTADO 
-FROM MaeLegal a 
-LEFT JOIN RespuestaMatrizLegal b ON a.ID_MATRIZ = b.FK_ID_MATRIZ 
-LEFT JOIN Usuario u ON a.ID_USUARIO_REG = u.ID_USUARIO
-WHERE a.ID_DOCUMENTO = @IdDocumento AND a.Estado = TRUE AND a.ES_FIJO = 0 AND u.RNT = @RNT
+                        SELECT a.ID_MATRIZ, a.ID_DOCUMENTO, a.CATEGORIA, a.TIPO_NORMATIVIDAD, a.NUMERO, a.ANIO, a.EMISOR, a.DESCRIPCION, 
+                               a.DOCS_ESPECIFICOS, 
+                               a.ID_USUARIO_REG, b.ESTADO_CUMPLIMIENTO, b.ID_RESPONSABLE_CUMPLIMIENTO, b.RESPONSABLE_CUMPLIMIENTO, b.DATA_CUMPLIMIENTO, 
+                               b.PLAN_ACCIONES_A_REALIZAR, b.PLAN_RESPONSABLE_CUMPLIMIENTO, b.ID_PLAN_RESPONSABLE_CUMPLIMIENTO,
+                               b.PLAN_FECHA_EJECUCION, b.PLAN_ESTADO, a.ESTADO, a.ES_FIJO  
+                        FROM MaeLegal a 
+                             LEFT JOIN RespuestaMatrizLegal b ON a.ID_MATRIZ = b.FK_ID_MATRIZ 
+                             LEFT JOIN Usuario u ON a.ID_USUARIO_REG = u.ID_USUARIO
+                        WHERE a.ID_DOCUMENTO = @IdDocumento AND a.Estado = TRUE AND a.ES_FIJO = 0 AND u.RNT = @RNT
  
-UNION ALL
+                        UNION ALL
  
-SELECT a.ID_MATRIZ, a.ID_DOCUMENTO, a.CATEGORIA, a.TIPO_NORMATIVIDAD, a.NUMERO, a.ANIO, a.EMISOR, a.DESCRIPCION, 
-       a.DOCS_ESPECIFICOS, 
-       a.ID_USUARIO_REG,NULL AS ESTADO_CUMPLIMIENTO,NULL AS ID_RESPONSABLE_CUMPLIMIENTO, NULL AS RESPONSABLE_CUMPLIMIENTO, NULL AS DATA_CUMPLIMIENTO, 
-       NULL AS PLAN_ACCIONES_A_REALIZAR, NULL AS PLAN_RESPONSABLE_CUMPLIMIENTO, NULL AS ID_PLAN_RESPONSABLE_CUMPLIMIENTO,
-       NULL AS PLAN_FECHA_EJECUCION, NULL AS PLAN_ESTADO, a.ESTADO 
-FROM MaeLegal a 
-LEFT JOIN RespuestaMatrizLegal b ON a.ID_MATRIZ = b.FK_ID_MATRIZ
-LEFT JOIN Usuario u ON u.ID_USUARIO = b.FK_ID_USUARIO
-WHERE a.ID_DOCUMENTO = @IdDocumento AND a.Estado = TRUE AND a.ES_FIJO = 1
-AND u.RNT IS NOT NULL
-AND a.ID_MATRIZ NOT IN (
-    SELECT DISTINCT FK_ID_MATRIZ
-    FROM RespuestaMatrizLegal a 
-    INNER JOIN Usuario u ON a.FK_ID_USUARIO = u.ID_USUARIO
-    WHERE u.RNT = @RNT
-)
- 
-ORDER BY ID_MATRIZ ASC;";
+                        SELECT a.ID_MATRIZ, a.ID_DOCUMENTO, a.CATEGORIA, a.TIPO_NORMATIVIDAD, a.NUMERO, a.ANIO, a.EMISOR, a.DESCRIPCION, 
+                               a.DOCS_ESPECIFICOS, 
+                               a.ID_USUARIO_REG,NULL AS ESTADO_CUMPLIMIENTO,NULL AS ID_RESPONSABLE_CUMPLIMIENTO, NULL AS RESPONSABLE_CUMPLIMIENTO, NULL AS DATA_CUMPLIMIENTO, 
+                               NULL AS PLAN_ACCIONES_A_REALIZAR, NULL AS PLAN_RESPONSABLE_CUMPLIMIENTO, NULL AS ID_PLAN_RESPONSABLE_CUMPLIMIENTO,
+                               NULL AS PLAN_FECHA_EJECUCION, NULL AS PLAN_ESTADO, a.ESTADO, a.ES_FIJO  
+                        FROM MaeLegal a 
+                             LEFT JOIN RespuestaMatrizLegal b ON a.ID_MATRIZ = b.FK_ID_MATRIZ
+                             LEFT JOIN Usuario u ON u.ID_USUARIO = b.FK_ID_USUARIO
+                        WHERE a.ID_DOCUMENTO = @IdDocumento AND a.Estado = TRUE AND a.ES_FIJO = 1
+                              AND u.RNT IS NOT NULL
+                              AND a.ID_MATRIZ NOT IN (
+                                                        SELECT DISTINCT FK_ID_MATRIZ
+                                                        FROM RespuestaMatrizLegal a 
+                                                        INNER JOIN Usuario u ON a.FK_ID_USUARIO = u.ID_USUARIO
+                                                        WHERE u.RNT = @RNT
+                                                        ) 
+                                                        ORDER BY ID_MATRIZ ASC";
             var parameterUserDoc = new
             {
                 RNT = datauser.RNT,
@@ -294,24 +293,42 @@ ORDER BY ID_MATRIZ ASC;";
             }
 
             var queryMatriz = @"
-                                SELECT 
-                                    ID_MATRIZ,
-	                                CATEGORIA,
-                                    ID_DOCUMENTO,
-                                    TIPO_NORMATIVIDAD,
-                                    NUMERO,
-                                    ANIO as AÑO,
-                                    EMISOR,
-                                    DESCRIPCION,
-                                    DOCS_ESPECIFICOS as ARTICULOS_SECCIONES_REQUISITOS_APLICAN
-                                FROM
-                                    MaeLegal
-                                WHERE
-                                    ID_DOCUMENTO = @ID_DOCUMENTO
-                                        AND ESTADO = TRUE";
+                                SELECT a.ID_MATRIZ,  a.CATEGORIA,a.ID_DOCUMENTO, a.TIPO_NORMATIVIDAD, a.NUMERO, a.ANIO AS AÑO, a.EMISOR, a.DESCRIPCION, 
+                                        a.DOCS_ESPECIFICOS as ARTICULOS_SECCIONES_REQUISITOS_APLICAN       
+                                FROM MaeLegal a 
+                                     LEFT JOIN RespuestaMatrizLegal b ON a.ID_MATRIZ = b.FK_ID_MATRIZ
+                                     LEFT JOIN Usuario u ON u.ID_USUARIO = b.FK_ID_USUARIO
+                                WHERE a.ID_DOCUMENTO = @ID_DOCUMENTO AND a.Estado = TRUE AND a.ES_FIJO = 1
+                                        AND (u.RNT = @RNT OR u.RNT IS NULL)
+ 
+                                UNION ALL
+ 
+                                SELECT a.ID_MATRIZ,  a.CATEGORIA,a.ID_DOCUMENTO, a.TIPO_NORMATIVIDAD, a.NUMERO, a.ANIO AS AÑO, a.EMISOR, a.DESCRIPCION, 
+                                       a.DOCS_ESPECIFICOS as ARTICULOS_SECCIONES_REQUISITOS_APLICAN    
+                                FROM MaeLegal a 
+                                     LEFT JOIN RespuestaMatrizLegal b ON a.ID_MATRIZ = b.FK_ID_MATRIZ 
+                                     LEFT JOIN Usuario u ON a.ID_USUARIO_REG = u.ID_USUARIO
+                                WHERE a.ID_DOCUMENTO = @ID_DOCUMENTO AND a.Estado = TRUE AND a.ES_FIJO = 0 AND u.RNT = @RNT
+ 
+                                UNION ALL
+ 
+                                SELECT a.ID_MATRIZ,  a.CATEGORIA,a.ID_DOCUMENTO, a.TIPO_NORMATIVIDAD, a.NUMERO, a.ANIO AS AÑO, a.EMISOR, a.DESCRIPCION, 
+                                       a.DOCS_ESPECIFICOS as ARTICULOS_SECCIONES_REQUISITOS_APLICAN    
+                                FROM MaeLegal a 
+                                     LEFT JOIN RespuestaMatrizLegal b ON a.ID_MATRIZ = b.FK_ID_MATRIZ
+                                     LEFT JOIN Usuario u ON u.ID_USUARIO = b.FK_ID_USUARIO
+                                WHERE a.ID_DOCUMENTO = @ID_DOCUMENTO AND a.Estado = TRUE AND a.ES_FIJO = 1
+                                        AND u.RNT IS NOT NULL
+                                        AND a.ID_MATRIZ NOT IN (
+                                                                SELECT DISTINCT FK_ID_MATRIZ
+                                                                FROM RespuestaMatrizLegal a 
+                                                                INNER JOIN Usuario u ON a.FK_ID_USUARIO = u.ID_USUARIO
+                                                                WHERE u.RNT = @RNT
+                                                                ) ORDER BY ID_MATRIZ ASC";
             var parameterIdDoc = new
             {
-                ID_DOCUMENTO = IdDocumento
+                ID_DOCUMENTO = IdDocumento,
+                RNT =resultrnt
             };
             var responseMatriz = db.Query<DocumentoMatrizLegal>(queryMatriz, parameterIdDoc).ToList();
 
@@ -518,6 +535,28 @@ ORDER BY ID_MATRIZ ASC;";
             }
 
             return queryRespuesta > 0;
+        }
+
+        public async Task<bool> DeleteLey(int id)
+        {
+            var db = dbConnection();
+
+            var sql = @"UPDATE MaeLegal
+                        SET ESTADO = FALSE
+                        WHERE ID_MATRIZ = @ID_MATRIZ AND ESTADO = TRUE";
+            var parameter = new
+            {
+                ID_MATRIZ = id
+            };
+            var result = await db.ExecuteAsync(sql, parameter);
+
+            var sql2 = @"UPDATE RespuestaMatrizLegal
+                        SET ESTADO = FALSE
+                        WHERE FK_ID_MATRIZ = @ID_MATRIZ AND ESTADO = TRUE";
+            var parameter2 = new { ID_MATRIZ = id };
+            var result2 = await db.ExecuteAsync(sql2, parameter2);
+
+            return result2 > 0;
         }
     }
 }
