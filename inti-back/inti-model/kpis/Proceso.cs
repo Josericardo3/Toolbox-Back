@@ -20,5 +20,7 @@ namespace inti_model.kpis
 
         [MaxLength(4)]
         public string? CODIGO { get; set; }
+        public DateTime? FECHA_ELIMINACION { get; set; }
+        public DateTime? FECHA_MODIFICACION { get; set; }
     }
 }

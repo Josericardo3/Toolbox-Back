@@ -74,11 +74,11 @@ namespace inti_back.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetEncuestasGeneral()
+        public async Task<IActionResult> GetEncuestasGeneral(int idusuario)
         {
             try
             {
-                var data = await _encuestaRepository.GetEncuestaGeneral();
+                var data = await _encuestaRepository.GetEncuestaGeneral(idusuario);
 
                 if(data == null)
                 {
@@ -130,6 +130,26 @@ namespace inti_back.Controllers
                 });
             }
         }
+
+        [HttpGet("Respuestas")]
+        public async Task<IActionResult> GetGetRespuestasEncuesta(int idEncuesta)
+        {
+            try
+            {
+                var response = await _encuestaRepository.GetRespuestasEncuesta(idEncuesta);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "Ocurrió un error al seleccionar la data",
+                    ex.Message
+                });
+            }
+        }
+
         [HttpPost("respuestas")]
         public async Task<IActionResult> PostRespuesta(List<RespuestaEncuestas> respuesta)
         {

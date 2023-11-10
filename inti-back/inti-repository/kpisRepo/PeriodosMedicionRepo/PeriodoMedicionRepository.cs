@@ -28,7 +28,7 @@ namespace inti_repository.kpisRepo.PeriodosMedicionRepo
             try
             {
                 
-                var query = await Context.PeriodosMedicion.OrderByDescending(x => x.ID_PERIODO_MEDICION).Select(x => new BaseInformacionComboDTO
+                var query = await Context.PeriodosMedicion.Where(x=>x.FECHA_ELIMINACION==null).OrderByDescending(x => x.ID_PERIODO_MEDICION).Select(x => new BaseInformacionComboDTO
                 {
                     Id = x.ID_PERIODO_MEDICION,
                     Nombre = x.NOMBRE

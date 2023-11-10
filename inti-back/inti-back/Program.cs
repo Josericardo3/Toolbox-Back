@@ -42,6 +42,7 @@ using inti_repository.kpisRepo.FuenteDatoRepo;
 using inti_repository.mejoracontinua;
 using inti_repository.matrizpartesinteresadas;
 using inti_repository.mapaproceso;
+using inti_repository.noticiaCategorias;
 using inti_repository.DocumentoRequerimientoRepo;
 
 const String default_url = "http://{0}:{1};https://{2}:{3}"; 
@@ -142,6 +143,7 @@ builder.Services.AddScoped<IMantenedorFormulariosRepository, MantenedorFormulari
 builder.Services.AddScoped<IMejoraContinuaRepository, MejoraContinuaRepository>();
 builder.Services.AddScoped<IMatrizPartesInteresadasRepository, MatrizPartesInteresadasRepository>();
 builder.Services.AddScoped<IMapaProcesoRepository, MapaProcesoRepository>();
+builder.Services.AddScoped<INoticiaCategoriasRepository, NoticiaCategoriasRepository>();
 
 builder.Services.AddScoped<IKpiRepository, KpiRepository>();
 builder.Services.AddScoped<IObjetivoRepository, ObjetivoRepository>();

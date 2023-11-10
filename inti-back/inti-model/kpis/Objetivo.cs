@@ -25,5 +25,6 @@ namespace inti_model.kpis
         [Required]
         public int VAL_CUMPLIMIENTO { get; set; }
         public DateTime? FECHA_ELIMINACION { get; set; }
+        public DateTime? FECHA_MODIFICACION { get; set; }
     }
 }

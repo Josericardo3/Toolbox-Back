@@ -12,6 +12,9 @@ using System.Collections.Immutable;
 using System.Linq;
 using inti_model.noticia;
 using System.Data;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using static Dapper.SqlMapper;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace inti_repository.matrizlegal
 {
@@ -70,7 +73,7 @@ namespace inti_repository.matrizlegal
                                a.DOCS_ESPECIFICOS, 
                                a.ID_USUARIO_REG, b.ESTADO_CUMPLIMIENTO, b.ID_RESPONSABLE_CUMPLIMIENTO,b.RESPONSABLE_CUMPLIMIENTO, b.DATA_CUMPLIMIENTO, 
                                b.PLAN_ACCIONES_A_REALIZAR, b.PLAN_RESPONSABLE_CUMPLIMIENTO, b.ID_PLAN_RESPONSABLE_CUMPLIMIENTO,
-                               b.PLAN_FECHA_EJECUCION, b.PLAN_ESTADO, a.ESTADO, a.ES_FIJO  
+                               b.PLAN_FECHA_EJECUCION, b.PLAN_ESTADO, a.ESTADO, a.ES_FIJO, b.FK_ID_MEJORA_CONTINUA, b.FK_ID_ACTIVIDAD 
                         FROM MaeLegal a 
                              LEFT JOIN RespuestaMatrizLegal b ON a.ID_MATRIZ = b.FK_ID_MATRIZ
                              LEFT JOIN Usuario u ON u.ID_USUARIO = b.FK_ID_USUARIO
@@ -83,7 +86,7 @@ namespace inti_repository.matrizlegal
                                a.DOCS_ESPECIFICOS, 
                                a.ID_USUARIO_REG, b.ESTADO_CUMPLIMIENTO, b.ID_RESPONSABLE_CUMPLIMIENTO, b.RESPONSABLE_CUMPLIMIENTO, b.DATA_CUMPLIMIENTO, 
                                b.PLAN_ACCIONES_A_REALIZAR, b.PLAN_RESPONSABLE_CUMPLIMIENTO, b.ID_PLAN_RESPONSABLE_CUMPLIMIENTO,
-                               b.PLAN_FECHA_EJECUCION, b.PLAN_ESTADO, a.ESTADO, a.ES_FIJO  
+                               b.PLAN_FECHA_EJECUCION, b.PLAN_ESTADO, a.ESTADO, a.ES_FIJO ,b.FK_ID_MEJORA_CONTINUA, b.FK_ID_ACTIVIDAD  
                         FROM MaeLegal a 
                              LEFT JOIN RespuestaMatrizLegal b ON a.ID_MATRIZ = b.FK_ID_MATRIZ 
                              LEFT JOIN Usuario u ON a.ID_USUARIO_REG = u.ID_USUARIO
@@ -95,7 +98,7 @@ namespace inti_repository.matrizlegal
                                a.DOCS_ESPECIFICOS, 
                                a.ID_USUARIO_REG,NULL AS ESTADO_CUMPLIMIENTO,NULL AS ID_RESPONSABLE_CUMPLIMIENTO, NULL AS RESPONSABLE_CUMPLIMIENTO, NULL AS DATA_CUMPLIMIENTO, 
                                NULL AS PLAN_ACCIONES_A_REALIZAR, NULL AS PLAN_RESPONSABLE_CUMPLIMIENTO, NULL AS ID_PLAN_RESPONSABLE_CUMPLIMIENTO,
-                               NULL AS PLAN_FECHA_EJECUCION, NULL AS PLAN_ESTADO, a.ESTADO, a.ES_FIJO  
+                               NULL AS PLAN_FECHA_EJECUCION, NULL AS PLAN_ESTADO, a.ESTADO, a.ES_FIJO, b.FK_ID_MEJORA_CONTINUA, b.FK_ID_ACTIVIDAD   
                         FROM MaeLegal a 
                              LEFT JOIN RespuestaMatrizLegal b ON a.ID_MATRIZ = b.FK_ID_MATRIZ
                              LEFT JOIN Usuario u ON u.ID_USUARIO = b.FK_ID_USUARIO
@@ -140,6 +143,10 @@ namespace inti_repository.matrizlegal
         public async Task<bool> RespuestaMatrizLegal(RespuestaMatrizLegal respuestaMatrizLegal)
         {
             var db = dbConnection();
+
+            //REALIZA ACCIONES PROPIAS DEL BOTON GUARDADO
+
+
             var dataRnt = @"SELECT RNT FROM Usuario WHERE ID_USUARIO=@ID_USUARIO AND ESTADO = TRUE";
             var parameter = new
             {
@@ -155,9 +162,9 @@ namespace inti_repository.matrizlegal
                 FK_ID_MATRIZ = respuestaMatrizLegal.FK_ID_MATRIZ_LEGAL,
                 RNT = resultrnt
             };
-            var queryBusqueda = await db.QueryAsync(busqueda,parameters);
+            var queryBusqueda = await db.QueryAsync(busqueda, parameters);
             var queryRespuesta = 0;
-            if (queryBusqueda.Count()>0)
+            if (queryBusqueda.Count() > 0)
             {
                 var actualizacion = @"
                                 UPDATE RespuestaMatrizLegal 
@@ -204,7 +211,7 @@ namespace inti_repository.matrizlegal
                                     ,ID_RESPONSABLE_CUMPLIMIENTO,RESPONSABLE_CUMPLIMIENTO,DATA_CUMPLIMIENTO,PLAN_ACCIONES_A_REALIZAR,
                                     ID_PLAN_RESPONSABLE_CUMPLIMIENTO,PLAN_RESPONSABLE_CUMPLIMIENTO,PLAN_FECHA_EJECUCION,PLAN_ESTADO,PLAN_FECHA_SEGUIMIENTO) 
                                    VALUES(@FK_ID_USUARIO,@FK_ID_MATRIZ, @ESTADO_CUMPLIMIENTO,@ID_RESPONSABLE_CUMPLIMIENTO, @RESPONSABLE_CUMPLIMIENTO, 
-@DATA_CUMPLIMIENTO, @PLAN_ACCIONES_A_REALIZAR,@ID_PLAN_RESPONSABLE_CUMPLIMIENTO, @PLAN_RESPONSABLE_CUMPLIMIENTO, @PLAN_FECHA_EJECUCION, @PLAN_ESTADO,NOW());";
+@DATA_CUMPLIMIENTO, @PLAN_ACCIONES_A_REALIZAR,@ID_PLAN_RESPONSABLE_CUMPLIMIENTO, @PLAN_RESPONSABLE_CUMPLIMIENTO, @PLAN_FECHA_EJECUCION, @PLAN_ESTADO, NOW());";
                 foreach (var plan in respuestaMatrizLegal.PLAN_INTERVENCION)
                 {
                     var parameterPlan = new
@@ -224,6 +231,172 @@ namespace inti_repository.matrizlegal
                     queryRespuesta = db.Execute(dataRespuesta, parameterPlan);
                 }
             }
+
+
+
+            //INSERT A MEJORA CONTINUA
+
+            int fkIdMejoraContinua = 0;
+            int fkIdActividad = 0;
+
+            var busqueda2 = @"SELECT a.FK_ID_MEJORA_CONTINUA, a.FK_ID_ACTIVIDAD FROM RespuestaMatrizLegal a LEFT JOIN Usuario u ON a.FK_ID_USUARIO = u.ID_USUARIO
+                        WHERE a.FK_ID_MATRIZ = @FK_ID_MATRIZ AND u.RNT = @RNT";
+            var parameters2 = new
+            {
+                FK_ID_MATRIZ = respuestaMatrizLegal.FK_ID_MATRIZ_LEGAL,
+                RNT = resultrnt
+            };
+            var queryBusqueda2 = await db.QueryFirstAsync<RespuestaMatrizLegal>(busqueda2, parameters2);
+            var resultado = queryBusqueda2;
+
+            if (resultado.FK_ID_MEJORA_CONTINUA == null)
+            {
+                fkIdMejoraContinua = 0;
+            }else{
+                fkIdMejoraContinua = resultado.FK_ID_MEJORA_CONTINUA;
+            }
+            if(resultado.FK_ID_ACTIVIDAD == null)
+            {
+                fkIdActividad = 0;
+            }else{
+                fkIdActividad = resultado.FK_ID_ACTIVIDAD;
+            }
+            if (respuestaMatrizLegal.ESTADO_CUMPLIMIENTO == "No" || respuestaMatrizLegal.ESTADO_CUMPLIMIENTO == "En proceso")
+            {
+                if(respuestaMatrizLegal.ENVIO_MEJORA_CONTINUA == true)
+                {
+                    if(fkIdMejoraContinua == 0)
+                    {
+                        var query = @"INSERT INTO MejoraContinua(ID_USUARIO, RESPONSABLE, DESCRIPCION, NTC, REQUISITOS, TIPO, ESTADO, FECHA_INICIO, FECHA_FIN, FECHA_REGISTRO) 
+                                      VALUES (@ID_USUARIO, @RESPONSABLE, @DESCRIPCION, @NTC, @REQUISITOS, @TIPO, @ESTADO, @FECHA_INICIO, @FECHA_FIN, NOW())";
+                        foreach (var plan in respuestaMatrizLegal.PLAN_INTERVENCION)
+                        {
+                            var param_mejora = new
+                            {
+                                ID_USUARIO = respuestaMatrizLegal.FK_ID_USUARIO,
+                                RESPONSABLE = plan.PLAN_RESPONSABLE_CUMPLIMIENTO,
+                                DESCRIPCION = plan.PLAN_ACCIONES_A_REALIZAR,
+                                NTC = "",
+                                REQUISITOS = "",
+                                TIPO = "Matriz Legal",
+                                ESTADO = plan.PLAN_ESTADO,
+                                FECHA_INICIO = plan.PLAN_FECHA_EJECUCION,
+                                FECHA_FIN = plan.PLAN_FECHA_EJECUCION
+                            };
+                            var queryRespuestaMejora = db.Execute(query, param_mejora);
+                        }
+                        var queryId = @"SELECT LAST_INSERT_ID() FROM MejoraContinua LIMIT 1";
+                        var IdMejora = await db.QueryFirstAsync<int>(queryId);
+
+                        var queryInsertRML = @" UPDATE RespuestaMatrizLegal SET FK_ID_MEJORA_CONTINUA = @ID_MEJORA WHERE FK_ID_MATRIZ = @ID_MATRIZ AND FK_ID_USUARIO = @ID_USUARIO";
+                        var parameter2 = new
+                        {
+                            ID_MATRIZ = respuestaMatrizLegal.FK_ID_MATRIZ_LEGAL,
+                            ID_USUARIO = respuestaMatrizLegal.FK_ID_USUARIO,
+                            ID_MEJORA = IdMejora
+                        };
+                        var resultInsertRML = db.Execute(queryInsertRML, parameter2);
+                    }
+                    else
+                    {
+                        var actualizacion = @"UPDATE MejoraContinua
+                                              SET
+                                                    ID_USUARIO = @ID_USUARIO,
+                                                    RESPONSABLE = @RESPONSABLE,
+                                                    DESCRIPCION = @DESCRIPCION,
+                                                    NTC = @NTC,
+                                                    REQUISITOS = @REQUISITOS,
+                                                    TIPO = @TIPO,
+                                                    ESTADO = @ESTADO,
+                                                    FECHA_INICIO = @FECHA_INICIO,
+                                                    FECHA_FIN = @FECHA_FIN,
+                                                    FECHA_ACT = NOW()
+                                              WHERE ID_MEJORA_CONTINUA = @ID_MEJORA_CONTINUA";
+                        foreach (var plan in respuestaMatrizLegal.PLAN_INTERVENCION)
+                        {
+                            var param_mejora = new
+                            {
+                                ID_USUARIO = respuestaMatrizLegal.FK_ID_USUARIO,
+                                RESPONSABLE = plan.PLAN_RESPONSABLE_CUMPLIMIENTO,
+                                DESCRIPCION = plan.PLAN_ACCIONES_A_REALIZAR,
+                                NTC = "",
+                                REQUISITOS = "",
+                                TIPO = "Matriz Legal",
+                                ESTADO = plan.PLAN_ESTADO,
+                                FECHA_INICIO = plan.PLAN_FECHA_EJECUCION,
+                                FECHA_FIN = plan.PLAN_FECHA_EJECUCION,
+                                ID_MEJORA_CONTINUA = fkIdMejoraContinua
+                            };
+                            var queryRespuestaMejora2 = db.Execute(actualizacion, param_mejora);
+                        }
+                    }
+                }
+                if(fkIdActividad == 0)
+                {
+                    var dataInsert = @"INSERT INTO Actividad ( FK_ID_USUARIO_PST, FK_ID_RESPONSABLE, TIPO_ACTIVIDAD, DESCRIPCION, FECHA_INICIO ,FECHA_FIN, ESTADO_PLANIFICACION,FECHA_REG)
+                               VALUES (@FK_ID_USUARIO_PST,@FK_ID_RESPONSABLE,@TIPO_ACTIVIDAD, @DESCRIPCION,@FECHA_INICIO,@FECHA_FIN,@ESTADO_PLANIFICACION,NOW())";
+                    foreach (var plan in respuestaMatrizLegal.PLAN_INTERVENCION)
+                    {
+                        //var fechaCorregida = formatDate(plan.PLAN_FECHA_SEGUIMIENTO, 'dd-MM-yyyy', 'en-US');
+                        var param_actividad = new
+                        {
+                            FK_ID_USUARIO_PST = respuestaMatrizLegal.FK_ID_USUARIO,
+                            FK_ID_RESPONSABLE = plan.ID_PLAN_RESPONSABLE_CUMPLIMIENTO,
+                            TIPO_ACTIVIDAD = "Matriz Requisitos Legales",
+                            DESCRIPCION = plan.PLAN_ACCIONES_A_REALIZAR,
+                            FECHA_INICIO = plan.PLAN_FECHA_EJECUCION,
+                            FECHA_FIN = plan.PLAN_FECHA_EJECUCION,
+                            ESTADO_PLANIFICACION = "En proceso",
+                        };
+                        var queryRespuestaAct = db.Execute(dataInsert, param_actividad);
+                    }
+                    var queryId = @"SELECT LAST_INSERT_ID() FROM Actividad LIMIT 1";
+                    var IdActividad = await db.QueryFirstAsync<int>(queryId);
+
+                    var queryInsertAct = @" UPDATE RespuestaMatrizLegal
+                                            SET 
+                                                FK_ID_ACTIVIDAD = @ID_ACTIVIDAD
+                                            WHERE 
+                                             FK_ID_MATRIZ = @ID_MATRIZ AND FK_ID_USUARIO = @ID_USUARIO";
+                    var parameter2 = new
+                    {
+                        ID_MATRIZ = respuestaMatrizLegal.FK_ID_MATRIZ_LEGAL,
+                        ID_USUARIO = respuestaMatrizLegal.FK_ID_USUARIO,
+                        ID_ACTIVIDAD = IdActividad
+                    };
+                    var resultInsertRML = db.Execute(queryInsertAct, parameter2);
+
+
+                }else{
+                    var sql = @"UPDATE Actividad 
+                        SET FK_ID_RESPONSABLE = @FK_ID_RESPONSABLE,
+                            TIPO_ACTIVIDAD = @TIPO_ACTIVIDAD,
+                            DESCRIPCION = @DESCRIPCION,
+                            FECHA_INICIO = @FECHA_INICIO,
+                            FECHA_FIN = @FECHA_FIN,
+                            ESTADO_PLANIFICACION = @ESTADO_PLANIFICACION,
+                            FECHA_ACT = NOW()
+                        WHERE ID_ACTIVIDAD = @ID_ACTIVIDAD";
+                    foreach (var plan in respuestaMatrizLegal.PLAN_INTERVENCION)
+                    {
+                        //var fechaCorregida = formatDate(plan.PLAN_FECHA_SEGUIMIENTO, 'dd-MM-yyyy', 'en-US');
+                        var param_actividad = new
+                        {
+                            FK_ID_RESPONSABLE = plan.ID_PLAN_RESPONSABLE_CUMPLIMIENTO,
+                            TIPO_ACTIVIDAD = "Matriz Requisitos Legales",
+                            DESCRIPCION = plan.PLAN_ACCIONES_A_REALIZAR,
+                            FECHA_INICIO = plan.PLAN_FECHA_EJECUCION,
+                            FECHA_FIN = plan.PLAN_FECHA_EJECUCION,
+                            ESTADO_PLANIFICACION = "En proceso",
+                            ID_ACTIVIDAD = fkIdActividad
+                        };
+                        var queryRespuestaAct2 = db.Execute(sql, param_actividad);
+                    }
+
+                }
+            }
+
+            
             return queryRespuesta > 0;
         }
         
@@ -382,7 +555,7 @@ namespace inti_repository.matrizlegal
                 {
                     var matrizId = documento.ID_MATRIZ;
                     var respuestasDocumento = new ResponseRespuestasMatriz();
-
+                    //VERIFICA SI ES QUE HAY ALGUNA RESPUESTA PARA UNA MATRIZ EN PARTICULAR
                     if (respuestasPorMatriz.ContainsKey(matrizId))
                     {
                         documento.RESPUESTAS = respuestasPorMatriz[matrizId];
@@ -399,26 +572,42 @@ namespace inti_repository.matrizlegal
                             documento.RESPUESTAS[0].FECHA_EJECUCION = "No aplica";
                             documento.RESPUESTAS[0].RESPONSABLE_EJECUCION = "No aplica";
                             documento.RESPUESTAS[0].EVIDENCIA_CUMPLIMIENTO = documento.RESPUESTAS[0].OBSERVACIONES_INCUMPLIMIENTO;
-                            documento.RESPUESTAS[0].OBSERVACIONES_INCUMPLIMIENTO = "";
+                            documento.RESPUESTAS[0].OBSERVACIONES_INCUMPLIMIENTO = "No aplica";
                             //CAMBIO
                             documento.RESPUESTAS[0].APLICA_PLAN_INTERVENCION = "No";
                             documento.RESPUESTAS[0].ESTADO = "No aplica";
 
                         }
+                        else if(documento.RESPUESTAS.Count > 0 && (documento.RESPUESTAS[0].ESTADO_CUMPLIMIENTO == "No aplica" || documento.RESPUESTAS[0].ESTADO_CUMPLIMIENTO == null))
+                        {
+                            documento.RESPUESTAS[0].EVIDENCIA_CUMPLIMIENTO = "No aplica";
+                            documento.RESPUESTAS[0].OBSERVACIONES_INCUMPLIMIENTO = "No aplica";
+                            documento.RESPUESTAS[0].ACCION_A_REALIZAR = "No aplica";
+                            documento.RESPUESTAS[0].FECHA_SEGUIMIENTO = "No aplica";
+                            documento.RESPUESTAS[0].FECHA_EJECUCION = "No aplica";
+                            documento.RESPUESTAS[0].ESTADO_CUMPLIMIENTO = "No aplica";
+                            documento.RESPUESTAS[0].RESPONSABLE_EJECUCION = "No aplica";
+                            documento.RESPUESTAS[0].ESTADO = "No aplica";
+                        }
                         else
                         {
                             documento.RESPUESTAS[0].APLICA_PLAN_INTERVENCION = "Si";
-                            documento.RESPUESTAS[0].EVIDENCIA_CUMPLIMIENTO = "";
-                            
+                            documento.RESPUESTAS[0].EVIDENCIA_CUMPLIMIENTO = "No aplica";
                         }
+
                     }
                     else
                     {
+                        //LEYES QUE NUNCA SE HAN TOCADO
+                        respuestasDocumento.RESPONSABLE_CUMPLIMIENTO = "No aplica";
+                        respuestasDocumento.EVIDENCIA_CUMPLIMIENTO = "No aplica";
+                        respuestasDocumento.OBSERVACIONES_INCUMPLIMIENTO = "No aplica";
                         respuestasDocumento.ACCION_A_REALIZAR = "No aplica";
                         respuestasDocumento.FECHA_SEGUIMIENTO = "No aplica";
                         respuestasDocumento.FECHA_EJECUCION = "No aplica";
                         respuestasDocumento.ESTADO_CUMPLIMIENTO = "No aplica";
                         respuestasDocumento.RESPONSABLE_EJECUCION = "No aplica";
+                        respuestasDocumento.ESTADO = "No aplica";
                         documento.RESPUESTAS.Add(respuestasDocumento);
                     }
                 }

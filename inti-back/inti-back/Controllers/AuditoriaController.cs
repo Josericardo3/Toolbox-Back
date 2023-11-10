@@ -129,6 +129,11 @@ namespace inti_back.Controllers
             try
             {
                 var create = await _auditoriaRepository.UpdateVerificacionAuditoria(proceso);
+                if (create)
+                {
+                    create = await _auditoriaRepository.UpdateRequisitosMejora(proceso);
+                }
+
                 if (create == null)
                 {
                     return Ok(new
@@ -267,6 +272,28 @@ namespace inti_back.Controllers
                 return StatusCode(500, new { mensaje = "Se produjo un error al procesar la solicitud" });
             }
         }
+
+
+        [HttpGet("AuditoriaNuevo/{id}")]
+        public async Task<IActionResult> GetAuditoriaNuevo(int id)
+        {
+            try
+            {
+                var response = await _auditoriaRepository.GetAuditoriaNuevo(id);
+
+                if (response == null)
+                {
+                    return NotFound(new { mensaje = "La auditoría no se ha encontrado o es incorrecta" });
+                }
+
+                return Ok(response);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { mensaje = "Se produjo un error al procesar la solicitud" });
+            }
+        }
+
 
 
         [HttpDelete("DeleteAuditoria")]

@@ -388,7 +388,7 @@ namespace inti_repository.kpisRepo
                     ID_INDICADOR = x.ID_INDICADOR,
                     TITULO = x.Indicador.TITULO,
                     DESCRIPCION = x.Indicador.DESCRIPCION,
-                    FORMULA_TEXT_VISTA = $"({x.Indicador.FORMULA_TEXT} )*100",
+                    FORMULA_TEXT_VISTA = $"{x.Indicador.FORMULA_TEXT}",
                     FORMULA_TEXT = x.FORMULA == null ? "-" : x.FORMULA,
                     //FORMULA_HTML = x.Indicador.FORMULA_HTML,
                     ID_OBJETIVO = x.Indicador.ID_OBJETIVO,
@@ -409,6 +409,7 @@ namespace inti_repository.kpisRepo
                     ACCION = x.Accion == null ? "-" : x.Accion.NOMBRE,
                     SEMAFORIZACION=$"{x.META-10}",
                     FECHA_PERIODO = $"DEL {x.FECHA_INICIO_MEDICION:dd/MM/yyyy} AL {x.FECHA_FIN_MEDICION:dd/MM/yyyy} ",
+                    FECHA_PERIODO_SMALL = $"{x.FECHA_INICIO_MEDICION:dd/MM/yyyy} - {x.FECHA_FIN_MEDICION:dd/MM/yyyy} ",
                     VARIABLES_EVALUACION = Context.VariablesEvaluacionIndicadores.Include(y => y.Variable).Where(y => y.ID_EVALUACION_INDICADOR == x.ID_EVALUACION_INDICADOR && y.ID_INDICADOR == x.ID_INDICADOR).Select(y => new VariablesEvaluacionDTO
                     {
                         ID_VARIABLE_EVALUACION_INDICADOR = y.ID_VARIABLE_EVALUACION_INDICADOR,
@@ -857,7 +858,42 @@ namespace inti_repository.kpisRepo
             }
             return response;
         }
+        public async Task<BaseComboDTO<BaseInformacionComboDTO>> ListarAniosCombo(BaseFilter baseFilter)
+        {
+            var response = new BaseComboDTO<BaseInformacionComboDTO>();
+            try
+            {
+               var query = await Context.EvaluacionIndicadores
+                            .Where(x => x.Indicador.FECHA_ELIMINACION == null)
+                            .Select(x => new BaseInformacionComboDTO
+                            {
+                            Id = x.FECHA_INICIO_MEDICION.Year,
+                            Nombre = x.FECHA_INICIO_MEDICION.Year.ToString(),
+                            })
+                            .Union(
+                            Context.EvaluacionIndicadores
+                            .Where(x => x.Indicador.FECHA_ELIMINACION == null)
+                            .Select(x => new BaseInformacionComboDTO
+                            {
+                            Id = x.FECHA_FIN_MEDICION.Year,
+                            Nombre = x.FECHA_FIN_MEDICION.Year.ToString(),
+                            })
+                            )//.DistinctBy(x=>x.Id)
+                            .ToListAsync();
 
+
+
+                response.Data = query.DistinctBy(x=>x.Id);
+                response.Confirmacion = true;
+                response.Mensaje = "Lista Obtenida Correctamente";
+            }
+            catch (Exception ex)
+            {
+                response.Mensaje = "No se puede listar combo de los paquetes";
+                response.Exception = ex.Message;
+            }
+            return response;
+        }
     }
 
 

@@ -16,11 +16,12 @@ namespace inti_repository.auditoria
 
         Task<IEnumerable<ResponseAuditor>> ListarAuditor(string rnt);
         Task<Auditoria> GetAuditoria(int id);
-
+        Task<dynamic> GetAuditoriaNuevo(int id);
         Task<bool> InsertPlanAuditoria(InputPlanAuditoria auditoria);
         Task<bool> UpdatePlanAuditoria(InputPlanAuditoria auditoria);
         Task<bool> InsertVerificacionAuditoria(InputVerficacionAuditoria proceso);
         Task<bool> UpdateVerificacionAuditoria(InputVerficacionAuditoria proceso);
+        Task<bool> UpdateRequisitosMejora(InputVerficacionAuditoria proceso);
         Task<bool> UpdateInformeAuditoria(InputInformeAuditoria proceso);
         Task<bool> DeleteAuditoria(int id_auditoria);
         Task<AuditoriaNorma> GetTituloNormaAuditoria(int id_norma);

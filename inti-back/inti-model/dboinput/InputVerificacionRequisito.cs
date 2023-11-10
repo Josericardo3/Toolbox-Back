@@ -16,6 +16,8 @@ namespace inti_model.dboinput
         public string? PREGUNTA { get; set; }
         public string? HALLAZGO { get; set; }
         public string? OBSERVACION { get; set; }
+        public int FK_ID_ACTIVIDAD { get; set; }
+        public int FK_ID_MEJORA_CONTINUA { get; set; }
         public bool ESTADO { get; set; }
 
 

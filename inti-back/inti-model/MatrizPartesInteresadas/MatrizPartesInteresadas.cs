@@ -24,5 +24,7 @@ namespace inti_model.matrizpartesinteresadas
         public string? FECHA_REGISTRO { get; set; }
         public int MEJORA_CONTINUA { get; set; }
         public string? ID_RNT { get; set; }
+        public int FK_ID_MEJORA_CONTINUA { get; set; }
+        public int FK_ID_ACTIVIDAD { get; set; }
     }
 }

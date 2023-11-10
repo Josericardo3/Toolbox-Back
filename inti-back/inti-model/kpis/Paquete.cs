@@ -22,6 +22,7 @@ namespace inti_model.kpis
         
         public string? DESCRIPCION { get; set; }
 
-       
+        public DateTime? FECHA_ELIMINACION { get; set; }
+        public DateTime? FECHA_MODIFICACION { get; set; }
     }
 }

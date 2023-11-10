@@ -140,7 +140,7 @@ namespace inti_repository.kpisRepo.ObjetivosRepo
                 existe.TITULO = model.TITULO;
                 existe.DESCRIPCION = model.DESCRIPCION;
                 existe.VAL_CUMPLIMIENTO = model.VAL_CUMPLIMIENTO;
-
+                existe.FECHA_MODIFICACION = baseHelpers.DateTimePst();
 
 
                 Context.Entry(existe).State = EntityState.Modified;

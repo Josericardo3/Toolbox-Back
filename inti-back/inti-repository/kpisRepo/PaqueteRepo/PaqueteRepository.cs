@@ -29,7 +29,7 @@ namespace inti_repository.kpisRepo.PaqueteRepo
 
             try
             {
-                var existe = Context.Paquetes.Where(x => x.NOMBRE.Trim().ToUpper() == model.NOMBRE.Trim().ToUpper()).FirstOrDefault();
+                var existe = Context.Paquetes.Where(x => x.NOMBRE.Trim().ToUpper() == model.NOMBRE.Trim().ToUpper() && x.FECHA_ELIMINACION==null).FirstOrDefault();
                 if (existe != null)
                 {
                     response.Mensaje = $"El paquete con nombre: {model.NOMBRE}, ya existe";
@@ -67,7 +67,7 @@ namespace inti_repository.kpisRepo.PaqueteRepo
             var response = new BaseComboDTO<BaseInformacionComboDTO>();
             try
             {
-                var query = await Context.Paquetes.Select(x => new BaseInformacionComboDTO
+                var query = await Context.Paquetes.Where(x => x.FECHA_ELIMINACION == null).Select(x => new BaseInformacionComboDTO
                 {
                     Id = x.ID_PAQUETE,
                     Nombre = x.NOMBRE
@@ -93,15 +93,16 @@ namespace inti_repository.kpisRepo.PaqueteRepo
 
             try
             {
-                var query = await Context.Paquetes.Where(x => x.NOMBRE.Contains(baseFilter.Search)).Skip(baseFilter.Skip).Take(baseFilter.Take).Select(x => new PaqueteDTO
+                var total = Context.Paquetes.Where(x => (x.NOMBRE.Contains(baseFilter.Search) || x.DESCRIPCION.Contains(baseFilter.Search)) && x.FECHA_ELIMINACION == null).Select(x => x.ID_PAQUETE);
+                var query = await Context.Paquetes.Where(x => (x.NOMBRE.Contains(baseFilter.Search) || x.DESCRIPCION.Contains(baseFilter.Search)) && x.FECHA_ELIMINACION == null).OrderByDescending(x=>x.ID_PAQUETE).Skip(baseFilter.Skip).Take(baseFilter.Take).Select(x => new PaqueteDTO
                 {
                     ID_PAQUETE = x.ID_PAQUETE,
                     NOMBRE = x.NOMBRE,
-                    DESCRIPCION = x.DESCRIPCION==null?"": x.DESCRIPCION,
+                    DESCRIPCION = x.DESCRIPCION==null?"": x.DESCRIPCION
                     
                 }).ToListAsync();
 
-                response.Total = query.Count();
+                response.Total = total.Count();
                 response.Data = query;
                 response.Confirmacion = true;
                 response.Mensaje = "Lista Obtenida Correctamente";
@@ -122,14 +123,14 @@ namespace inti_repository.kpisRepo.PaqueteRepo
             try
             {
                 
-                var existe =  Context.Paquetes.Where(x=>x.ID_PAQUETE==model.ID_PAQUETE).FirstOrDefault();
+                var existe =  Context.Paquetes.Where(x=>x.ID_PAQUETE==model.ID_PAQUETE && x.FECHA_ELIMINACION == null).FirstOrDefault();
                 if (existe == null)
                 {
                     response.Mensaje = $"No existe paquete";
 
                     return response;
                 }
-                var existeOtro = Context.Paquetes.Where(x => x.NOMBRE.ToUpper().Trim() == model.NOMBRE.ToUpper().Trim() && x.ID_PAQUETE != model.ID_PAQUETE).FirstOrDefault();
+                var existeOtro = Context.Paquetes.Where(x => x.NOMBRE.ToUpper().Trim() == model.NOMBRE.ToUpper().Trim() && x.ID_PAQUETE != model.ID_PAQUETE && x.FECHA_ELIMINACION == null).FirstOrDefault();
                 if (existeOtro != null)
                 {
                     response.Mensaje = $"El paquete con título: {model.NOMBRE}, ya existe";
@@ -139,7 +140,7 @@ namespace inti_repository.kpisRepo.PaqueteRepo
 
                 existe.NOMBRE = model.NOMBRE;
                 existe.DESCRIPCION = model.DESCRIPCION;
-               
+                existe.FECHA_MODIFICACION = baseHelpers.DateTimePst();
 
 
                 Context.Entry(existe).State = EntityState.Modified;
@@ -171,7 +172,7 @@ namespace inti_repository.kpisRepo.PaqueteRepo
                     return response;
                 }
 
-                var existe = await Context.Paquetes.Where(x => x.ID_PAQUETE == model.ID_PAQUETE).FirstOrDefaultAsync();
+                var existe = await Context.Paquetes.Where(x => x.ID_PAQUETE == model.ID_PAQUETE && x.FECHA_ELIMINACION == null).FirstOrDefaultAsync();
                 if (existe == null)
                 {
                     response.Mensaje = $"No existe paquete";
@@ -186,7 +187,10 @@ namespace inti_repository.kpisRepo.PaqueteRepo
                     return response;
                 }
 
-                Context.Remove(existe);
+                existe.FECHA_ELIMINACION = baseHelpers.DateTimePst();
+
+
+                Context.Entry(existe).State = EntityState.Modified;
                 await Context.SaveChangesAsync();
 
                 response.Confirmacion = true;

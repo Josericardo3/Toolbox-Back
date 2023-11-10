@@ -11,6 +11,8 @@ namespace inti_model.dboresponse
     {
         public int ID_NOTICIA { get; set; }
         public int FK_ID_USUARIO { get; set; }
+        public int FK_ID_CATEGORIAAA { get; set; }
+        public string? DESCRIPCION_CAT { get; set; }
         public string? NOMBRE_PST { get; set; }
         public string? NOMBRE { get; set; }
         public string? TITULO { get; set; }

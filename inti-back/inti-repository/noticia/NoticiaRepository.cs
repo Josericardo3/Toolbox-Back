@@ -36,7 +36,7 @@ namespace inti_repository.noticia
             string data;
             if (idTipoUsuario == 3 || idTipoUsuario == 4 || idTipoUsuario == 5)
             {
-                data = @"SELECT a.ID_NOTICIA,a.FK_ID_USUARIO,p.NOMBRE_PST, c.NOMBRE, a.TITULO, a.DESCRIPCION, a.IMAGEN, a.FECHA_REG, COALESCE(a.FECHA_ACT, a.FECHA_REG) AS FECHA_ACT, GROUP_CONCAT(b.NOMBRE SEPARATOR ', ') AS NOMBRE_DESTINATARIO, GROUP_CONCAT(d.NORMA SEPARATOR ', ') AS NORMAS,GROUP_CONCAT(e.CATEGORIA_RNT SEPARATOR ', ') AS CATEGORIAS,GROUP_CONCAT(f.SUB_CATEGORIA_RNT SEPARATOR ', ') AS SUB_CATEGORIAS
+                data = @"SELECT a.ID_NOTICIA,a.FK_ID_USUARIO, a.FK_ID_CATEGORIAAA, (SELECT DESCRIPCION FROM NoticiaCategorias where ID_CATEGORIA=a.FK_ID_CATEGORIAAA) AS DESCRIPCION_CAT,p.NOMBRE_PST, c.NOMBRE, a.TITULO, a.DESCRIPCION, a.IMAGEN, a.FECHA_REG, COALESCE(a.FECHA_ACT, a.FECHA_REG) AS FECHA_ACT, GROUP_CONCAT(b.NOMBRE SEPARATOR ', ') AS NOMBRE_DESTINATARIO, GROUP_CONCAT(d.NORMA SEPARATOR ', ') AS NORMAS,GROUP_CONCAT(e.CATEGORIA_RNT SEPARATOR ', ') AS CATEGORIAS,GROUP_CONCAT(f.SUB_CATEGORIA_RNT SEPARATOR ', ') AS SUB_CATEGORIAS
                         FROM Noticia a
                         INNER JOIN Notificacion n ON n.FK_ID_NOTICIA = a.ID_NOTICIA
                         LEFT JOIN Usuario b ON b.ID_USUARIO = n.FK_ID_USUARIO
@@ -56,7 +56,7 @@ namespace inti_repository.noticia
             }
             else
             {
-                data = @"SELECT a.ID_NOTICIA,a.FK_ID_USUARIO, p.NOMBRE_PST,c.NOMBRE, a.TITULO, a.DESCRIPCION, a.IMAGEN, a.FECHA_REG, COALESCE(a.FECHA_ACT, a.FECHA_REG) AS FECHA_ACT, GROUP_CONCAT(b.NOMBRE SEPARATOR ', ') AS NOMBRE_DESTINATARIO, GROUP_CONCAT(d.NORMA SEPARATOR ', ') AS NORMAS,GROUP_CONCAT(e.CATEGORIA_RNT SEPARATOR ', ') AS CATEGORIAS,GROUP_CONCAT(f.SUB_CATEGORIA_RNT SEPARATOR ', ') AS SUB_CATEGORIAS
+                data = @"SELECT a.ID_NOTICIA,a.FK_ID_USUARIO, a.FK_ID_CATEGORIAAA, (SELECT DESCRIPCION FROM NoticiaCategorias where ID_CATEGORIA=a.FK_ID_CATEGORIAAA) AS DESCRIPCION_CAT, p.NOMBRE_PST,c.NOMBRE, a.TITULO, a.DESCRIPCION, a.IMAGEN, a.FECHA_REG, COALESCE(a.FECHA_ACT, a.FECHA_REG) AS FECHA_ACT, GROUP_CONCAT(b.NOMBRE SEPARATOR ', ') AS NOMBRE_DESTINATARIO, GROUP_CONCAT(d.NORMA SEPARATOR ', ') AS NORMAS,GROUP_CONCAT(e.CATEGORIA_RNT SEPARATOR ', ') AS CATEGORIAS,GROUP_CONCAT(f.SUB_CATEGORIA_RNT SEPARATOR ', ') AS SUB_CATEGORIAS
                         FROM Noticia a
                         INNER JOIN Notificacion n ON n.FK_ID_NOTICIA = a.ID_NOTICIA
                         LEFT JOIN Usuario b ON b.ID_USUARIO = n.FK_ID_USUARIO
@@ -168,13 +168,14 @@ namespace inti_repository.noticia
                 imagen = noticia.FOTO.FileName;
             }
             
-            var dataInsert = @"INSERT INTO Noticia (FK_ID_USUARIO,TITULO,DESCRIPCION,IMAGEN,FECHA_REG)
-                               VALUES (@FK_ID_USUARIO,@TITULO,@DESCRIPCION,@IMAGEN,NOW())";
+            var dataInsert = @"INSERT INTO Noticia (FK_ID_USUARIO,TITULO,DESCRIPCION,IMAGEN,FECHA_REG,FK_ID_CATEGORIAAA)
+                               VALUES (@FK_ID_USUARIO,@TITULO,@DESCRIPCION,@IMAGEN,NOW(),@FK_ID_CATEGORIAAA)";
             var parameters = new
             {
                 FK_ID_USUARIO = noticia.FK_ID_USUARIO,
                 TITULO = noticia.TITULO,
                 DESCRIPCION = noticia.DESCRIPCION,
+                FK_ID_CATEGORIAAA = noticia.FK_ID_CATEGORIAAA,
                 IMAGEN = imagen
             };
             var  insertresult = await db.ExecuteAsync(dataInsert, parameters);
@@ -211,10 +212,20 @@ namespace inti_repository.noticia
             {
                 foreach (var pst in fkPst)
                 {
+
+ 
+                    var queryPst = @"SELECT ID_USUARIO FROM Pst WHERE ID_PST = @id and ESTADO =  TRUE";
+                    var parameter = new
+                    {
+                        id = pst
+                    };
+
+                    var resultidpst = db.QueryFirstOrDefault<int>(queryPst, parameter);
+
                     var parametersPst = new
                     {
                         FK_ID_PST = noticia.FK_ID_USUARIO,
-                        FK_ID_USUARIO = pst,
+                        FK_ID_USUARIO = resultidpst,
                         FK_ID_NOTICIA = idnoticia
                     };
                     resultpst = db.Execute(querypst, parametersPst);
@@ -538,15 +549,14 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
                         WHERE
                              a.ESTADO = TRUE AND d.ESTADO =true AND 
 							(a.FK_ID_PST = @iduser OR a.FK_ID_USUARIO = @iduser OR
-                            a.FK_ID_USUARIO =  (SELECT p.FK_ID_USUARIO FROM Pst p WHERE 
-                            p.RNT = (SELECT u.RNT FROM Usuario u WHERE ID_USUARIO = @iduser)) OR
+                            a.FK_ID_USUARIO =  (SELECT p.FK_ID_USUARIO FROM Pst p WHERE p.RNT = (SELECT u.RNT FROM Usuario u WHERE ID_USUARIO = @iduser)) OR 
+                            a.FK_ID_USUARIO = (SELECT ID_PST FROM Pst WHERE RNT = (SELECT u.RNT FROM Usuario u WHERE u.ID_USUARIO = @iduser)) OR            
 							a.FK_ID_CATEGORIA = (SELECT p.FK_ID_CATEGORIA_RNT FROM Pst p WHERE p.FK_ID_USUARIO = @iduser  ) OR
 							a.FK_ID_SUB_CATEGORIA = (SELECT p.FK_ID_SUB_CATEGORIA_RNT FROM Pst p WHERE p.FK_ID_USUARIO = @iduser) OR
 							a.FK_ID_NORMA IN (SELECT mn.ID_NORMA 
-                            FROM  Pst p JOIN MaeCategoriaRnt cr ON cr.ID_CATEGORIA_RNT = p.FK_ID_CATEGORIA_RNT 
-                            JOIN MaeNorma mn ON mn.FK_ID_CATEGORIA_RNT = cr.ID_CATEGORIA_RNT WHERE 
-                            p.FK_ID_USUARIO =  (SELECT p.FK_ID_USUARIO FROM Pst p WHERE 
-                            p.RNT = (SELECT u.RNT FROM Usuario u WHERE ID_USUARIO = @iduser)) )  
+												FROM  Pst p JOIN MaeCategoriaRnt cr ON cr.ID_CATEGORIA_RNT = p.FK_ID_CATEGORIA_RNT 
+															JOIN MaeNorma mn ON mn.FK_ID_CATEGORIA_RNT = cr.ID_CATEGORIA_RNT 
+												WHERE p.FK_ID_USUARIO =  (SELECT p.FK_ID_USUARIO FROM Pst p WHERE p.RNT = (SELECT u.RNT FROM Usuario u WHERE ID_USUARIO = @iduser)) )  
                             AND d.FECHA_REG >= CURDATE() - INTERVAL 1 WEEK)
                         ORDER BY d.FECHA_REG DESC
                         LIMIT 5
@@ -573,22 +583,20 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
                         WHERE
                             a.ESTADO = TRUE AND c.ESTADO =true AND
 							(a.FK_ID_PST = @iduser  OR a.FK_ID_USUARIO = @iduser OR
-                            a.FK_ID_USUARIO =  (SELECT p.FK_ID_USUARIO FROM Pst p WHERE 
-                            p.RNT = (SELECT u.RNT FROM Usuario u WHERE ID_USUARIO = @iduser)) OR
+                            a.FK_ID_USUARIO =  (SELECT p.FK_ID_USUARIO FROM Pst p WHERE p.RNT = (SELECT u.RNT FROM Usuario u WHERE ID_USUARIO = @iduser)) OR 
+                            a.FK_ID_USUARIO = (SELECT ID_PST FROM Pst WHERE RNT = (SELECT u.RNT FROM Usuario u WHERE u.ID_USUARIO = @iduser)) OR
 							a.FK_ID_CATEGORIA = (SELECT p.FK_ID_CATEGORIA_RNT FROM Pst p WHERE p.FK_ID_USUARIO = @iduser ) OR
 							a.FK_ID_SUB_CATEGORIA = (SELECT p.FK_ID_SUB_CATEGORIA_RNT FROM Pst p WHERE p.FK_ID_USUARIO = @iduser ) OR
 							a.FK_ID_NORMA IN (SELECT mn.ID_NORMA 
-                            FROM  Pst p JOIN MaeCategoriaRnt cr ON cr.ID_CATEGORIA_RNT = p.FK_ID_CATEGORIA_RNT 
-                            JOIN MaeNorma mn ON mn.FK_ID_CATEGORIA_RNT = cr.ID_CATEGORIA_RNT WHERE 
-                            p.FK_ID_USUARIO =  (SELECT p.FK_ID_USUARIO FROM Pst p WHERE 
-                            p.RNT = (SELECT u.RNT FROM Usuario u WHERE ID_USUARIO = @iduser)))
+												FROM  Pst p JOIN MaeCategoriaRnt cr ON cr.ID_CATEGORIA_RNT = p.FK_ID_CATEGORIA_RNT 
+															JOIN MaeNorma mn ON mn.FK_ID_CATEGORIA_RNT = cr.ID_CATEGORIA_RNT 
+												WHERE p.FK_ID_USUARIO =  (SELECT p.FK_ID_USUARIO FROM Pst p WHERE p.RNT = (SELECT u.RNT FROM Usuario u WHERE ID_USUARIO = @iduser)))
 							AND DATE_FORMAT(STR_TO_DATE(c.FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d') >= CURDATE()
                             AND DATE_FORMAT(STR_TO_DATE(c.FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d') <= DATE_ADD(CURDATE(), INTERVAL 1 WEEK))
                         ORDER BY c.FECHA_FIN ASC
                         LIMIT 5
                     )
-                ) as result;
-            ";
+                ) as result;";
               
                 result = await db.QueryAsync<ResponseNotificacion>(data, parameterUser);
             }

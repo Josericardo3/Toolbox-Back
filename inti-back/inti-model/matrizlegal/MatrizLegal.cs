@@ -23,5 +23,8 @@ namespace inti_model.matrizlegal
         public DateTime FECHA_REG { get; set; }
         public int ID_USUARIO_ACT { get; set; }
         public DateTime FECHA_ACT { get; set; }
+
+        //public int FK_ID_MEJORA_CONTINUA { get; set; }
+        //public int FK_ID_ACTIVIDAD { get; set; }
     }
 }

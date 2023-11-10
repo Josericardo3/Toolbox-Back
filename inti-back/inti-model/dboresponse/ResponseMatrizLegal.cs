@@ -36,6 +36,10 @@ namespace inti_model.dboresponse
 
         public int ES_FIJO { get; set; }
 
+        public int FK_ID_MEJORA_CONTINUA { get; set; }
+
+        public int FK_ID_ACTIVIDAD { get; set; }
+
 
 
     }

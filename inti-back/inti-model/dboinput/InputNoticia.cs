@@ -18,6 +18,7 @@ namespace inti_model.dboinput
         public string? TITULO { get; set; }
         public string? DESCRIPCION { get; set; }
         public IFormFile? FOTO { get; set; }
+        public int FK_ID_CATEGORIAAA { get; set; }
 
         public InputNoticia()
         {

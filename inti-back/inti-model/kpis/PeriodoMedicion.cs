@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace inti_model.kpis
 {
-    [Table("PeridosMedicion")]
+    [Table("PeriodosMedicion")]
     public class PeriodoMedicion
     {
         [Key]
@@ -25,5 +25,7 @@ namespace inti_model.kpis
 
         [Required]
         public int TIEMPO { get; set; }
+        public DateTime? FECHA_ELIMINACION { get; set; }
+        public DateTime? FECHA_MODIFICACION { get; set; }
     }
 }

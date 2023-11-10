@@ -208,7 +208,7 @@ namespace inti_repository.auditoria
         {
             var db = dbConnection();
 
-            var sqluser = @"SELECT * FROM Usuario WHERE ID_USUARIO = @IdUsuario AND ESTADO = true ";
+            var sqluser = @"SELECT * FROM Usuario WHERE ID_USUARIO = @IdUsuario AND ESTADO = true";
             var parameter = new
             {
                 Idusuario = IdUsuario
@@ -232,12 +232,12 @@ namespace inti_repository.auditoria
                 END AS ESTADO_AUDITORIA
             FROM 
                 Auditoria a LEFT JOIN Pst b ON a.FK_ID_PST = b.ID_PST
-            WHERE 
+            WHERE
                 a.ESTADO = true 
             ORDER BY 
-            a.FECHA_REG DESC;";
+            a.FECHA_REG DESC";
 
-                data = (await db.QueryAsync<ResponseAuditorias>(queryAuditoria)).ToList();
+                data = (await db.QueryAsync<ResponseAuditorias>(queryAuditoria, new { datauser.RNT })).ToList();
             }
             else
             {
@@ -255,17 +255,16 @@ namespace inti_repository.auditoria
             FROM 
                 Auditoria a LEFT JOIN Pst b ON a.FK_ID_PST = b.ID_PST
             WHERE 
-                a.FK_ID_PST = @idpst AND a.ESTADO = true 
+                b.RNT = @RNT AND a.ESTADO = true 
             ORDER BY 
-            a.FECHA_REG DESC;";
-                var parameterIdPst = new
-                {
-                    idpst = datauser.FK_ID_PST
-                };
-                data = (await db.QueryAsync<ResponseAuditorias>(queryAuditoria, parameterIdPst)).ToList();
+            a.FECHA_REG DESC";
+
+            data = (await db.QueryAsync<ResponseAuditorias>(queryAuditoria, new { RNT = datauser.RNT })).ToList();
+
             }
             return data;
         }
+
 
 
         public async Task<Auditoria> GetAuditoria(int id)
@@ -283,19 +282,19 @@ namespace inti_repository.auditoria
             };
             Auditoria data = await db.QueryFirstOrDefaultAsync<Auditoria>(sql, parameterIdAuditoria);
             var sqlProceso = @"SELECT ap.ID_PROCESO_AUDITORIA, ap.FK_ID_AUDITORIA, ap.FECHA, ap.HORA, ap.TIPO_PROCESO, ap.PROCESO_DESCRIPCION,
-       ap.LIDER_PROCESO, ap.CARGO_LIDER, ap.TIPO_NORMA, ap.NORMAS_DESCRIPCION, ap.AUDITOR, ap.AUDITADOS, ap.OTROS_AUDITADOS, ap.DOCUMENTOS_REFERENCIA,
-       ap.CONCLUSION_CONFORMIDAD, ap.ESTADO,
-       SUM(CASE WHEN ar.HALLAZGO = 'NC' AND ar.ESTADO = true THEN 1 ELSE 0 END) AS CANT_NC,
-       SUM(CASE WHEN ar.HALLAZGO = 'OBS' AND ar.ESTADO = true  THEN 1 ELSE 0 END) AS CANT_OBS,
-       SUM(CASE WHEN ar.HALLAZGO = 'OM' AND ar.ESTADO = true  THEN 1 ELSE 0 END) AS CANT_OM,
-       SUM(CASE WHEN ar.HALLAZGO = 'F' AND ar.ESTADO = true  THEN 1 ELSE 0 END) AS CANT_F,
-       SUM(CASE WHEN ar.HALLAZGO = 'C' AND ar.ESTADO = true  THEN 1 ELSE 0 END) AS CANT_C
-FROM AuditoriaProceso ap
-LEFT JOIN AuditoriaRequisito ar ON ap.ID_PROCESO_AUDITORIA = ar.FK_ID_PROCESO
-WHERE ap.ESTADO = TRUE AND ap.FK_ID_AUDITORIA = @IdAuditoria
-GROUP BY ap.ID_PROCESO_AUDITORIA, ap.FK_ID_AUDITORIA, ap.FECHA, ap.HORA, ap.TIPO_PROCESO, ap.PROCESO_DESCRIPCION,
-         ap.LIDER_PROCESO, ap.CARGO_LIDER, ap.TIPO_NORMA, ap.NORMAS_DESCRIPCION, ap.AUDITOR, ap.AUDITADOS, ap.DOCUMENTOS_REFERENCIA,
-         ap.CONCLUSION_CONFORMIDAD, ap.ESTADO;";
+                               ap.LIDER_PROCESO, ap.CARGO_LIDER, ap.TIPO_NORMA, ap.NORMAS_DESCRIPCION, ap.AUDITOR, ap.AUDITADOS, ap.OTROS_AUDITADOS, ap.DOCUMENTOS_REFERENCIA,
+                               ap.CONCLUSION_CONFORMIDAD, ap.ESTADO,
+                               SUM(CASE WHEN ar.HALLAZGO = 'NC' AND ar.ESTADO = true THEN 1 ELSE 0 END) AS CANT_NC,
+                               SUM(CASE WHEN ar.HALLAZGO = 'OBS' AND ar.ESTADO = true  THEN 1 ELSE 0 END) AS CANT_OBS,
+                               SUM(CASE WHEN ar.HALLAZGO = 'OM' AND ar.ESTADO = true  THEN 1 ELSE 0 END) AS CANT_OM,
+                               SUM(CASE WHEN ar.HALLAZGO = 'F' AND ar.ESTADO = true  THEN 1 ELSE 0 END) AS CANT_F,
+                               SUM(CASE WHEN ar.HALLAZGO = 'C' AND ar.ESTADO = true  THEN 1 ELSE 0 END) AS CANT_C
+                                FROM AuditoriaProceso ap
+                                LEFT JOIN AuditoriaRequisito ar ON ap.ID_PROCESO_AUDITORIA = ar.FK_ID_PROCESO
+                                WHERE ap.ESTADO = TRUE AND ap.FK_ID_AUDITORIA = @IdAuditoria
+                                GROUP BY ap.ID_PROCESO_AUDITORIA, ap.FK_ID_AUDITORIA, ap.FECHA, ap.HORA, ap.TIPO_PROCESO, ap.PROCESO_DESCRIPCION,
+                                ap.LIDER_PROCESO, ap.CARGO_LIDER, ap.TIPO_NORMA, ap.NORMAS_DESCRIPCION, ap.AUDITOR, ap.AUDITADOS, ap.DOCUMENTOS_REFERENCIA,
+                                ap.CONCLUSION_CONFORMIDAD, ap.ESTADO;";
 
             var dataProceso = db.Query<AuditoriaProceso>(sqlProceso, parameterIdAuditoria).ToList();
             foreach (AuditoriaProceso proceso in dataProceso)
@@ -315,6 +314,26 @@ GROUP BY ap.ID_PROCESO_AUDITORIA, ap.FK_ID_AUDITORIA, ap.FECHA, ap.HORA, ap.TIPO
 
             }
 
+
+            return data;
+        }
+
+        public async Task<dynamic> GetAuditoriaNuevo(int id)
+        {
+
+            var db = dbConnection();
+
+            var sql = @"SELECT 
+                            EQUIPO_AUDITOR,
+                            FECHA_REUNION_APERTURA,
+                            FECHA_REUNION_CIERRE
+                        FROM
+                            Auditoria
+                        WHERE
+                            ID_AUDITORIA = @IdAuditoria
+                                AND ESTADO = TRUE";
+
+            var data = await db.QueryFirstAsync<dynamic>(sql,new { IdAuditoria = id });
 
             return data;
         }
@@ -363,6 +382,131 @@ GROUP BY ap.ID_PROCESO_AUDITORIA, ap.FK_ID_AUDITORIA, ap.FECHA, ap.HORA, ap.TIPO
 
             return data > 0;
         }
+
+        public async Task<bool> UpdateRequisitosMejora(InputVerficacionAuditoria proceso)
+        {
+
+            var db = dbConnection();
+            var data = 0;
+
+            var queryauditoria = @"SELECT a.FK_ID_PST, a.AUDITOR_LIDER, a.FECHA_REUNION_APERTURA, a.FECHA_REUNION_CIERRE FROM Auditoria a INNER JOIN AuditoriaProceso b ON a.ID_AUDITORIA = b.FK_ID_AUDITORIA 
+                                WHERE b.ID_PROCESO_AUDITORIA = @idproceso";
+            var parameter = new
+            {
+                idproceso = proceso.ID_PROCESO_AUDITORIA
+            };
+            var dataauditoria = await db.QueryFirstAsync<Auditoria>(queryauditoria, parameter);
+
+            var querypst = @"SELECT FK_ID_USUARIO FROM Pst WHERE ID_PST=@ID_PST AND ESTADO = TRUE";
+            var param = new
+            {
+                ID_PST = dataauditoria.FK_ID_PST
+            };
+
+            var dataIdUsuario = db.QueryFirstOrDefault<int>(querypst, param);
+
+            var querynorma = @"SELECT b.NORMA FROM Pst a  INNER JOIN MaeNorma b ON a.FK_ID_CATEGORIA_RNT = b.FK_ID_CATEGORIA_RNT WHERE a.ID_PST = 436 AND a.ESTADO = TRUE";
+            var paramnorma = new
+            {
+                ID_PST = dataauditoria.FK_ID_PST
+            };
+
+            var norma = db.QueryFirstOrDefault<string>(querynorma, paramnorma);
+            if (proceso.REQUISITOS != null)
+            {
+                foreach (var requisito in proceso.REQUISITOS)
+                {
+                    if (requisito.FK_ID_MEJORA_CONTINUA == 0 && requisito.FK_ID_ACTIVIDAD==0)
+                    {
+                     
+                        var query = @"INSERT INTO MejoraContinua(ID_USUARIO, RESPONSABLE, DESCRIPCION, NTC, REQUISITOS, TIPO, ESTADO, FECHA_INICIO, FECHA_FIN, FECHA_REGISTRO) 
+                                    VALUES (@ID_USUARIO, @RESPONSABLE, @DESCRIPCION, @NTC, @REQUISITOS, @TIPO, @ESTADO, @FECHA_INICIO, @FECHA_FIN, NOW())";                   
+                       var parameters = new  {
+                            ID_USUARIO = dataIdUsuario,
+                            RESPONSABLE = dataauditoria.AUDITOR_LIDER,
+                            DESCRIPCION = requisito.EVIDENCIA +" - "+ requisito.OBSERVACION,
+                            NTC = norma,
+                            REQUISITOS = requisito.REQUISITO,
+                            TIPO = "Verificación de Auditoria",
+                            ESTADO = "Abierto",
+                            FECHA_INICIO = dataauditoria.FECHA_REUNION_APERTURA,
+                            FECHA_FIN = dataauditoria.FECHA_REUNION_CIERRE
+                        };
+                        data = await db.ExecuteAsync(query, parameters);
+
+                        var querylastmejora = @"SELECT LAST_INSERT_ID() FROM MejoraContinua limit 1;";
+                        var idmejora = await db.QueryFirstAsync<int>(querylastmejora);
+
+                        requisito.FK_ID_MEJORA_CONTINUA = idmejora;
+
+
+                        var queryact = @"INSERT INTO Actividad ( FK_ID_USUARIO_PST, FK_ID_RESPONSABLE, TIPO_ACTIVIDAD, DESCRIPCION, FECHA_INICIO ,FECHA_FIN, ESTADO_PLANIFICACION,FECHA_REG)
+                               VALUES (@FK_ID_USUARIO_PST,@FK_ID_RESPONSABLE,@TIPO_ACTIVIDAD, @DESCRIPCION,@FECHA_INICIO,@FECHA_FIN,@ESTADO_PLANIFICACION,NOW())";
+
+                        var parametersact = new
+                        {
+                            FK_ID_USUARIO_PST = dataIdUsuario,
+                            FK_ID_RESPONSABLE = dataIdUsuario, //modificar al responsable
+                            TIPO_ACTIVIDAD = "Verificación de Auditoria",
+                            DESCRIPCION = requisito.EVIDENCIA + " - " + requisito.OBSERVACION,
+                            FECHA_INICIO = dataauditoria.FECHA_REUNION_APERTURA,
+                            FECHA_FIN = dataauditoria.FECHA_REUNION_CIERRE,
+                            ESTADO_PLANIFICACION = "En Proceso"
+                        };
+                        data = await db.ExecuteAsync(queryact, parametersact);
+
+                        var querylastactividad = @"SELECT LAST_INSERT_ID() FROM Actividad limit 1;";
+                        var idactividad = await db.QueryFirstAsync<int>(querylastactividad);
+
+                        requisito.FK_ID_ACTIVIDAD = idactividad;
+
+                        var queryrequisito = @"UPDATE AuditoriaRequisito SET FK_ID_MEJORA_CONTINUA =@FK_ID_MEJORA_CONTINUA, FK_ID_ACTIVIDAD = @FK_ID_ACTIVIDAD
+                                WHERE ID_REQUISITO = @ID_REQUISITO";
+                        var paramet = new
+                        {
+                            FK_ID_ACTIVIDAD = requisito.FK_ID_ACTIVIDAD,
+                            FK_ID_MEJORA_CONTINUA = requisito.FK_ID_MEJORA_CONTINUA,
+                            ID_REQUISITO = requisito.ID_REQUISITO
+                        };
+                        data = await db.ExecuteAsync(queryrequisito, paramet);
+                    }
+                    else
+                    {
+                        var query = @"UPDATE MejoraContinua SET
+                                ID_USUARIO =@ID_USUARIO,
+                                RESPONSABLE =@RESPONSABLE,
+                                DESCRIPCION= @DESCRIPCION,
+                                NTC=@NTC,
+                                REQUISITOS=@REQUISITOS,
+                                TIPO=@TIPO,
+                                ESTADO=@ESTADO,
+                                FECHA_INICIO=@FECHA_INICIO,
+                                FECHA_FIN=@FECHA_FIN,
+                                FECHA_ACT = NOW()
+                                WHERE ID_MEJORA_CONTUNA = @ID_MEJORA_CONTINUA";
+                        var parameters = new
+                        {
+                            ID_USUARIO = dataIdUsuario,
+                            RESPONSABLE = dataauditoria.AUDITOR_LIDER,
+                            DESCRIPCION = requisito.ID_REQUISITO,
+                            NTC = norma,
+                            REQUISITOS = requisito.REQUISITO,
+                            TIPO = "Verificación de Auditoria",
+                            ESTADO = "Abierto",
+                            FECHA_INICIO = dataauditoria.FECHA_REUNION_APERTURA,
+                            FECHA_FIN = dataauditoria.FECHA_REUNION_CIERRE,
+                            ID_MEJORA_CONTINUA = requisito.FK_ID_MEJORA_CONTINUA
+                            
+                        };
+                        data = await db.ExecuteAsync(query, parameters);
+                    }
+                   
+                }
+            }
+
+            return data > 0;
+        }
+
 
 
         public async Task<bool> UpdateVerificacionAuditoria(InputVerficacionAuditoria proceso)
@@ -532,5 +676,6 @@ GROUP BY ap.ID_PROCESO_AUDITORIA, ap.FK_ID_AUDITORIA, ap.FECHA, ap.HORA, ap.TIPO
     
             return data > 0;
         }
+
     }
 }

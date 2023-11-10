@@ -23,11 +23,12 @@ namespace inti_repository.encuestas
         {
             var db = dbConnection();
 
-                var queryEncuesta = @"INSERT INTO MaeEncuesta (TITULO,DESCRIPCION,ESTADO,FECHA_REG)
-                                   VALUES(@TITULO,@DESCRIPCION,1,NOW())";
+                var queryEncuesta = @"INSERT INTO MaeEncuesta (TITULO,DESCRIPCION,FK_ID_USUARIO,ESTADO,FECHA_REG)
+                                   VALUES(@TITULO,@DESCRIPCION,@FK_ID_USUARIO,1,NOW())";
             var parameters = new
             {
                 encuesta.TITULO,
+                encuesta.FK_ID_USUARIO,
                 encuesta.DESCRIPCION,
             };
             var dataEncuesta = await db.ExecuteAsync(queryEncuesta, parameters);
@@ -114,23 +115,34 @@ namespace inti_repository.encuestas
             }
             return encuesta.ID_MAE_ENCUESTA;
         }
-        public async Task<IEnumerable<ResponseEncuestaGeneral>> GetEncuestaGeneral()
+        public async Task<IEnumerable<ResponseEncuestaGeneral>> GetEncuestaGeneral(int idusuario)
         {
             var db = dbConnection();
+            var dataRnt = @"SELECT RNT FROM Usuario WHERE ID_USUARIO=@ID_USUARIO AND ESTADO = TRUE";
+            var parameter = new
+            {
+                ID_USUARIO = idusuario
+            };
+
+            var resultrnt = db.QueryFirstOrDefault<string>(dataRnt, parameter);
 
             var queryEncuesta = @"
                                     SELECT 
-                                        me.ID_MAE_ENCUESTA,me.TITULO, me.DESCRIPCION, COALESCE(MAX(re.NUM_ENCUESTADO),0) as NUM_ENCUESTADOS
+                                        me.ID_MAE_ENCUESTA,me.TITULO, me.DESCRIPCION, COALESCE(MAX(re.NUM_ENCUESTADO),0) as NUM_ENCUESTADOS, me.FECHA_REG, COALESCE(me.FECHA_ACT, me.FECHA_REG) AS FECHA_ACT
                                     FROM
                                         MaeEncuesta me
                                             INNER JOIN MaeEncuestaPregunta ep ON me.ID_MAE_ENCUESTA = ep.FK_MAE_ENCUESTA
                                         LEFT JOIN RespuestaEncuesta re ON ep.ID_MAE_ENCUESTA_PREGUNTA = re.FK_ID_MAE_ENCUESTA_PREGUNTA
+                                        LEFT JOIN Usuario u ON me.FK_ID_USUARIO = u.ID_USUARIO
                                     WHERE
-                                     me.ESTADO = 1 
+                                     me.ESTADO = 1 AND u.RNT = @RNT
                                     GROUP BY
                                         me.ID_MAE_ENCUESTA, me.TITULO, me.DESCRIPCION;";
-
-            var dataEncuesta = await db.QueryAsync<ResponseEncuestaGeneral>(queryEncuesta);
+            var parameterrnt = new
+            {
+                RNT = resultrnt
+            };
+            var dataEncuesta = await db.QueryAsync<ResponseEncuestaGeneral>(queryEncuesta, parameterrnt);
 
             return dataEncuesta;
         }
@@ -165,6 +177,45 @@ namespace inti_repository.encuestas
             }
             
             return dataEncuesta;
+        }
+        public async Task<IEnumerable<dynamic>> GetRespuestasEncuesta( int idencuesta)
+        {
+            var db = dbConnection();
+            var sql = @"
+                   SELECT a.ID_RESPUESTA_ENCUESTA, c.ID_MAE_ENCUESTA, c.TITULO, c.DESCRIPCION, a.NUM_ENCUESTADO, b.DESCRIPCION as DESCRIPCION_PREGUNTA, b.TIPO, b.VALOR,
+                        b.OBLIGATORIO, a.RESPUESTA, a.FECHA_REG
+                    FROM RespuestaEncuesta a INNER JOIN MaeEncuestaPregunta b ON a.FK_ID_MAE_ENCUESTA_PREGUNTA = b.ID_MAE_ENCUESTA_PREGUNTA 
+                    INNER JOIN MaeEncuesta c 
+                     ON b.FK_MAE_ENCUESTA = c.ID_MAE_ENCUESTA WHERE c.ID_MAE_ENCUESTA = @idEncuesta AND c.ESTADO = 1;";
+            var parameterid = new {
+            idEncuesta = idencuesta};
+            var data = await db.QueryAsync(sql, parameterid);
+
+            var result = data.GroupBy(row => new
+            {
+                ID_MAE_ENCUESTA = row.ID_MAE_ENCUESTA,
+                TITULO = row.TITULO,
+                DESCRIPCION = row.DESCRIPCION
+            })
+            .Select(group => new
+            {
+                ID_MAE_ENCUESTA = group.Key.ID_MAE_ENCUESTA,
+                TITULO = group.Key.TITULO,
+                DESCRIPCION = group.Key.DESCRIPCION,
+                RESPUESTA = group.Select(row => new
+                {
+                    ID_RESPUESTA_ENCUESTA = row.ID_RESPUESTA_ENCUESTA,
+                    NUM_ENCUESTADO = row.NUM_ENCUESTADO,
+                    DESCRIPCION_PREGUNTA = row.DESCRIPCION_PREGUNTA,
+                    TIPO = row.TIPO,
+                    VALOR = row.VALOR,
+                    OBLIGATORIO = row.OBLIGATORIO,
+                    RESPUESTA = row.RESPUESTA,
+                    FECHA_REG = row.FECHA_REG,
+                }).ToList()
+            });
+
+            return result;
         }
 
 

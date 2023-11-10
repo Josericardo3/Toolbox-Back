@@ -88,5 +88,11 @@ namespace inti_back.Controllers.KpisControllers
             var response = await _kpiRepository.ListarEvaluacionesIndicadoresPorUsuarioCrea(baseFilter);
             return Ok(response);
         }
+        [HttpPost("Combo/Anios")]
+        public async Task<IActionResult> ListarComboAnios(BaseFilter baseFilter)
+        {
+            var response = await _kpiRepository.ListarAniosCombo(baseFilter);
+            return Ok(response);
+        }
     }
 }

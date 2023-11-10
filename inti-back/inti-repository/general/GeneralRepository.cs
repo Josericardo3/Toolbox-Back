@@ -49,7 +49,7 @@ namespace inti_repository.validaciones
         public async Task<IEnumerable<dynamic>> GetNormas()
         {
             var db = dbConnection();
-            var sql = @"SELECT ID_NORMA, NORMA FROM MaeNorma WHERE ESTADO = 1 ";
+            var sql = @"SELECT ID_NORMA, NORMA FROM MaeNorma WHERE ESTADO = 1 AND ID_USUARIO_ACT IS NULL";
             var data = await db.QueryAsync(sql);
             return data;
         }

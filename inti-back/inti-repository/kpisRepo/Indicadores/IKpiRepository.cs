@@ -28,6 +28,8 @@ namespace inti_repository.kpisRepo.Indicadores
         Task<TablaDTO<RecordatorioIndicadorDTO>> ListarTodosRecordatoriosEvaluacionIndicador(IndicadorFilter baseFilter);
         Task<TablaDTO<RecordatorioIndicadorDTO>> ListarRecordatoriosEvaluacionIndicador(IndicadorFilter baseFilter);
         Task<TablaDTO<IndicadorEvaluacionDTO>> ListarEvaluacionesIndicadoresPorUsuarioCrea(IndicadorFilter baseFilter);
+        //anios
+        Task<BaseComboDTO<BaseInformacionComboDTO>> ListarAniosCombo(BaseFilter baseFilter);
 
     }
 }

@@ -54,6 +54,7 @@ namespace inti_model.DTOs
         public string? FECHA_RECORDATORIO { get; set; }
         public List<VariablesEvaluacionDTO> VARIABLES_EVALUACION { get; set; }
         public string SEMAFORIZACION { get; set; }
+        public string FECHA_PERIODO_SMALL { get; set; }
     }
     public class VariablesEvaluacionDTO
     {

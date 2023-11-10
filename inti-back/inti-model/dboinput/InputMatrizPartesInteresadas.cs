@@ -23,5 +23,7 @@ namespace inti_model.dboinput
         public string? FECHA_EJECUCION { get; set; }
         public int MEJORA_CONTINUA { get; set; }
         public string? ID_RNT { get; set; }
+        public int FK_ID_MEJORA_CONTINUA { get; set; }
+        public int FK_ID_ACTIVIDAD { get; set; }
     }
 }

@@ -146,19 +146,19 @@ namespace inti_back.Controllers
 
         }
 
-        [HttpDelete("actividades")]
-        public async Task<IActionResult> DeleteActividad(int id)
+        [HttpDelete("{ID_ACTIVIDAD}")]
+        public async Task<IActionResult> DeleteActividad(int ID_ACTIVIDAD)
         {
             try
             {
-                var borrado = await _actividadRepository.DeleteActividad(id);
+                var borrado = await _actividadRepository.DeleteActividad(ID_ACTIVIDAD);
                 if (borrado == false)
                 {
                     throw new Exception();
                 }
                 return Ok(new
                 {
-                    Id = id,
+                    Id = ID_ACTIVIDAD,
                     StatusCode(204).StatusCode,
                     valor = "Se borró correctamente la actividad"
                 });

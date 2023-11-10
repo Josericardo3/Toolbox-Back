@@ -27,7 +27,7 @@ namespace inti_repository.kpisRepo.ProcesosRepo
             var response = new BaseComboDTO<BaseInformacionComboDTO>();
             try
             {
-                var query = await Context.Procesos.OrderBy(x => x.ID_PROCESO).Select(x => new BaseInformacionComboDTO
+                var query = await Context.Procesos.Where(x => x.FECHA_ELIMINACION == null).OrderBy(x => x.ID_PROCESO).Select(x => new BaseInformacionComboDTO
                 {
                     Id = x.ID_PROCESO,
                     Nombre = x.NOMBRE,

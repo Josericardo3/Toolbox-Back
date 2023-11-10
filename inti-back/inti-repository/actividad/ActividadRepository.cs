@@ -64,7 +64,7 @@ namespace inti_repository.actividad
                         LEFT JOIN Usuario u ON a.FK_ID_USUARIO_PST = u.ID_USUARIO
                         LEFT JOIN Pst p ON u.FK_ID_PST = p.ID_PST
                         LEFT JOIN MaeGeneral c ON b.ID_TIPO_USUARIO = c.ITEM AND c.ID_TABLA =1 
-                        where a.ESTADO = TRUE AND (a.FK_ID_USUARIO_PST = @id OR a.FK_ID_RESPONSABLE =@id) ORDER BY a.FECHA_REG DESC";
+                        where a.ESTADO = TRUE AND (a.FK_ID_USUARIO_PST = @id OR a.FK_ID_RESPONSABLE =@id) ORDER BY GREATEST(COALESCE(a.FECHA_ACT, a.FECHA_REG), a.FECHA_REG) DESC";
                 result = (await db.QueryAsync<ResponseActividad>(data,parameterId)).ToList();
             }
             else
@@ -76,7 +76,7 @@ namespace inti_repository.actividad
                     LEFT JOIN Usuario u ON a.FK_ID_USUARIO_PST = u.ID_USUARIO
                     LEFT JOIN Pst p ON u.FK_ID_PST = p.ID_PST
                     LEFT JOIN MaeGeneral c ON b.ID_TIPO_USUARIO = c.ITEM AND c.ID_TABLA =1 
-                    where (a.FK_ID_USUARIO_PST = @id OR a.FK_ID_RESPONSABLE = @id) AND a.ESTADO = TRUE ORDER BY a.FECHA_REG DESC";
+                    where (a.FK_ID_USUARIO_PST = @id OR a.FK_ID_RESPONSABLE = @id) AND a.ESTADO = TRUE ORDER BY GREATEST(COALESCE(a.FECHA_ACT, a.FECHA_REG), a.FECHA_REG) DESC";
           
                 result = (await db.QueryAsync<ResponseActividad>(data, parameterId)).ToList();
             }
