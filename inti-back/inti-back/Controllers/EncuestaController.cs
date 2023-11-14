@@ -1,6 +1,7 @@
 ﻿using inti_model.encuesta;
 using inti_repository.caracterizacion;
 using inti_repository.encuestas;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +9,7 @@ namespace inti_back.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class EncuestaController : ControllerBase
     {
         private readonly IEncuestasRepository _encuestaRepository;
@@ -18,6 +20,7 @@ namespace inti_back.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> PostMaeEncuestas(MaeEncuesta encuesta)
         {
             try
@@ -45,6 +48,7 @@ namespace inti_back.Controllers
 
         }
         [HttpPut]
+        [AllowAnonymous]
         public async Task<IActionResult> UpdateMaeEncuestas(MaeEncuesta encuesta)
         {
             try
@@ -74,6 +78,7 @@ namespace inti_back.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetEncuestasGeneral(int idusuario)
         {
             try
@@ -103,6 +108,7 @@ namespace inti_back.Controllers
         }
 
         [HttpGet("Preguntas")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetEncuestaPregunta(int IdEncuesta)
         {
             try
@@ -132,6 +138,7 @@ namespace inti_back.Controllers
         }
 
         [HttpGet("Respuestas")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetGetRespuestasEncuesta(int idEncuesta)
         {
             try
@@ -151,6 +158,7 @@ namespace inti_back.Controllers
         }
 
         [HttpPost("respuestas")]
+        [AllowAnonymous] 
         public async Task<IActionResult> PostRespuesta(List<RespuestaEncuestas> respuesta)
         {
             try
@@ -175,6 +183,7 @@ namespace inti_back.Controllers
 
 
         [HttpDelete("DeleteEncuesta")]
+        [AllowAnonymous]
         public async Task<IActionResult> DeleteEncuesta(int idEncuesta)
         {
             try
@@ -207,6 +216,7 @@ namespace inti_back.Controllers
 
 
         [HttpDelete("DeletePregunta")]
+        [AllowAnonymous]
         public async Task<IActionResult> DeletePregunta(int idPregunta)
         {
             try
