@@ -45,7 +45,7 @@ namespace inti_repository.noticia
                         LEFT JOIN MaeNorma d ON d.ID_NORMA = n.FK_ID_NORMA
                         LEFT JOIN MaeCategoriaRnt e ON e.ID_CATEGORIA_RNT = n.FK_ID_CATEGORIA
                         LEFT JOIN MaeSubCategoriaRnt f ON f.ID_SUB_CATEGORIA_RNT = n.FK_ID_SUB_CATEGORIA
-                        WHERE a.ESTADO = true AND a.FK_ID_USUARIO = @iduser
+                        WHERE a.ESTADO = 1 AND a.FK_ID_USUARIO = @iduser
                         GROUP BY a.ID_NOTICIA, a.FK_ID_USUARIO, c.NOMBRE,a.TITULO, a.DESCRIPCION, a.IMAGEN, a.FECHA_REG, a.FECHA_ACT
                         ORDER BY a.FECHA_REG DESC";
                 var parameterId = new
@@ -65,7 +65,7 @@ namespace inti_repository.noticia
                         LEFT JOIN MaeNorma d ON d.ID_NORMA = n.FK_ID_NORMA
                         LEFT JOIN MaeCategoriaRnt e ON e.ID_CATEGORIA_RNT = n.FK_ID_CATEGORIA
                         LEFT JOIN MaeSubCategoriaRnt f ON f.ID_SUB_CATEGORIA_RNT = n.FK_ID_SUB_CATEGORIA
-                        WHERE a.ESTADO = true AND c.RNT = @RNT OR n.FK_ID_USUARIO = (SELECT FK_ID_USUARIO FROM Pst WHERE RNT = @RNT)
+                        WHERE a.ESTADO = 1 AND (c.RNT = @RNT OR n.FK_ID_USUARIO = (SELECT FK_ID_USUARIO FROM Pst WHERE RNT = @RNT))
                         GROUP BY a.ID_NOTICIA, a.FK_ID_USUARIO, c.NOMBRE,a.TITULO, a.DESCRIPCION, a.IMAGEN, a.FECHA_REG, a.FECHA_ACT
                         ORDER BY a.FECHA_REG DESC";
                 var parameterRnt = new
