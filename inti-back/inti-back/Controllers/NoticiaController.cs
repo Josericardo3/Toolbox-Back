@@ -33,7 +33,7 @@ namespace inti_back.Controllers
             _validacionesRepository = validacionesRepository;
             _instance = this;
             _hostingEnvironment = hostingEnvironment;
-             Configuration = _configuration;
+            Configuration = _configuration;
 
         }
 
@@ -44,7 +44,7 @@ namespace inti_back.Controllers
             DateTime nextExecutionTime = now.Date.AddDays(1).AddHours(00).AddMinutes(00).AddSeconds(00);
             TimeSpan timeUntilNextExecution = nextExecutionTime - now;
             timer = new System.Timers.Timer(timeUntilNextExecution.TotalMilliseconds);
-            
+
             timer.Elapsed += TimerElapsed;
             timer.AutoReset = false;
             timer.Start();
@@ -65,7 +65,7 @@ namespace inti_back.Controllers
             timer.Start();
         }
         [HttpGet("noticia")]
-        public async Task<IActionResult> GetAllNoticias(string Rnt, int id,int IdTipoUsuario)
+        public async Task<IActionResult> GetAllNoticias(string Rnt, int id, int IdTipoUsuario)
         {
             try
             {
@@ -75,23 +75,23 @@ namespace inti_back.Controllers
                 foreach (var notificacion in response)
                 {
 
-                        var rutaImagen = Path.Combine("imagenes//noticias//", notificacion.IMAGEN);
+                    var rutaImagen = Path.Combine("imagenes//noticias//", notificacion.IMAGEN);
 
-                        if (System.IO.File.Exists(rutaImagen))
-                        {
-                            var imageBytes = System.IO.File.ReadAllBytes(rutaImagen);
-                            var base64Image = Convert.ToBase64String(imageBytes);
+                    if (System.IO.File.Exists(rutaImagen))
+                    {
+                        var imageBytes = System.IO.File.ReadAllBytes(rutaImagen);
+                        var base64Image = Convert.ToBase64String(imageBytes);
 
-                            notificacion.COD_IMAGEN = base64Image; 
-                            results.Add(notificacion);
+                        notificacion.COD_IMAGEN = base64Image;
+                        results.Add(notificacion);
 
-                        }
-                        else
-                        {
-             
-                            results.Add(notificacion);
-                        }
-                    
+                    }
+                    else
+                    {
+
+                        results.Add(notificacion);
+                    }
+
 
                 }
 
@@ -123,7 +123,7 @@ namespace inti_back.Controllers
                     var imageBytes = System.IO.File.ReadAllBytes(rutaImagen);
                     var base64Image = Convert.ToBase64String(imageBytes);
 
-                    response.COD_IMAGEN = base64Image; 
+                    response.COD_IMAGEN = base64Image;
 
                     return Ok(response);
                 }
@@ -154,7 +154,7 @@ namespace inti_back.Controllers
                 if (noticia.FOTO == null)
                 {
                     var create = await _noticiaRepository.InsertNoticia(noticia);
-                    if (noticia.ENVIO_CORREO ==  true)
+                    if (noticia.ENVIO_CORREO == true)
                     {
                         var estado = envio.EnviarCorreoMasivoNoticia(create.CORREO, subject);
 
@@ -193,7 +193,9 @@ namespace inti_back.Controllers
                         valor = "Se insertó correctamente la noticia"
                     });
                 }
-            }catch(Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 return Ok(new
                 {
                     StatusCode(200).StatusCode,
@@ -207,7 +209,7 @@ namespace inti_back.Controllers
         [HttpPut("noticia")]
         public async Task<IActionResult> UpdateNoticia([FromForm] Noticia noticia)
         {
-            
+
             try
             {
                 var resp = true;
@@ -239,7 +241,8 @@ namespace inti_back.Controllers
                     {
                         await noticia.FOTO.CopyToAsync(stream);
                     }
-                    if(resp == true){
+                    if (resp == true)
+                    {
                         return Ok(new
                         {
                             Id = noticia.ID_NOTICIA,
@@ -251,7 +254,7 @@ namespace inti_back.Controllers
                     {
                         throw new Exception();
                     }
-                        
+
                 }
             }
             catch (Exception ex)
@@ -305,7 +308,7 @@ namespace inti_back.Controllers
                     StatusCode(200).StatusCode,
                     valor = "Se actualizó correctamente la noticia"
                 });
-               
+
             }
             catch (Exception)
             {
@@ -345,7 +348,7 @@ namespace inti_back.Controllers
                             var imageBytes = System.IO.File.ReadAllBytes(rutaImagen);
                             var base64Image = Convert.ToBase64String(imageBytes);
 
-                            notificacion.COD_IMAGEN = base64Image; 
+                            notificacion.COD_IMAGEN = base64Image;
 
                             var result = new
                             {
@@ -364,7 +367,7 @@ namespace inti_back.Controllers
                             results.Add(result);
                         }
                     }
-                    
+
                 }
 
                 return Ok(results);

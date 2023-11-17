@@ -65,7 +65,7 @@ namespace inti_repository.noticia
                         LEFT JOIN MaeNorma d ON d.ID_NORMA = n.FK_ID_NORMA
                         LEFT JOIN MaeCategoriaRnt e ON e.ID_CATEGORIA_RNT = n.FK_ID_CATEGORIA
                         LEFT JOIN MaeSubCategoriaRnt f ON f.ID_SUB_CATEGORIA_RNT = n.FK_ID_SUB_CATEGORIA
-                        WHERE a.ESTADO = true AND c.RNT = @RNT
+                        WHERE a.ESTADO = true AND c.RNT = @RNT OR n.FK_ID_USUARIO = (SELECT FK_ID_USUARIO FROM Pst WHERE RNT = @RNT)
                         GROUP BY a.ID_NOTICIA, a.FK_ID_USUARIO, c.NOMBRE,a.TITULO, a.DESCRIPCION, a.IMAGEN, a.FECHA_REG, a.FECHA_ACT
                         ORDER BY a.FECHA_REG DESC";
                 var parameterRnt = new
@@ -106,7 +106,7 @@ namespace inti_repository.noticia
             List<int> fkCategorias = null;
             List<int> fkSubCategorias = null;
             List<int> fkDestinatarios = null;
-            
+
             if (noticia.FK_ID_NORMA != null && noticia.FK_ID_NORMA != "")
             {
                 fkNormas = noticia.FK_ID_NORMA.Split(',').Select(int.Parse).ToList();
@@ -167,7 +167,7 @@ namespace inti_repository.noticia
             {
                 imagen = noticia.FOTO.FileName;
             }
-            
+
             var dataInsert = @"INSERT INTO Noticia (FK_ID_USUARIO,TITULO,DESCRIPCION,IMAGEN,FECHA_REG,FK_ID_CATEGORIAAA)
                                VALUES (@FK_ID_USUARIO,@TITULO,@DESCRIPCION,@IMAGEN,NOW(),@FK_ID_CATEGORIAAA)";
             var parameters = new
@@ -178,13 +178,13 @@ namespace inti_repository.noticia
                 FK_ID_CATEGORIAAA = noticia.FK_ID_CATEGORIAAA,
                 IMAGEN = imagen
             };
-            var  insertresult = await db.ExecuteAsync(dataInsert, parameters);
+            var insertresult = await db.ExecuteAsync(dataInsert, parameters);
 
             var consultInsert = @"SELECT ID_NOTICIA FROM Noticia WHERE FECHA_REG = (SELECT MAX(FECHA_REG) FROM Noticia)";
             var dataConsult = db.QueryFirst(consultInsert);
 
-            var id  = dataConsult.ID_NOTICIA;
-            if(noticia.FOTO != null)
+            var id = dataConsult.ID_NOTICIA;
+            if (noticia.FOTO != null)
             {
                 imagen = id + "-" + imagen;
                 var updateImagen = @"
@@ -199,7 +199,7 @@ namespace inti_repository.noticia
                 };
                 var dataUpdate = await db.ExecuteAsync(updateImagen, parametersIdNoticia);
             }
-            
+
 
             var query = @"SELECT LAST_INSERT_ID() FROM Noticia limit 1";
             var idnoticia = await db.QueryFirstAsync<int>(query);
@@ -212,30 +212,25 @@ namespace inti_repository.noticia
             {
                 foreach (var pst in fkPst)
                 {
-
- 
-                    var queryPst = @"SELECT ID_USUARIO FROM Pst WHERE ID_PST = @id and ESTADO =  TRUE";
-                    var parameter = new
+                    var query_id_pst = @"SELECT FK_ID_USUARIO FROM Pst where ID_PST=@idpst";
+                    var parameterIdPst = new
                     {
-                        id = pst
+                        idpst = pst
                     };
-
-                    var resultidpst = db.QueryFirstOrDefault<int>(queryPst, parameter);
-
+                    var idusuario = await db.QueryFirstAsync<int>(query_id_pst, parameterIdPst);
                     var parametersPst = new
                     {
                         FK_ID_PST = noticia.FK_ID_USUARIO,
-                        FK_ID_USUARIO = resultidpst,
+                        FK_ID_USUARIO = idusuario,
                         FK_ID_NOTICIA = idnoticia
+
                     };
                     resultpst = db.Execute(querypst, parametersPst);
 
                     var querypstcorreo = @"SELECT CORREO_PST AS CORREO
                         FROM Pst WHERE ID_PST = @idpst";
-                    var parameterIdPst = new
-                    {
-                        idpst = pst
-                    };
+
+
                     var lstcorreoPst = await db.QueryAsync<string>(querypstcorreo, parameterIdPst);
 
 
@@ -279,7 +274,7 @@ namespace inti_repository.noticia
             (@FK_ID_NOTICIA,@FK_ID_NORMA,'Noticia',NOW())";
             var resultnorma = 0;
             if (fkNormas != null && fkNormas.Count > 0 && (fkCategorias == null || fkCategorias.Count == 0))
-            { 
+            {
                 foreach (var norma in fkNormas)
                 {
                     var parameterNoticiaNorma = new
@@ -320,7 +315,7 @@ namespace inti_repository.noticia
 
                     var querypstcategoria = @"SELECT DISTINCT a.CORREO_PST AS CORREO
                         FROM Pst a WHERE a.FK_ID_CATEGORIA_RNT = @categoria";
-                    var parameterCategoria= new
+                    var parameterCategoria = new
                     {
                         categoria = categoria
                     };
@@ -332,7 +327,7 @@ namespace inti_repository.noticia
                     }
                 }
             }
-         
+
             var querysubcat = @"INSERT INTO Notificacion (FK_ID_NOTICIA,FK_ID_SUB_CATEGORIA,TIPO,FECHA_REG) VALUES
             (@FK_ID_NOTICIA,@FK_ID_SUB_CATEGORIA,'Noticia',NOW())";
             var resultsubcat = 0;
@@ -396,7 +391,7 @@ namespace inti_repository.noticia
             }
             else
             {
-                imagen = noticia.ID_NOTICIA+"-"+noticia.FOTO.FileName;
+                imagen = noticia.ID_NOTICIA + "-" + noticia.FOTO.FileName;
 
                 var sql = @"UPDATE Noticia 
                         SET 
@@ -414,7 +409,7 @@ namespace inti_repository.noticia
                 };
                 result = await db.ExecuteAsync(sql, parametersNoticia);
             }
-            
+
             return result > 0;
         }
 
@@ -461,7 +456,8 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
             result = 1;
 
 
-            foreach (var data in dataselectact) {
+            foreach (var data in dataselectact)
+            {
                 var sqldeleteact = @" UPDATE Notificacion SET ESTADO = false WHERE FK_ID_ACTIVIDAD =@IdActividad";
                 var parameterActividad = new
                 {
@@ -487,17 +483,17 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
                 };
                 var dataNotificacion = await db.QueryAsync<Notificacion>(querynotificacion, parameterIdActividad);
 
-                if (dataNotificacion.Count()==0)
+                if (dataNotificacion.Count() == 0)
                 {
 
-                var queryusuario = @"SELECT * FROM Usuario WHERE ID_USUARIO =@iduser AND ESTADO = true;";
+                    var queryusuario = @"SELECT * FROM Usuario WHERE ID_USUARIO =@iduser AND ESTADO = true;";
                     var parameterPst = new
                     {
                         iduser = data.FK_ID_USUARIO_PST
                     };
                     var datausuario = await db.QueryFirstAsync<Usuario>(queryusuario, parameterPst);
 
-                var sqlinsertact = @"INSERT INTO Notificacion (FK_ID_PST,FK_ID_USUARIO,FK_ID_ACTIVIDAD,TIPO,FECHA_REG) VALUES (@FK_ID_PST, @FK_ID_USUARIO,
+                    var sqlinsertact = @"INSERT INTO Notificacion (FK_ID_PST,FK_ID_USUARIO,FK_ID_ACTIVIDAD,TIPO,FECHA_REG) VALUES (@FK_ID_PST, @FK_ID_USUARIO,
                 @FK_ID_ACTIVIDAD,'Actividad',NOW())";
                     var parametersPst = new
                     {
@@ -597,7 +593,7 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
                         LIMIT 5
                     )
                 ) as result;";
-              
+
                 result = await db.QueryAsync<ResponseNotificacion>(data, parameterUser);
             }
             else if (datausuario.ID_TIPO_USUARIO == 3 || datausuario.ID_TIPO_USUARIO == 4)
@@ -659,67 +655,67 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
                 ) AS result;";
                 result = await db.QueryAsync<ResponseNotificacion>(data, parameterUser);
             }
-          /*  else if (datausuario.ID_TIPO_USUARIO == 6 || datausuario.ID_TIPO_USUARIO == 7)
-            {
-                    data = @"SELECT * FROM (
-                   (
-                        SELECT DISTINCT
-                            a.FK_ID_ACTIVIDAD,
-                            NULL AS DESCRIPCION_ACTIVIDAD,
-                            NULL AS FECHA_INICIO_ACTIVIDAD,
-                            NULL AS FECHA_FIN_ACTIVIDAD,
-                            a.FK_ID_NOTICIA,
-                            u.NOMBRE AS NOMBRE_FIRMA,
-                            d.TITULO AS TITULO_NOTICIA,
-                            d.DESCRIPCION AS DESCRIPCION_NOTICIA,
-                            d.IMAGEN AS IMAGEN_NOTICIA,
-                            d.FECHA_REG AS FECHA_REG_NOTICIA,
-                            COALESCE(d.FECHA_ACT, d.FECHA_REG) AS FECHA_ACT_NOTICIA,
-                            a.TIPO,
-                            a.ESTADO
-                        FROM
-                            Notificacion a
-                            LEFT JOIN Noticia d ON a.FK_ID_NOTICIA = d.ID_NOTICIA
-                            LEFT JOIN Usuario u ON d.FK_ID_USUARIO = u.ID_USUARIO
-                        WHERE
-                            a.ESTADO = TRUE AND d.ESTADO = true
-                            AND a.FK_ID_USUARIO = @iduser
-                            AND d.FECHA_REG >= CURDATE() - INTERVAL 1 WEEK
-                        ORDER BY d.FECHA_REG DESC
-                        LIMIT 5
-                    )
-                    UNION ALL
+            /*  else if (datausuario.ID_TIPO_USUARIO == 6 || datausuario.ID_TIPO_USUARIO == 7)
+              {
+                      data = @"SELECT * FROM (
                      (
-                        SELECT DISTINCT
-                            a.FK_ID_ACTIVIDAD,
-                            c.DESCRIPCION AS DESCRIPCION_ACTIVIDAD,
-                            c.FECHA_INICIO AS FECHA_INICIO_ACTIVIDAD,
-                            c.FECHA_FIN AS FECHA_FIN_ACTIVIDAD,
-                            NULL AS FK_ID_NOTICIA,
-                            NULL AS NOMBRE_FIRMA,
-                            NULL AS TITULO_NOTICIA,
-                            NULL AS DESCRIPCION_NOTICIA,
-                            NULL AS IMAGEN_NOTICIA,
-                            NULL AS FECHA_REG_NOTICIA,
-                            NULL AS FECHA_ACT_NOTICIA,
-                            a.TIPO,
-                            a.ESTADO
-                        FROM
-                            Notificacion a 
-                            LEFT JOIN Actividad c ON a.FK_ID_ACTIVIDAD = c.ID_ACTIVIDAD
-                        WHERE
-                            a.ESTADO = TRUE AND c.ESTADO = true
-                            AND a.FK_ID_USUARIO = @iduser
-                            AND DATE_FORMAT(STR_TO_DATE(c.FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d') >= CURDATE()
-                            AND DATE_FORMAT(STR_TO_DATE(c.FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d') <= DATE_ADD(CURDATE(), INTERVAL 1 WEEK)
-                        ORDER BY c.FECHA_FIN ASC
-                        LIMIT 5
-                    )
-                ) AS result;";
-                result = await db.QueryAsync<ResponseNotificacion>(data, parameterUser);
-            }
+                          SELECT DISTINCT
+                              a.FK_ID_ACTIVIDAD,
+                              NULL AS DESCRIPCION_ACTIVIDAD,
+                              NULL AS FECHA_INICIO_ACTIVIDAD,
+                              NULL AS FECHA_FIN_ACTIVIDAD,
+                              a.FK_ID_NOTICIA,
+                              u.NOMBRE AS NOMBRE_FIRMA,
+                              d.TITULO AS TITULO_NOTICIA,
+                              d.DESCRIPCION AS DESCRIPCION_NOTICIA,
+                              d.IMAGEN AS IMAGEN_NOTICIA,
+                              d.FECHA_REG AS FECHA_REG_NOTICIA,
+                              COALESCE(d.FECHA_ACT, d.FECHA_REG) AS FECHA_ACT_NOTICIA,
+                              a.TIPO,
+                              a.ESTADO
+                          FROM
+                              Notificacion a
+                              LEFT JOIN Noticia d ON a.FK_ID_NOTICIA = d.ID_NOTICIA
+                              LEFT JOIN Usuario u ON d.FK_ID_USUARIO = u.ID_USUARIO
+                          WHERE
+                              a.ESTADO = TRUE AND d.ESTADO = true
+                              AND a.FK_ID_USUARIO = @iduser
+                              AND d.FECHA_REG >= CURDATE() - INTERVAL 1 WEEK
+                          ORDER BY d.FECHA_REG DESC
+                          LIMIT 5
+                      )
+                      UNION ALL
+                       (
+                          SELECT DISTINCT
+                              a.FK_ID_ACTIVIDAD,
+                              c.DESCRIPCION AS DESCRIPCION_ACTIVIDAD,
+                              c.FECHA_INICIO AS FECHA_INICIO_ACTIVIDAD,
+                              c.FECHA_FIN AS FECHA_FIN_ACTIVIDAD,
+                              NULL AS FK_ID_NOTICIA,
+                              NULL AS NOMBRE_FIRMA,
+                              NULL AS TITULO_NOTICIA,
+                              NULL AS DESCRIPCION_NOTICIA,
+                              NULL AS IMAGEN_NOTICIA,
+                              NULL AS FECHA_REG_NOTICIA,
+                              NULL AS FECHA_ACT_NOTICIA,
+                              a.TIPO,
+                              a.ESTADO
+                          FROM
+                              Notificacion a 
+                              LEFT JOIN Actividad c ON a.FK_ID_ACTIVIDAD = c.ID_ACTIVIDAD
+                          WHERE
+                              a.ESTADO = TRUE AND c.ESTADO = true
+                              AND a.FK_ID_USUARIO = @iduser
+                              AND DATE_FORMAT(STR_TO_DATE(c.FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d') >= CURDATE()
+                              AND DATE_FORMAT(STR_TO_DATE(c.FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d') <= DATE_ADD(CURDATE(), INTERVAL 1 WEEK)
+                          ORDER BY c.FECHA_FIN ASC
+                          LIMIT 5
+                      )
+                  ) AS result;";
+                  result = await db.QueryAsync<ResponseNotificacion>(data, parameterUser);
+              }
 
-     */
+       */
             return result;
         }
 
@@ -761,15 +757,15 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
                         WHERE
 							d.ESTADO != 0 AND (a.FK_ID_PST = @iduser OR a.FK_ID_USUARIO = @iduser)  OR
                             (a.FK_ID_USUARIO =  (SELECT p.FK_ID_USUARIO FROM Pst p WHERE 
-                            p.RNT = (SELECT u.RNT FROM Usuario u WHERE ID_USUARIO = @iduser)) OR
+                            p.RNT = (SELECT u.RNT FROM Usuario u WHERE ID_USUARIO = @iduser))) OR
 							(a.FK_ID_CATEGORIA = (SELECT p.FK_ID_CATEGORIA_RNT FROM Pst p WHERE p.FK_ID_USUARIO = @iduser ) OR
 							a.FK_ID_SUB_CATEGORIA = (SELECT p.FK_ID_SUB_CATEGORIA_RNT FROM Pst p WHERE p.FK_ID_USUARIO = @iduser ) OR
 							a.FK_ID_NORMA IN (SELECT mn.ID_NORMA FROM  Pst p JOIN MaeCategoriaRnt cr ON cr.ID_CATEGORIA_RNT = p.FK_ID_CATEGORIA_RNT JOIN MaeNorma mn ON mn.FK_ID_CATEGORIA_RNT = cr.ID_CATEGORIA_RNT WHERE  p.FK_ID_USUARIO = @iduser ))
 							ORDER BY d.FECHA_REG DESC, c.FECHA_FIN ASC;
             ";
-                 result = await db.QueryAsync<ResponseNotificacion>(data, parameterUser);
+                result = await db.QueryAsync<ResponseNotificacion>(data, parameterUser);
             }
-            else if (datausuario.ID_TIPO_USUARIO == 3 || datausuario.ID_TIPO_USUARIO ==4)
+            else if (datausuario.ID_TIPO_USUARIO == 3 || datausuario.ID_TIPO_USUARIO == 4)
             {
                 data = @"SELECT DISTINCT
                             a.FK_ID_ACTIVIDAD,
