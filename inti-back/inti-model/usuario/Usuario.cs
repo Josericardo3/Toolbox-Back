@@ -25,4 +25,27 @@ namespace inti_model.usuario
 
 
     }
+
+    public class UsserSettings
+    {
+        public string? NOMBRE_REPRESENTANTE_LEGAL { get; set; }
+        public string? CORREO_REPRESENTANTE_LEGAL { get; set; }
+        public string? TELEFONO_REPRESENTANTE_LEGAL { get; set; }
+        public string? PAGINA_WEB { get; set; }
+        public string? INSTAGRAM { get; set; }
+        public string? TWITTER { get; set; }
+        public string? FACEBOOK { get; set; }
+        public string? OTROS { get; set; }
+    }
+
+    public class PstRolesUpdateModel
+    {
+        public string CORREO { get; set; }
+        public string NOMBRE { get; set; }
+        public int ID_CARGO { get; set; }
+        public int ID_PST_ROLES { get; set; }
+    }
+
+
+
 }

@@ -24,5 +24,15 @@ namespace inti_model.normas
         public string? NOMBRE { get; set; }
         public string? ORDEN { get; set; }
     }
+    public class Requisito
+    {
+        public int ID_REQUISITO { get; set; }
+        public int FK_ID_PROCESO { get; set; }
+        public string? REQUISITO { get; set; }
+        public string? EVIDENCIA { get; set; }
+        public string? PREGUNTA { get; set; }
+        public string? HALLAZGO { get; set; }
+        public string? OBSERVACION { get; set; }
+    }
 }
 

@@ -16,6 +16,8 @@ namespace inti_repository.monitorizacion
         Task<IEnumerable<ResponseMonitorizacionIndicador>> GetAllMonitorizacionIndicador();
         Task<IEnumerable<dynamic>> GetContadorMonitorizacion();
 
+        Task<IEnumerable<ResponseMonitorizacionUsuario>> MonitorizacionModulosConsultados(int userId);
+
 
     }
 }

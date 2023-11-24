@@ -56,6 +56,29 @@ namespace inti_back.Controllers
             }
 
         }
+        [HttpPut]
+        public async Task<IActionResult> UpdateRequisitoNorma(Requisito requisito)
+        {
+
+            try
+            {
+                var response = await _requisitosNormasRepository.UpdateRequisitoNorma(requisito);
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "Se actualizó correctamente"
+                });
+            }
+            catch (Exception)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "Error al momento de obtener los requisitos"
+                });
+            }
+
+        }
 
     }
 }

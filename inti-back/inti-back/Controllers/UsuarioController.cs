@@ -50,6 +50,30 @@ namespace inti_back.Controllers
 
         }
 
+        [HttpGet("usserSettings/{id}")]
+        public async Task<IActionResult> GetUsserSettings(int id)
+        {
+            try
+            {
+                var response = await _usuarioPstRepository.GetUserSettings(id);
+                if (response == null)
+                {
+                    throw new Exception();
+                }
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    Mensaje = "No se encontró el usuario",
+                    ex.Message
+                });
+            }
+
+        }
+
         [HttpPost]
         public async Task<IActionResult> InsertUsuarioPst([FromBody] UsuarioPstPost usuariopst)
         {
@@ -111,6 +135,31 @@ namespace inti_back.Controllers
             }
 
         }
+
+        [HttpPut("usserSettings/{id}")]
+        public async Task<IActionResult> UpdateUsserSettings([FromBody] UsserSettings usserSettings, int id)
+        {
+            try
+            {
+                await _usuarioPstRepository.UpdateUsserSettings(usserSettings,id);
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    Mensaje = "Se actualizó los datos correctamente"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    StatusCode(404).StatusCode,
+                    Mensaje = "No se ingresaron correctamente los datos del usuario",
+                    ex.Message
+                });
+            }
+
+        }
+
         [HttpDelete]
         public async Task<IActionResult> DeleteUsuario(int id)
         {
@@ -281,5 +330,75 @@ namespace inti_back.Controllers
         {
             return Ok(await _usuarioPstRepository.GetPermisoPorPerfil(idUsuarioPerfil));
         }
+
+        [HttpGet("pstRoles/{rnt}")]
+        public async Task<IActionResult> GetPstRoles(int rnt)
+        {
+            try
+            {
+                var response = await _usuarioPstRepository.GetPstRoles(rnt);
+                if (response == null)
+                {
+                    throw new Exception();
+                }
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    Mensaje = "No se encontraron los empleados",
+                    ex.Message
+                });
+            }
+        }
+
+        [HttpDelete("pstRoles/{ID_PST_ROLES}")]
+        public async Task<IActionResult> DeletePstRoles(int ID_PST_ROLES)
+        {
+            try
+            {
+                var response = await _usuarioPstRepository.DeletePstRoles(ID_PST_ROLES);
+                if (response == null)
+                {
+                    throw new Exception();
+                }
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    Mensaje = "No se logró completar la operación",
+                    ex.Message
+                });
+            }
+        }
+
+        [HttpPut("pstRoles")]
+        public async Task<IActionResult> UpdatePstRoles([FromBody] PstRolesUpdateModel pstRolesUpdateModel)
+        {
+            try
+            {
+                var response = await _usuarioPstRepository.UpdatePstRoles(pstRolesUpdateModel);
+                if (response == null)
+                {
+                    throw new Exception();
+                }
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    Mensaje = "No se logró completar la operación",
+                    ex.Message
+                });
+            }
+        }
+
     }
 }

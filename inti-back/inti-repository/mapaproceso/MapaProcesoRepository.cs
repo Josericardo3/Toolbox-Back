@@ -36,7 +36,7 @@ namespace inti_repository.mapaproceso
             var result = new List<MapaProceso>();
             string data;
 
-                data = @"SELECT ID_MAPA_PROCESO, FK_ID_USUARIO, RNT, TIPO_PROCESO, DESCRIPCION_PROCESO,FK_ID_RESPONSABLE 
+                data = @"SELECT ID_MAPA_PROCESO, FK_ID_USUARIO, RNT, TIPO_PROCESO, DESCRIPCION_PROCESO,FK_ID_RESPONSABLE, ORDEN
                         FROM MapaProceso
                         WHERE RNT = @RNT AND ESTADO = 1";
                 var parameter = new
@@ -59,15 +59,16 @@ namespace inti_repository.mapaproceso
             {
                 if (item.ID_MAPA_PROCESO == 0)
                 {
-                    var dataInsert = @"INSERT INTO MapaProceso (FK_ID_USUARIO,RNT,TIPO_PROCESO,DESCRIPCION_PROCESO,FK_ID_RESPONSABLE,FECHA_REG)
-                               VALUES (@FK_ID_USUARIO,@RNT,@TIPO_PROCESO,@DESCRIPCION_PROCESO,@FK_ID_RESPONSABLE,NOW())";
+                    var dataInsert = @"INSERT INTO MapaProceso (FK_ID_USUARIO,RNT,TIPO_PROCESO,DESCRIPCION_PROCESO,FK_ID_RESPONSABLE,FECHA_REG,ORDEN)
+                               VALUES (@FK_ID_USUARIO,@RNT,@TIPO_PROCESO,@DESCRIPCION_PROCESO,@FK_ID_RESPONSABLE,NOW(),@ORDEN)";
                     var parameters = new
                     {
                         FK_ID_USUARIO = item.FK_ID_USUARIO,
                         RNT = item.RNT,
                         TIPO_PROCESO = item.TIPO_PROCESO,
                         DESCRIPCION_PROCESO = item.DESCRIPCION_PROCESO,
-                        FK_ID_RESPONSABLE = item.FK_ID_RESPONSABLE
+                        FK_ID_RESPONSABLE = item.FK_ID_RESPONSABLE,
+                        ORDEN=item.ORDEN
                     };
                     insertresult = await db.ExecuteAsync(dataInsert, parameters);
                 }
@@ -79,7 +80,8 @@ namespace inti_repository.mapaproceso
                                     TIPO_PROCESO= @TIPO_PROCESO,
                                     DESCRIPCION_PROCESO = @DESCRIPCION_PROCESO,
                                     FK_ID_RESPONSABLE = @FK_ID_RESPONSABLE,
-                                    FECHA_ACT = NOW() 
+                                    FECHA_ACT = NOW(),
+                                    ORDEN=@ORDEN
                                     WHERE ID_MAPA_PROCESO = @ID_MAPA_PROCESO";
                     var parameters = new
                     {
@@ -88,7 +90,8 @@ namespace inti_repository.mapaproceso
                         TIPO_PROCESO = item.TIPO_PROCESO,
                         DESCRIPCION_PROCESO = item.DESCRIPCION_PROCESO,
                         FK_ID_RESPONSABLE = item.FK_ID_RESPONSABLE,
-                        ID_MAPA_PROCESO = item.ID_MAPA_PROCESO
+                        ID_MAPA_PROCESO = item.ID_MAPA_PROCESO,
+                        ORDEN=item.ORDEN
                     };
                     insertresult = await db.ExecuteAsync(dataInsert, parameters);
                 }

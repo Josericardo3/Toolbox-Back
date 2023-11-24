@@ -59,7 +59,7 @@ builder.Services.AddScoped<ActividadController>();
 
 //var host = Environment.GetEnvironmentVariable("INTI_BACK_HOST");
 var env = Environment.GetEnvironmentVariable("INTI_BACK_ENV");
-var port = 8050; 
+var port = 8054; 
 //var port = 8050;
 var host = "0.0.0.0";
 String connectionString = env != "DEV" ? "MySqlConnectionDev" : "MySqlConnection";
@@ -241,7 +241,8 @@ app.UseCors(x => x
                  {
                      List<string> allowedOrigins = new List<string>
                     {
-
+                        "http://10.4.3.140:8080",
+                        "http://0.0.0.0:4200"
                     };
 
                      return allowedOrigins.Contains(origin);

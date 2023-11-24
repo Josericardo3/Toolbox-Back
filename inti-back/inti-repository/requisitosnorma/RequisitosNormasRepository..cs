@@ -140,6 +140,24 @@ namespace inti_repository.requisitosnorma
             return result.ToList();
 
         }
+
+        public async Task<bool> UpdateRequisitoNorma(Requisito requisito)
+        {
+            var db = dbConnection();
+
+
+                var query = @"UPDATE AuditoriaRequisito
+                                SET REQUISITO = @REQUISITO,
+                                EVIDENCIA = @EVIDENCIA,
+                                PREGUNTA = @PREGUNTA,
+                                HALLAZGO = @HALLAZGO,
+                                OBSERVACION = @OBSERVACION
+                                WHERE ID_REQUISITO = @ID_REQUISITO";
+
+                var result = await db.ExecuteAsync(query, new { requisito.REQUISITO, requisito.EVIDENCIA, requisito.PREGUNTA, requisito.HALLAZGO, requisito.OBSERVACION, requisito.ID_REQUISITO });
+            
+            return result > 0;
+        }
     }
 
 }

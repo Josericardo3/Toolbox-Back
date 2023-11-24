@@ -4,7 +4,8 @@ using inti_model.usuario;
 using inti_model.dboresponse;
 using MySql.Data.MySqlClient;
 using System.Data;
-
+using inti_model.caracterizacion;
+using System.Net.WebSockets;
 
 namespace inti_repository.usuario
 {
@@ -12,7 +13,6 @@ namespace inti_repository.usuario
     {
 
         private readonly MySQLConfiguration _connectionString;
-
         public UsuarioPstRepository(MySQLConfiguration connectionString)
         {
             _connectionString = connectionString;
@@ -48,10 +48,138 @@ namespace inti_repository.usuario
 
             return resultUsuario > 0 && resultPst > 0;
         }
+
+        public async Task<bool> UpdateUsserSettings(UsserSettings usserSettings, int id)
+        {
+
+            var db = dbConnection();
+
+            var updtPst = @"
+                        UPDATE
+	                        Pst
+                        SET 
+	                        NOMBRE_REPRESENTANTE_LEGAL = @NOMBRE_REPRESENTANTE_LEGAL,
+                            CORREO_REPRESENTANTE_LEGAL = @CORREO_REPRESENTANTE_LEGAL,
+                            TELEFONO_REPRESENTANTE_LEGAL = @TELEFONO_REPRESENTANTE_LEGAL
+                        WHERE
+	                        FK_ID_USUARIO = @FK_ID_USUARIO";
+
+            var result = await db.ExecuteAsync(updtPst, new {
+                NOMBRE_REPRESENTANTE_LEGAL = usserSettings.NOMBRE_REPRESENTANTE_LEGAL,
+                CORREO_REPRESENTANTE_LEGAL = usserSettings.CORREO_REPRESENTANTE_LEGAL,
+                TELEFONO_REPRESENTANTE_LEGAL = usserSettings.TELEFONO_REPRESENTANTE_LEGAL,
+                FK_ID_USUARIO = id
+            });
+
+            var updtPw = @"
+                        UPDATE 
+	                        RespuestaCaracterizacion
+                        SET
+	                        VALOR = @PAGINA_WEB
+                        WHERE 
+	                        FK_ID_USUARIO = @FK_ID_USUARIO AND FK_ID_CARACTERIZACION_DINAMICA = 17";
+            var result2 = await db.ExecuteAsync(updtPw, new { usserSettings.PAGINA_WEB, FK_ID_USUARIO = id });
+
+            //Cadena de texto de redes sociales
+            if (usserSettings.INSTAGRAM == null) usserSettings.INSTAGRAM = "";
+            if (usserSettings.FACEBOOK == null) usserSettings.FACEBOOK = "";
+            if (usserSettings.TWITTER == null) usserSettings.TWITTER = "";
+            if (usserSettings.OTROS == null) usserSettings.OTROS = "";
+
+            string RInstagram = "INSTAGRAM;" + usserSettings.INSTAGRAM;
+            string RFacebook = "FACEBOOK;" + usserSettings.FACEBOOK;
+            string RTwitter = "TWITTER;" + usserSettings.TWITTER;
+            string ROtros = "OTROS;" + usserSettings.OTROS;
+            string RedesSociales = RInstagram + "|" + RFacebook + "|" + RTwitter + "|" + ROtros;
+
+            var updtRss = @"
+                        UPDATE 
+	                        RespuestaCaracterizacion
+                        SET
+	                        VALOR = @REDES_SOCIALES
+                        WHERE 
+	                        FK_ID_USUARIO = @ID AND FK_ID_CARACTERIZACION_DINAMICA = 18";
+            var result3 = await db.ExecuteAsync(updtRss, new {
+                ID = id,
+                REDES_SOCIALES = RedesSociales
+            });
+
+            return result3 > 0;
+
+        }
+
+        public async Task<UsserSettings> GetUserSettings(int id)
+        {
+            var db = dbConnection();
+            var sql = @"SELECT
+                            p.NOMBRE_REPRESENTANTE_LEGAL,
+                            p.CORREO_REPRESENTANTE_LEGAL,
+                            p.TELEFONO_REPRESENTANTE_LEGAL,
+                            rc.VALOR as PAGINA_WEB
+                        FROM
+                            Pst p
+                        INNER JOIN
+	                        RespuestaCaracterizacion rc ON rc.FK_ID_USUARIO = p.FK_ID_USUARIO
+                        WHERE
+                            p.FK_ID_USUARIO = @FK_ID_USUARIO AND FK_ID_CARACTERIZACION_DINAMICA = 17";
+            var result = await db.QueryFirstOrDefaultAsync<UsserSettings>(sql, new { FK_ID_USUARIO = id });
+
+            var queryRedes = "SELECT VALOR FROM inti.RespuestaCaracterizacion WHERE FK_ID_USUARIO = @FK_ID_USUARIO AND FK_ID_CARACTERIZACION_DINAMICA = 18";
+
+            var resulRedes = await db.QueryFirstOrDefaultAsync<dynamic>(queryRedes, new { FK_ID_USUARIO = id });
+
+            if (resulRedes != null)
+            {
+                UsserSettings redesSociales = ParseRespuesta(resulRedes.VALOR);
+                result.FACEBOOK = redesSociales.FACEBOOK;
+                result.INSTAGRAM = redesSociales.INSTAGRAM;
+                result.TWITTER = redesSociales.TWITTER;
+                result.OTROS = redesSociales.OTROS;
+
+            }
+
+            return result;  
+        }
+
+        static UsserSettings ParseRespuesta(string respuesta)
+        {
+            UsserSettings redesSociales = new UsserSettings();
+
+            string[] parts = respuesta.Split('|');
+
+            foreach (string part in parts)
+            {
+                string[] keyValue = part.Split(';');
+
+                if (keyValue.Length == 2)
+                {
+                    string key = keyValue[0].Trim();
+                    string value = keyValue[1].Trim();
+
+                    switch (key.ToUpper())
+                    {
+                        case "INSTAGRAM":
+                            redesSociales.INSTAGRAM = value;
+                            break;
+                        case "TWITTER":
+                            redesSociales.TWITTER = value;
+                            break;
+                        case "FACEBOOK":
+                            redesSociales.FACEBOOK = value;
+                            break;
+                        case "OTROS":
+                            redesSociales.OTROS = value;
+                            break;
+                    }
+                }
+            }
+
+            return redesSociales;
+        }
+
         public async Task<ResponseUsuarioPst> GetUsuarioPst(int id)
         {
             var db = dbConnection();
-            //AGREGADO CURDATE() PARA OBTENER FECHA ACTUAL
             var sql = @"SELECT
                             a.ID_PST,
                             a.FK_ID_USUARIO,
@@ -89,8 +217,8 @@ namespace inti_repository.usuario
         {
             var fecha_registro = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
             var db = dbConnection();
-            var sql = @"INSERT INTO Pst(NIT,RNT,FK_ID_CATEGORIA_RNT,FK_ID_SUB_CATEGORIA_RNT,NOMBRE_PST,RAZON_SOCIAL_PST,CORREO_PST,TELEFONO_PST,NOMBRE_REPRESENTANTE_LEGAL,CORREO_REPRESENTANTE_LEGAL,TELEFONO_REPRESENTANTE_LEGAL,FK_ID_TIPO_IDENTIFICACION,IDENTIFICACION_REPRESENTANTE_LEGAL,DEPARTAMENTO,MUNICIPIO,NOMBRE_RESPONSABLE_SOSTENIBILIDAD,CORREO_RESPONSABLE_SOSTENIBILIDAD,TELEFONO_RESPONSABLE_SOSTENIBILIDAD,FK_ID_TIPO_AVATAR,FECHA_REG) 
-                        VALUES (@NIT,@RNT,@FK_ID_CATEGORIA_RNT,@FK_ID_SUB_CATEGORIA_RNT,@NOMBRE_PST,@RAZON_SOCIAL_PST,@CORREO_PST,@TELEFONO_PST,@NOMBRE_REPRESENTANTE_LEGAL,@CORREO_REPRESENTANTE_LEGAL,@TELEFONO_REPRESENTANTE_LEGAL,@FK_ID_TIPO_IDENTIFICACION,@IDENTIFICACION_REPRESENTANTE_LEGAL,@DEPARTAMENTO,@MUNICIPIO,@NOMBRE_RESPONSABLE_SOSTENIBILIDAD,@CORREO_RESPONSABLE_SOSTENIBILIDAD,@TELEFONO_RESPONSABLE_SOSTENIBILIDAD,@FK_ID_TIPO_AVATAR,@FECHA_REG)";
+            var sql = @"INSERT INTO Pst(NIT,RNT,FK_ID_CATEGORIA_RNT,FK_ID_SUB_CATEGORIA_RNT,NOMBRE_PST,RAZON_SOCIAL_PST,CORREO_PST,TELEFONO_PST,NOMBRE_REPRESENTANTE_LEGAL,CORREO_REPRESENTANTE_LEGAL,TELEFONO_REPRESENTANTE_LEGAL,FK_ID_TIPO_IDENTIFICACION,IDENTIFICACION_REPRESENTANTE_LEGAL,DEPARTAMENTO,MUNICIPIO,NOMBRE_RESPONSABLE_SOSTENIBILIDAD,CORREO_RESPONSABLE_SOSTENIBILIDAD,TELEFONO_RESPONSABLE_SOSTENIBILIDAD,FK_ID_TIPO_AVATAR,LOGO,FECHA_REG) 
+                        VALUES (@NIT,@RNT,@FK_ID_CATEGORIA_RNT,@FK_ID_SUB_CATEGORIA_RNT,@NOMBRE_PST,@RAZON_SOCIAL_PST,@CORREO_PST,@TELEFONO_PST,@NOMBRE_REPRESENTANTE_LEGAL,@CORREO_REPRESENTANTE_LEGAL,@TELEFONO_REPRESENTANTE_LEGAL,@FK_ID_TIPO_IDENTIFICACION,@IDENTIFICACION_REPRESENTANTE_LEGAL,@DEPARTAMENTO,@MUNICIPIO,@NOMBRE_RESPONSABLE_SOSTENIBILIDAD,@CORREO_RESPONSABLE_SOSTENIBILIDAD,@TELEFONO_RESPONSABLE_SOSTENIBILIDAD,@FK_ID_TIPO_AVATAR,@LOGO,@FECHA_REG)";
             var parameters = new
             {
                 usuariopst.NIT,
@@ -112,8 +240,13 @@ namespace inti_repository.usuario
                 usuariopst.CORREO_RESPONSABLE_SOSTENIBILIDAD,
                 usuariopst.TELEFONO_RESPONSABLE_SOSTENIBILIDAD,
                 usuariopst.FK_ID_TIPO_AVATAR,
+                usuariopst.LOGO,
                 FECHA_REG = fecha_registro
             };
+            if (usuariopst.LOGO == "")
+            {
+                usuariopst.LOGO = null;
+            }
             var result = await db.ExecuteAsync(sql, parameters);
 
             var querypst = @"SELECT LAST_INSERT_ID() FROM Pst limit 1;";
@@ -184,6 +317,7 @@ namespace inti_repository.usuario
             };
             var resultPermisoPST = await db.ExecuteAsync(insertPermisoPST, parameterIdUsuario);
 
+            
 
             return result > 0;
         }
@@ -399,12 +533,12 @@ namespace inti_repository.usuario
         public async Task<IEnumerable<Usuario>> GetUsuariosxPst(string rnt)
         {
             var db = dbConnection();
-            var sql = @"SELECT ID_USUARIO,FK_ID_PST,RNT,NOMBRE,ID_TIPO_USUARIO, CORREO FROM Usuario WHERE RNT = @Rnt AND ESTADO = TRUE ";
+            var sql = @"SELECT ID_USUARIO,FK_ID_PST,RNT,NOMBRE,ID_TIPO_USUARIO, CORREO,ID_CARGO FROM Usuario WHERE RNT = @Rnt AND ESTADO = TRUE ";
             var parameter = new
             {
                 Rnt = rnt
             };
-            var result = await db.QueryAsync<Usuario>(sql);
+            var result = await db.QueryAsync<Usuario>(sql, parameter);
             return result;
         }
 
@@ -475,6 +609,66 @@ namespace inti_repository.usuario
 
             return result;
 
+        }
+
+        public async Task<IEnumerable<dynamic>> GetPstRoles(int RNT)
+        {
+            var db = dbConnection();
+
+            var query = @"
+                        SELECT 
+                            CORREO, NOMBRE, ID_CARGO, RNT, FK_ID_PST,ID_PST_ROLES
+                        FROM
+                            Pst_Roles
+                        WHERE
+                            RNT = @RNT AND ESTADO = TRUE";
+
+            var result = await db.QueryAsync(query, new
+            {
+                RNT = RNT
+            });
+
+            return result;
+        }
+
+        public async Task<bool> DeletePstRoles(int ID_PST_ROLES)
+        {
+            var db = dbConnection();
+
+            var query = @"
+                        UPDATE
+	                        Pst_Roles
+	                        SET ESTADO = 0
+                        WHERE ID_PST_ROLES = @ID_PST_ROLES";
+            var result = await db.ExecuteAsync(query, new
+            {
+                ID_PST_ROLES = ID_PST_ROLES
+            });
+
+            return result > 0;
+        }
+
+        public async Task<bool> UpdatePstRoles(PstRolesUpdateModel pstRolesUpdateModel)
+        {
+            var db = dbConnection();
+
+            var query = @"
+                        UPDATE Pst_Roles
+                            SET
+                                CORREO = @CORREO,
+                                NOMBRE = @NOMBRE,
+                                ID_CARGO = @ID_CARGO
+                            WHERE
+                                ID_PST_ROLES = @ID_PST_ROLES AND ESTADO = TRUE";
+            var result = await db.ExecuteAsync(query, new
+            {
+                pstRolesUpdateModel.CORREO,
+                pstRolesUpdateModel.NOMBRE,
+                pstRolesUpdateModel.ID_CARGO,
+                pstRolesUpdateModel.ID_PST_ROLES
+            });
+
+            return result > 0;
         }
 
     }

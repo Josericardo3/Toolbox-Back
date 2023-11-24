@@ -19,7 +19,7 @@ namespace inti_repository.diagnostico
             return new MySqlConnection(_connectionString.ConnectionString);
         }
 
-        public async Task<ResponseDiagnostico> GetResponseDiagnostico(int idnorma, int idValorTituloFormulariodiagnostico, int idValorMaestroDiagnostico)
+        public async Task<ResponseDiagnostico> GetResponseDiagnostico(int idnorma, int idusuario, int etapa, int idValorTituloFormulariodiagnostico, int idValorMaestroDiagnostico)
         {
             var db = dbConnection();
             var queryDesplegableDiagnostico = @"SELECT * FROM MaeGeneral WHERE ID_TABLA = @idtabla and ITEM=@iditem";
@@ -120,6 +120,35 @@ namespace inti_repository.diagnostico
                     var responseDesplegable = db.Query<DesplegableDiagnostico>(datosDesplegable, parameterIdTabla).ToList();
 
                     l.desplegable = responseDesplegable;
+
+
+                    var queryRespuestasUsuario = @"
+                    SELECT  VALOR, OBSERVACION,NUMERAL_PRINCIPAL, NUMERAL_ESPECIFICO
+                    FROM RespuestaDiagnostico
+                    WHERE FK_ID_NORMA = @idnorma
+                    AND NUMERAL_PRINCIPAL = @numeralprincipal
+                    AND NUMERAL_ESPECIFICO = @numeralespecifico
+                    AND ETAPA =@etapa AND FK_ID_USUARIO = @iduser";
+                    var parametersRespuestasUsuario = new
+                    {
+                        idnorma,
+                        numeralprincipal = item.NUMERAL_PRINCIPAL,
+                        numeralespecifico = l.NUMERAL_ESPECIFICO,
+                        etapa = etapa,
+                        iduser = idusuario
+                    };
+                    var respuestasUsuario = await db.QueryAsync<(string VALOR, string OBSERVACION, string NUMERAL_PRINCIPAL, string NUMERAL_ESPECIFICO)>(queryRespuestasUsuario, parametersRespuestasUsuario);
+
+                    // Asignar respuestas del usuario al campo correspondiente
+                    foreach (var respuestaUsuario in respuestasUsuario)
+                    {
+                        var detalle = item.listacampos.FirstOrDefault(d => d.FK_ID_NORMA == idnorma && d.NUMERAL_PRINCIPAL == respuestaUsuario.NUMERAL_PRINCIPAL && d.NUMERAL_ESPECIFICO == respuestaUsuario.NUMERAL_ESPECIFICO);
+                        if (detalle != null)
+                        {
+                            detalle.VALOR_RESPUESTA = respuestaUsuario.VALOR;
+                            detalle.OBSERVACION_RESPUESTA = respuestaUsuario.OBSERVACION;
+                        }
+                    }
                 }
             }
 
@@ -132,16 +161,21 @@ namespace inti_repository.diagnostico
             var result = 1;
 
 
-            var dataUsuario = @"SELECT COALESCE(MAX(ETAPA), 0) as ETAPA FROM RespuestaDiagnostico WHERE FK_ID_USUARIO=@idusuario AND FK_ID_NORMA =@idnorma";
-            var parameters = new
-            {
-                idusuario = lstRespuestaDiagnostico[0].FK_ID_USUARIO,
-                idnorma = lstRespuestaDiagnostico[0].FK_ID_NORMA
-            };
-            var data = db.QueryFirstOrDefault<int?>(dataUsuario, parameters);
 
             foreach (var respuestaDiagnostico in lstRespuestaDiagnostico)
             {
+
+
+                var dataUsuario = @"SELECT COALESCE(MAX(ETAPA), 0) as ETAPA FROM RespuestaDiagnostico WHERE FK_ID_USUARIO=@idusuario AND FK_ID_NORMA =@idnorma AND NUMERAL_ESPECIFICO = @numeral_especifico";
+                var parameters = new
+                {
+                    idusuario = respuestaDiagnostico.FK_ID_USUARIO,
+                    idnorma = respuestaDiagnostico.FK_ID_NORMA,
+                    numeral_especifico = respuestaDiagnostico.NUMERAL_ESPECIFICO
+                };
+                var data = db.QueryFirstOrDefault<int?>(dataUsuario, parameters);
+
+
                 var valor = respuestaDiagnostico.VALOR;
                 var observacion = string.Empty;
 

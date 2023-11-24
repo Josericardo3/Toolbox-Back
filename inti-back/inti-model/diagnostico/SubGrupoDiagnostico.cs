@@ -31,6 +31,9 @@ namespace inti_model.diagnostico
         public int requisitoeditable { get; set; }
         public int observacioneditable { get; set; }
         public int observacionobligatorio { get; set; }
+
+        public string? VALOR_RESPUESTA { get; set; }
+        public string? OBSERVACION_RESPUESTA { get; set; }
         public List<DesplegableDiagnostico>? desplegable { get; set; }
         public SubGrupoDiagnostico()
         {

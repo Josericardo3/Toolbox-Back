@@ -13,4 +13,12 @@ namespace inti_model.caracterizacion
         public int FK_ID_CATEGORIA_RNT { get; set; }
         public int FK_ID_CARACTERIZACION_DINAMICA { get; set; }
     }
+
+    public class RedesSociales
+    {
+        public string? INSTAGRAM { get; set; }
+        public string? TWITTER { get; set; }
+        public string? FACEBOOK { get; set; }
+        public string? OTROS { get; set; }
+    }
 }

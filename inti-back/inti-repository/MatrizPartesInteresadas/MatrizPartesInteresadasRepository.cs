@@ -45,8 +45,8 @@ namespace inti_repository.matrizpartesinteresadas
             var query2 = @"select max(ID_ACTIVIDAD) from Actividad;";
             int idPlanificacion = await db.QueryFirstAsync<int>(query2);
 
-            var query = @"INSERT INTO MatrizPartesInteresadas(ID_INTERESADA, PARTE_INTERESADA, NECESIDAD, EXPECTATIVA,ESTADO_DE_CUMPLIMIENTO,OBSERVACIONES,ACCIONES_A_REALIZAR,RESPONSABLE,ESTADO_ABIERTO_CERRADO,ESTADO_ACTIVO_INACTIVO,FECHA_REGISTRO,ID_USUARIO, FECHA_EJECUCION, MEJORA_CONTINUA, ID_RNT, FK_ID_MEJORA_CONTINUA, FK_ID_ACTIVIDAD) 
-                        SELECT @ID_INTERESADA, @PARTE_INTERESADA, @NECESIDAD, @EXPECTATIVA, @ESTADO_DE_CUMPLIMIENTO, @OBSERVACIONES, @ACCIONES_A_REALIZAR, @RESPONSABLE, @ESTADO_ABIERTO_CERRADO, @ESTADO_ACTIVO_INACTIVO, NOW(), @ID_USUARIO, @FECHA_EJECUCION, @MEJORA_CONTINUA, @ID_RNT, @FK_ID_MEJORA_CONTINUA, @FK_ID_ACTIVIDAD
+            var query = @"INSERT INTO MatrizPartesInteresadas(ID_INTERESADA, PARTE_INTERESADA, NECESIDAD, EXPECTATIVA,ESTADO_DE_CUMPLIMIENTO,OBSERVACIONES,ACCIONES_A_REALIZAR,RESPONSABLE,ESTADO_ABIERTO_CERRADO,ESTADO_ACTIVO_INACTIVO,FECHA_REGISTRO,ID_USUARIO, FECHA_EJECUCION, MEJORA_CONTINUA, ID_RNT, FK_ID_MEJORA_CONTINUA, FK_ID_ACTIVIDAD, PARTE_INTERESADA_DESC) 
+                        SELECT @ID_INTERESADA, @PARTE_INTERESADA, @NECESIDAD, @EXPECTATIVA, @ESTADO_DE_CUMPLIMIENTO, @OBSERVACIONES, @ACCIONES_A_REALIZAR, @RESPONSABLE, @ESTADO_ABIERTO_CERRADO, @ESTADO_ACTIVO_INACTIVO, NOW(), @ID_USUARIO, @FECHA_EJECUCION, @MEJORA_CONTINUA, @ID_RNT, @FK_ID_MEJORA_CONTINUA, @FK_ID_ACTIVIDAD, @PARTE_INTERESADA_DESC
                         WHERE NOT EXISTS (
                         SELECT 1
                         FROM MatrizPartesInteresadas    
@@ -69,7 +69,8 @@ namespace inti_repository.matrizpartesinteresadas
                 PartesInteresadas.MEJORA_CONTINUA,
                 PartesInteresadas.ID_RNT,
                 FK_ID_MEJORA_CONTINUA = idMejora,
-                FK_ID_ACTIVIDAD = idPlanificacion
+                FK_ID_ACTIVIDAD = idPlanificacion,
+                PartesInteresadas.PARTE_INTERESADA_DESC
             };
 
             var insert = await db.ExecuteAsync(query, parameters);
@@ -88,7 +89,8 @@ namespace inti_repository.matrizpartesinteresadas
                             ESTADO_ABIERTO_CERRADO=@ESTADO_ABIERTO_CERRADO,
                             FECHA_ACTUALIZACION = NOW(),
                             FECHA_EJECUCION=@FECHA_EJECUCION,
-                            MEJORA_CONTINUA=@MEJORA_CONTINUA
+                            MEJORA_CONTINUA=@MEJORA_CONTINUA,
+                            PARTE_INTERESADA_DESC=@PARTE_INTERESADA_DESC
                         WHERE ID_MATRIZ_PARTES_INTERESADAS = @ID_MATRIZ_PARTES_INTERESADAS";
             var parameters = new
             {
@@ -101,7 +103,8 @@ namespace inti_repository.matrizpartesinteresadas
                 matrizPartesI.ESTADO_ABIERTO_CERRADO,
                 matrizPartesI.FECHA_EJECUCION,
                 matrizPartesI.MEJORA_CONTINUA,
-                matrizPartesI.ID_MATRIZ_PARTES_INTERESADAS
+                matrizPartesI.ID_MATRIZ_PARTES_INTERESADAS,
+                matrizPartesI.PARTE_INTERESADA_DESC
             };
             var result = await db.ExecuteAsync(sql, parameters);
             return result > 0;

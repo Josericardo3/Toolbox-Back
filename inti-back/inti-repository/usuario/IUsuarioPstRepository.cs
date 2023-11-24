@@ -1,7 +1,7 @@
 ﻿using inti_model.usuario;
 using inti_model.dboresponse;
 using inti_model;
-
+using Microsoft.AspNetCore.Components.Web;
 
 namespace inti_repository.usuario
 {
@@ -16,6 +16,14 @@ namespace inti_repository.usuario
         Task<IEnumerable<Usuario>> GetUsuariosxPst(string rnt);  
         Task<bool> GetPermiso(int usuario,int modelo);
         Task<IEnumerable<ResponseModuloUsuario>> GetPermisoPorPerfil(int idtipousuario);
+        Task<UsserSettings> GetUserSettings(int id);
+        Task<bool> UpdateUsserSettings(UsserSettings usserSettings, int id);
+        Task<IEnumerable<dynamic>> GetPstRoles(int rnt);
+        Task<bool> DeletePstRoles(int pst);
+        Task<bool> UpdatePstRoles(PstRolesUpdateModel pstRolesUpdateModel);
+
+
+
 
 
     }

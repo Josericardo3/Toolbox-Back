@@ -5,6 +5,8 @@ using inti_model.dboresponse;
 using inti_repository.general;
 using MySql.Data.MySqlClient;
 using System.Text.Json.Nodes;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace inti_repository.validaciones
 {
@@ -171,8 +173,7 @@ namespace inti_repository.validaciones
             var db = dbConnection();
             var queryCheck = @"SELECT COUNT(*) FROM MonitorizacionUsuario 
                        WHERE FK_ID_USUARIO = @FK_ID_USUARIO 
-                       AND MODULO = @MODULO 
-                       AND DATE(FECHA_REG) = CURDATE()";
+                       AND BINARY MODULO = @MODULO ";
             var parameter = new
             {
                 data.FK_ID_USUARIO,
@@ -180,20 +181,103 @@ namespace inti_repository.validaciones
             };
             int count = await db.ExecuteScalarAsync<int>(queryCheck, parameter);
 
-            if (count > 0)
+            int i = 0;
+
+            if (count > 0 && data.MODULO != "login")
             {
-                return false;
+                var queryIds = @"SELECT ID_MONITORIZACION_USUARIO, MODULO
+                                 FROM MonitorizacionUsuario 
+                                 WHERE FK_ID_USUARIO = @idUser 
+                                      AND (
+                                        BINARY MODULO = ""CARACTERIZACIÓN"" OR
+                                        BINARY MODULO = ""DIAGNÓSTICO"" OR 
+                                        BINARY MODULO = ""PLANIFICACIÓN"" OR
+                                        BINARY MODULO = ""DOCUMENTACIÓN"" OR
+                                        BINARY MODULO = ""FORMACIÓN E E-LEARNING"" OR
+                                        BINARY MODULO = ""NOTICIAS"" OR
+                                        BINARY MODULO = ""AUDITORÍA INTERNA"" OR
+                                        BINARY MODULO = ""EVIDENCIA E IMPLEMENTACIÓN"" OR
+                                        BINARY MODULO = ""ALTA GERENCIA"" OR 
+                                        BINARY MODULO = ""MEDICIÓN Y KPI's"" OR
+                                        BINARY MODULO = ""MEJORA CONTINUA"" OR
+                                        BINARY MODULO = ""MONITORIZACIÓN""
+                                      )
+                                      AND ESTADO = 1";
+                var paramBusqueda = new
+                {
+                    idUser = data.FK_ID_USUARIO
+                };
+                
+                var lstIds = (await db.QueryAsync<int>(queryIds, paramBusqueda)).ToList();
+                
+                foreach(var id in lstIds)
+                {
+                    var query2 = @"SELECT MODULO FROM MonitorizacionUsuario WHERE ID_MONITORIZACION_USUARIO = @ID_MONITORIZACION AND ESTADO = 1";
+                    var param2 = new
+                    {
+                        ID_MONITORIZACION = id
+                    };
+                    var modulo = await db.QueryFirstOrDefaultAsync<string>(query2, param2);
+                    if (modulo == data.MODULO)
+                    {
+                        var query = @"UPDATE MonitorizacionUsuario SET TIPO = @TIPO, MODULO = @MODULO, FECHA_REG = NOW() WHERE ID_MONITORIZACION_USUARIO = @ID_MONITORIZACION AND ESTADO = 1";
+                        var param = new
+                        {
+                            TIPO = data.TIPO,
+                            MODULO = data.MODULO,
+                            ID_MONITORIZACION = id
+                        };
+                        i = await db.ExecuteAsync(query, param);
+                    }
+
+                }
+
+            }
+            else
+            {
+                if(count > 0)
+                {
+                    var queryIds = @"SELECT ID_MONITORIZACION_USUARIO
+                                 FROM MonitorizacionUsuario 
+                                 WHERE FK_ID_USUARIO = @idUser 
+                                      AND (
+                                        BINARY MODULO = ""login"" 
+                                        
+                                      )
+                                      AND ESTADO = 1";
+                    var paramBusqueda = new
+                    {
+                        idUser = data.FK_ID_USUARIO
+                    };
+                    int idLogin = await db.QueryFirstOrDefaultAsync<int>(queryIds, paramBusqueda);
+                    var queryUpLogin = @"UPDATE MonitorizacionUsuario SET TIPO = @TIPO, MODULO = @MODULO, FECHA_REG = NOW() WHERE ID_MONITORIZACION_USUARIO = @ID_MONITORIZACION AND ESTADO = 1";
+                    var param = new
+                    {
+                        TIPO = data.TIPO,
+                        MODULO = data.MODULO,
+                        ID_MONITORIZACION = idLogin
+                    };
+                    i = await db.ExecuteAsync(queryUpLogin, param);
+                }
+                else
+                {
+                    var queryPost = @"INSERT INTO MonitorizacionUsuario (FK_ID_USUARIO,TIPO,MODULO,FECHA_REG)
+                              VALUES (@FK_ID_USUARIO, @TIPO, @MODULO, NOW())";
+                    var parameters = new
+                    {
+                        data.FK_ID_USUARIO,
+                        data.TIPO,
+                        data.MODULO
+                    };
+
+                    i = await db.ExecuteAsync(queryPost, parameters);
+
+                }
+                
+
             }
 
-            var queryPost = @"INSERT INTO MonitorizacionUsuario (FK_ID_USUARIO,TIPO,MODULO,FECHA_REG)
-                              VALUES (@FK_ID_USUARIO, @TIPO, @MODULO, NOW())";
-            var parameters = new
-            {
-                data.FK_ID_USUARIO,
-                data.TIPO,
-                data.MODULO
-            };
-            int i = await db.ExecuteAsync(queryPost, parameters);
+            
 
             return i > 0;
         }

@@ -68,5 +68,8 @@ namespace inti_model.usuario
 
         [Required(ErrorMessage = "Avatar es requerido")]
         public int FK_ID_TIPO_AVATAR { get; set; }
+
+        public bool ESAVATAR {  get; set; }
+        public string? LOGO { get; set; }
     }
 }

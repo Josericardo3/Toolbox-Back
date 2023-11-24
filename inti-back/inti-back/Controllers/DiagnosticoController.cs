@@ -36,14 +36,14 @@ namespace inti_back.Controllers
             });
         }
 
-        [HttpGet("Diagnostico/{id}")]
-        public async Task<IActionResult> GetResponseDiagnostico(int id)
+        [HttpGet("Diagnostico")]
+        public async Task<IActionResult> GetResponseDiagnostico(int idnorma, int idusuario, int etapa)
         {
             string ValorMaestroTituloFormulariodiagnostico = this.Configuration.GetValue<string>("ValorMaestro:TituloFormularioDiagnostisco");
             string ValorMaestroDiagnostico = this.Configuration.GetValue<string>("ValorMaestro:Diagnostico");
             try
             {
-                var response = await _diagnosticoRepository.GetResponseDiagnostico(id, Convert.ToInt32(ValorMaestroTituloFormulariodiagnostico), Convert.ToInt32(ValorMaestroDiagnostico));
+                var response = await _diagnosticoRepository.GetResponseDiagnostico(idnorma, idusuario,etapa, Convert.ToInt32(ValorMaestroTituloFormulariodiagnostico), Convert.ToInt32(ValorMaestroDiagnostico));
                 return Ok(response);
             }
             catch (Exception ex)

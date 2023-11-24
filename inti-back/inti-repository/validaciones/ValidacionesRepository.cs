@@ -118,35 +118,64 @@ namespace inti_repository.validaciones
             Usuario datausuario =  await db.QueryFirstOrDefaultAsync<Usuario>(queryUsuario, parameter);
             if (datausuario != null)
             {
-                var dataUsuario = @"SELECT COALESCE(MAX(a.ETAPA), 0) as ETAPA FROM RespuestaDiagnostico a LEFT JOIN  Usuario b ON a.FK_ID_USUARIO = b.ID_USUARIO
-            WHERE b.RNT = @rnt AND a.FK_ID_NORMA = @idnorma";
+                var dataUsuario = @"SELECT b.NUMERAL_PRINCIPAL, b.NUMERAL_ESPECIFICO, a.VALOR, a.ETAPA
+                                    FROM MaeDiagnosticoDinamico b
+                                    LEFT JOIN RespuestaDiagnostico a 
+                                        ON a.FK_ID_NORMA = b.FK_ID_NORMA 
+                                        AND a.NUMERAL_PRINCIPAL = b.NUMERAL_PRINCIPAL
+                                        AND a.NUMERAL_ESPECIFICO = b.NUMERAL_ESPECIFICO
+                                        AND a.FK_ID_USUARIO = @idusuario AND a.ETAPA = 1 WHERE
+                                        b.FK_ID_NORMA = @idnorma AND a.VALOR is null;";
                 var parameters = new
                 {
-                    rnt = datausuario.RNT,
+                    idusuario = idUsuario,
                     idnorma = idnorma
                 };
-                var result = db.QueryFirstOrDefault<int?>(dataUsuario, parameters);
+                var result = await db.QueryAsync<ResponseValorValidacionDiagnostico>(dataUsuario, parameters);
+                var CantInicial = result.Count();
+                var dataUsuario2 = @"SELECT b.NUMERAL_PRINCIPAL, b.NUMERAL_ESPECIFICO, a.VALOR, a.ETAPA
+                                    FROM MaeDiagnosticoDinamico b
+                                    LEFT JOIN RespuestaDiagnostico a 
+                                        ON a.FK_ID_NORMA = b.FK_ID_NORMA 
+                                        AND a.NUMERAL_PRINCIPAL = b.NUMERAL_PRINCIPAL
+                                        AND a.NUMERAL_ESPECIFICO = b.NUMERAL_ESPECIFICO
+                                        AND a.FK_ID_USUARIO = @idusuario AND a.ETAPA = 2 WHERE
+                                        b.FK_ID_NORMA = @idnorma AND a.VALOR is null;";
+              
+                var result2 = await db.QueryAsync<ResponseValorValidacionDiagnostico>(dataUsuario2, parameters);
+                var CantIntermedio = result2.Count();
+                var dataUsuario3 = @"SELECT b.NUMERAL_PRINCIPAL, b.NUMERAL_ESPECIFICO, a.VALOR, a.ETAPA
+                                    FROM MaeDiagnosticoDinamico b
+                                    LEFT JOIN RespuestaDiagnostico a 
+                                        ON a.FK_ID_NORMA = b.FK_ID_NORMA 
+                                        AND a.NUMERAL_PRINCIPAL = b.NUMERAL_PRINCIPAL
+                                        AND a.NUMERAL_ESPECIFICO = b.NUMERAL_ESPECIFICO
+                                        AND a.FK_ID_USUARIO = @idusuario AND a.ETAPA = 3 WHERE
+                                        b.FK_ID_NORMA = @idnorma AND a.VALOR is null;";
+
+                var result3 = await db.QueryAsync<ResponseValorValidacionDiagnostico>(dataUsuario3, parameters);
+                var CantFinal = result3.Count();
 
                 var response = new ResponseValidacionDiagnostico();
-                if (result == 0)
+                if (CantInicial > 0)
                 {
                     response.ETAPA_INICIO = false;
                     response.ETAPA_INTERMEDIO = false;
                     response.ETAPA_FINAL = false;
                 }
-                else if (result == 1)
+                else if (CantInicial == 0 && CantIntermedio>0)
                 {
                     response.ETAPA_INICIO = true;
                     response.ETAPA_INTERMEDIO = false;
                     response.ETAPA_FINAL = false;
                 }
-                else if (result == 2)
+                else if (CantIntermedio == 0 && CantFinal > 0)
                 {
                     response.ETAPA_INICIO = true;
                     response.ETAPA_INTERMEDIO = true;
                     response.ETAPA_FINAL = false;
                 }
-                else if (result == 3)
+                else if (CantFinal == 0)
                 {
                     response.ETAPA_INICIO = true;
                     response.ETAPA_INTERMEDIO = true;

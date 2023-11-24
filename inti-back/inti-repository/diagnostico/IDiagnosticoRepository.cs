@@ -4,7 +4,7 @@ namespace inti_repository.diagnostico
 {
     public interface IDiagnosticoRepository
     {
-        Task<ResponseDiagnostico> GetResponseDiagnostico(int idnorma, int idValorTituloFormulariodiagnostico, int idValorMaestroDiagnostico);
+        Task<ResponseDiagnostico> GetResponseDiagnostico(int idnorma, int idusuario, int etapa, int idValorTituloFormulariodiagnostico, int idValorMaestroDiagnostico);
         Task<bool> InsertRespuestaDiagnostico(List<RespuestaDiagnostico> lstRespuestaDiagnostico);
         Task<bool> InsertRespuestaAnalisisAsesor(RespuestaAnalisisAsesor respuestaAnalisis);
     }

@@ -58,6 +58,21 @@ namespace inti_back.Controllers
                 });
             }
         }
+        [HttpGet("GetModulosConsultados")]
+        public async Task<IActionResult> MonitorizacionModulosConsultados(int userId)
+        {
+            var response = await _monitorizacionRepository.MonitorizacionModulosConsultados(userId);
+
+            if (response == null)
+            {
+                Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "No se ha encontrado"
+                });
+            }
+            return Ok(response);
+        }
 
     }
 }

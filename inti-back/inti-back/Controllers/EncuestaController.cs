@@ -36,8 +36,7 @@ namespace inti_back.Controllers
                 });
 
 
-            }
-            catch (Exception ex)
+            }catch (Exception ex)
             {
                 return Ok(new
                 {
@@ -86,7 +85,7 @@ namespace inti_back.Controllers
             {
                 var data = await _encuestaRepository.GetEncuestaGeneral(idusuario);
 
-                if (data == null)
+                if(data == null)
                 {
                     return Ok(new
                     {
@@ -159,7 +158,7 @@ namespace inti_back.Controllers
         }
 
         [HttpPost("respuestas")]
-        [AllowAnonymous]
+        [AllowAnonymous] 
         public async Task<IActionResult> PostRespuesta(List<RespuestaEncuestas> respuesta)
         {
             try
@@ -172,7 +171,7 @@ namespace inti_back.Controllers
                     Valor = "Se registró la respuesta",
                 });
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 return Ok(new
                 {

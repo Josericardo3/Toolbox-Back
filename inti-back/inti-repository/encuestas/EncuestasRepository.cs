@@ -23,7 +23,7 @@ namespace inti_repository.encuestas
         {
             var db = dbConnection();
 
-            var queryEncuesta = @"INSERT INTO MaeEncuesta (TITULO,DESCRIPCION,FK_ID_USUARIO,ESTADO,FECHA_REG)
+                var queryEncuesta = @"INSERT INTO MaeEncuesta (TITULO,DESCRIPCION,FK_ID_USUARIO,ESTADO,FECHA_REG)
                                    VALUES(@TITULO,@DESCRIPCION,@FK_ID_USUARIO,1,NOW())";
             var parameters = new
             {
@@ -33,26 +33,26 @@ namespace inti_repository.encuestas
             };
             var dataEncuesta = await db.ExecuteAsync(queryEncuesta, parameters);
 
-            var queryEncuestaId = @"SELECT LAST_INSERT_ID() FROM MaeEncuesta limit 1;";
-            var idEncuesta = await db.QueryFirstAsync<int>(queryEncuestaId);
+                var queryEncuestaId = @"SELECT LAST_INSERT_ID() FROM MaeEncuesta limit 1;";
+                var idEncuesta = await db.QueryFirstAsync<int>(queryEncuestaId);
 
-            foreach (var pregunta in encuesta.MAE_ENCUESTA_PREGUNTAS)
-            {
-                pregunta.FK_MAE_ENCUESTA = idEncuesta;
+                    foreach (var pregunta in encuesta.MAE_ENCUESTA_PREGUNTAS)
+                    {
+                        pregunta.FK_MAE_ENCUESTA = idEncuesta;
 
-                var querypregunta = @"INSERT INTO MaeEncuestaPregunta (FK_MAE_ENCUESTA,DESCRIPCION,TIPO,VALOR,OBLIGATORIO,FECHA_REG)
+                        var querypregunta = @"INSERT INTO MaeEncuestaPregunta (FK_MAE_ENCUESTA,DESCRIPCION,TIPO,VALOR,OBLIGATORIO,FECHA_REG)
                                        VALUES(@FK_MAE_ENCUESTA,@DESCRIPCION,@TIPO,@VALOR,@OBLIGATORIO,NOW())";
 
-                var parameterPregunta = new
-                {
-                    pregunta.FK_MAE_ENCUESTA,
-                    pregunta.DESCRIPCION,
-                    pregunta.TIPO,
-                    pregunta.VALOR,
-                    pregunta.OBLIGATORIO
-                };
-                var dataPregunta = await db.ExecuteAsync(querypregunta, parameterPregunta);
-            }
+                        var parameterPregunta = new
+                        {
+                            pregunta.FK_MAE_ENCUESTA,
+                            pregunta.DESCRIPCION,
+                            pregunta.TIPO,
+                            pregunta.VALOR,
+                            pregunta.OBLIGATORIO
+                        };
+                         var dataPregunta = await db.ExecuteAsync(querypregunta, parameterPregunta);
+                    }
             return idEncuesta;
         }
         public async Task<int> UpdateMaeEncuestas(MaeEncuesta encuesta)
@@ -147,7 +147,7 @@ namespace inti_repository.encuestas
             return dataEncuesta;
         }
 
-        public async Task<MaeEncuesta> GetEncuestaPregunta(int idEncuesta)
+        public async Task<MaeEncuesta> GetEncuestaPregunta( int idEncuesta)
         {
             var db = dbConnection();
 
@@ -168,17 +168,17 @@ namespace inti_repository.encuestas
             var queryEncuestaPreg = @"
                                     SELECT ID_MAE_ENCUESTA_PREGUNTA, FK_MAE_ENCUESTA, DESCRIPCION, TIPO,VALOR, OBLIGATORIO 
                                     FROM MaeEncuestaPregunta WHERE ESTADO = 1 AND FK_MAE_ENCUESTA =@ID_ENCUESTA;";
-
+   
             var queryEncuestap = await db.QueryAsync<MaeEncuestaPregunta>(queryEncuestaPreg, parameterid);
 
             foreach (MaeEncuestaPregunta item in queryEncuestap)
             {
                 dataEncuesta.MAE_ENCUESTA_PREGUNTAS.Add(item);
             }
-
+            
             return dataEncuesta;
         }
-        public async Task<IEnumerable<dynamic>> GetRespuestasEncuesta(int idencuesta)
+        public async Task<IEnumerable<dynamic>> GetRespuestasEncuesta( int idencuesta)
         {
             var db = dbConnection();
             var sql = @"
@@ -187,10 +187,8 @@ namespace inti_repository.encuestas
                     FROM RespuestaEncuesta a INNER JOIN MaeEncuestaPregunta b ON a.FK_ID_MAE_ENCUESTA_PREGUNTA = b.ID_MAE_ENCUESTA_PREGUNTA 
                     INNER JOIN MaeEncuesta c 
                      ON b.FK_MAE_ENCUESTA = c.ID_MAE_ENCUESTA WHERE c.ID_MAE_ENCUESTA = @idEncuesta AND c.ESTADO = 1;";
-            var parameterid = new
-            {
-                idEncuesta = idencuesta
-            };
+            var parameterid = new {
+            idEncuesta = idencuesta};
             var data = await db.QueryAsync(sql, parameterid);
 
             var result = data.GroupBy(row => new

@@ -16,7 +16,16 @@ public class Diagnostico
     public String? CAMPO_LOCAL { get; set; }
     public String? NOMBRE { get; set; }
     public int EDITABLE { get; set; }
+    public int CANT_RESPUESTAS
+    {
+        get
+        {
+            return listacampos?.Count(l => !string.IsNullOrEmpty(l.VALOR_RESPUESTA)) ?? 0;
+        }
+    }
     public List<SubGrupoDiagnostico>? listacampos { get; set; }
+
+ 
     public Diagnostico()
     {
         this.listacampos = new List<SubGrupoDiagnostico>();

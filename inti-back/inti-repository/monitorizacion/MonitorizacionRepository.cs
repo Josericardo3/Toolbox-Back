@@ -104,6 +104,36 @@ namespace inti_repository.monitorizacion
 
             return result;
         }
+        public async Task<IEnumerable<ResponseMonitorizacionUsuario>> MonitorizacionModulosConsultados(int userId)
+        {
+            var db = dbConnection();
+            var data = @"SELECT FK_ID_USUARIO,TIPO, MODULO, FECHA_REG 
+                         FROM MonitorizacionUsuario 
+                         WHERE FK_ID_USUARIO = @ID_USUARIO
+                              AND (
+                                BINARY MODULO = ""CARACTERIZACIÓN"" OR
+                                BINARY MODULO = ""DIAGNÓSTICO"" OR 
+                                BINARY MODULO = ""PLANIFICACIÓN"" OR
+                                BINARY MODULO = ""DOCUMENTACIÓN"" OR
+                                BINARY MODULO = ""FORMACIÓN E E-LEARNING"" OR
+                                BINARY MODULO = ""NOTICIAS"" OR
+                                BINARY MODULO = ""AUDITORÍA INTERNA"" OR
+                                BINARY MODULO = ""EVIDENCIA E IMPLEMENTACIÓN"" OR
+                                BINARY MODULO = ""ALTA GERENCIA"" OR 
+                                BINARY MODULO = ""MEDICIÓN Y KPI's"" OR
+                                BINARY MODULO = ""MEJORA CONTINUA"" OR
+                                BINARY MODULO = ""MONITORIZACIÓN""
+                              )
+                              AND ESTADO = 1
+                              ORDER BY FECHA_REG DESC";
+            var param = new
+            {
+                ID_USUARIO = userId
+            };
+            var result = await db.QueryAsync<ResponseMonitorizacionUsuario>(data,param);
+            return result;
+
+        }
 
     }
 }

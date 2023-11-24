@@ -15,5 +15,6 @@ namespace inti_model.mapaproceso
         public string? TIPO_PROCESO { get; set; }
         public string? DESCRIPCION_PROCESO { get; set; }
         public int FK_ID_RESPONSABLE { get; set; }
+        public int ORDEN { get; set; }
     }
 }

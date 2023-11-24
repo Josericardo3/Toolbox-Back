@@ -13,6 +13,8 @@ namespace inti_model.dboresponse
         public string? TIPO { get; set; }
         public string? MODULO { get; set; }
 
+        public DateTime FECHA_REG { get; set; }
+
     }
 
 }

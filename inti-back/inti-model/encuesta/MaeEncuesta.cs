@@ -22,11 +22,11 @@ namespace inti_model.encuesta
 
     public class MaeEncuestaPregunta
     {
-        public int ID_MAE_ENCUESTA_PREGUNTA { get; set; }
-        public int FK_MAE_ENCUESTA { get; set; }
-        public string DESCRIPCION { get; set; }
-        public string TIPO { get; set; }
-        public string VALOR { get; set; }
-        public bool OBLIGATORIO { get; set; }
+        public int ID_MAE_ENCUESTA_PREGUNTA { get; set;  }
+        public int FK_MAE_ENCUESTA { get; set;  }
+        public string DESCRIPCION { get; set;  }
+        public string TIPO { get; set;  }
+        public string VALOR { get; set;  }
+        public bool OBLIGATORIO { get; set;  }
     }
 }
