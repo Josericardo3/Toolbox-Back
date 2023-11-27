@@ -24,7 +24,7 @@ namespace inti_repository.actividad
         Task<bool> AsignarAvatar(int idusuariopst, int idavatar);
         Task<bool> AsignarLogo(UsuarioLogo usuario);
         Task<bool> ActualizarActividades();
-
+        Task<dynamic> GetLogoUsuario(int idUsuario);
 
     }
 }

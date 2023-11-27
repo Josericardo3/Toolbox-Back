@@ -177,6 +177,50 @@ namespace inti_repository.usuario
             return redesSociales;
         }
 
+        public async Task<dynamic> GetUsuarioPstRegistro(int id)
+        {
+            var db = dbConnection();
+            var sql = @"SELECT 
+                            ps.RNT,
+                            ps.NIT,
+                            mc.CATEGORIA_RNT,
+                            ms.SUB_CATEGORIA_RNT,
+                            ps.FK_ID_SUB_CATEGORIA_RNT,
+                            ps.FK_ID_CATEGORIA_RNT,
+                            ps.NOMBRE_PST,
+                            ps.RAZON_SOCIAL_PST,
+                            ps.CORREO_PST,
+                            ps.TELEFONO_PST,
+                            ps.FK_ID_TIPO_AVATAR,
+                            ps.NOMBRE_REPRESENTANTE_LEGAL,
+                            ps.CORREO_REPRESENTANTE_LEGAL,
+                            ps.TELEFONO_REPRESENTANTE_LEGAL,
+                            ps.FK_ID_TIPO_IDENTIFICACION,
+                            ps.IDENTIFICACION_REPRESENTANTE_LEGAL,
+                            ps.DEPARTAMENTO,
+                            ps.MUNICIPIO,
+                            ps.NOMBRE_RESPONSABLE_SOSTENIBILIDAD,
+                            ps.CORREO_RESPONSABLE_SOSTENIBILIDAD,
+                            ps.TELEFONO_RESPONSABLE_SOSTENIBILIDAD,
+                            us.PASSWORD
+                        FROM
+                            Pst ps
+                        INNER JOIN
+	                        Usuario us ON ps.FK_ID_USUARIO = us.ID_USUARIO
+                        INNER JOIN
+	                        MaeCategoriaRnt mc ON mc.ID_CATEGORIA_RNT = ps.FK_ID_CATEGORIA_RNT
+                        INNER JOIN
+	                        MaeSubCategoriaRnt ms ON ms.ID_SUB_CATEGORIA_RNT = ps.FK_ID_SUB_CATEGORIA_RNT
+                        WHERE
+                            ps.FK_ID_USUARIO = @FK_ID_USUARIO
+                                AND ps.ESTADO = 1";
+
+            var result = await db.QueryAsync<dynamic>(sql, new { FK_ID_USUARIO = id } );
+
+            return result;
+
+        }
+
         public async Task<ResponseUsuarioPst> GetUsuarioPst(int id)
         {
             var db = dbConnection();

@@ -42,7 +42,7 @@ namespace inti_repository.caracterizacion
                                         INNER JOIN
                                     MaeTipoAvatar t2 ON t2.ID_TIPO_AVATAR = u.FK_ID_TIPO_AVATAR
                                 WHERE
-                                    u.FK_ID_USUARIO = (SELECT b.FK_ID_USUARIO FROM Usuario a INNER JOIN Pst b ON a.RNT = b.RNT WHERE a.ID_USUARIO = @id_user )";
+                                    u.FK_ID_USUARIO =  @id_user ";
             var parameter = new
             {
                 id_user = id
@@ -156,7 +156,7 @@ namespace inti_repository.caracterizacion
         public async Task<List<NormaTecnica>> GetNormaTecnica(int id)
         {
             var db = dbConnection();
-            var queryUsuarios = @"SELECT FK_ID_USUARIO,FK_ID_CATEGORIA_RNT FROM Pst WHERE ESTADO = TRUE AND FK_ID_USUARIO = (SELECT b.FK_ID_USUARIO FROM Usuario a INNER JOIN Pst b ON a.RNT = b.RNT WHERE a.ID_USUARIO = @id_user )";
+            var queryUsuarios = @"SELECT FK_ID_USUARIO,FK_ID_CATEGORIA_RNT FROM Pst WHERE ESTADO = TRUE AND FK_ID_USUARIO =  @id_user ";
             var parameter = new
             {
                 id_user = id

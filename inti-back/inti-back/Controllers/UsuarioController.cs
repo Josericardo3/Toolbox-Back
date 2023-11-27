@@ -26,6 +26,30 @@ namespace inti_back.Controllers
             Configuration = _configuration;
         }
 
+        [HttpGet("registro/{id}")]
+        public async Task<IActionResult> GetUsuarioPstRegistro(int id)
+        {
+            try
+            {
+                var response = await _usuarioPstRepository.GetUsuarioPstRegistro(id);
+                if (response == null)
+                {
+                    throw new Exception();
+                }
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    Mensaje = "No se encontró el usuario",
+                    ex.Message
+                });
+            }
+        }
+
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUsuarioPst(int id)
         {

@@ -8,6 +8,7 @@ namespace inti_repository.usuario
     public interface IUsuarioPstRepository
     {
         Task<ResponseUsuarioPst> GetUsuarioPst(int id);
+        Task<dynamic> GetUsuarioPstRegistro(int id);
         Task<bool> InsertUsuarioPst(UsuarioPstPost usuariopst);
         Task<string> UpdateUsuarioPst(UsuarioPstUpd usuariopst);
         Task<bool> DeleteUsuarioPst(int id);

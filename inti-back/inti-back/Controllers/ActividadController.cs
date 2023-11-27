@@ -243,6 +243,31 @@ namespace inti_back.Controllers
             }
 
         }
+        [HttpGet("Logo")]
+        public async Task<IActionResult> GetLogoUsuario(int idUsuario)
+        {
+            try
+            {
+                var resp = await _actividadRepository.GetLogoUsuario(idUsuario);
+                if (resp != null )
+                {
+                    return Ok(resp);
+                }
+                else
+                {
+                    throw new Exception();
+                }
+            }
+            catch (Exception)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "no se pudo cargar el logo"
+                });
+            }
+
+        }
 
     }
 }

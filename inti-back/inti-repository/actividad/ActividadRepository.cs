@@ -225,5 +225,21 @@ namespace inti_repository.actividad
             var result = await db.ExecuteAsync(sql, parameters);
             return result > 0;
         }
+
+        public async Task<dynamic> GetLogoUsuario(int idUsuario)
+        {
+            var db = dbConnection();
+            var sql = @"SELECT 
+                            ID_PST,
+                            LOGO
+                        FROM
+                            Pst
+                        WHERE
+                            FK_ID_USUARIO = @FK_ID_USUARIO";
+
+            var parametros = await db.QueryFirstOrDefaultAsync<dynamic>(sql, new { FK_ID_USUARIO = idUsuario });
+
+            return parametros;
+        }
     }
 }
