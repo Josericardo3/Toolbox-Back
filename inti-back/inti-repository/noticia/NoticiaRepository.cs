@@ -285,7 +285,9 @@ namespace inti_repository.noticia
                     resultnorma = db.Execute(querynorma, parameterNoticiaNorma);
 
                     var querypstnorma = @"SELECT DISTINCT a.CORREO_PST AS CORREO
-                        FROM Pst a INNER JOIN MaeNorma b ON a.FK_ID_CATEGORIA_RNT = b.FK_ID_CATEGORIA_RNT 
+                        FROM Pst a 
+                        INNER JOIN MaeNormaCategoria cn ON a.FK_ID_CATEGORIA_RNT = cn.FK_ID_CATEGORIA_RNT
+                        INNER JOIN MaeNorma b ON cn.FK_ID_NORMA = b.ID_NORMA 
                     WHERE b.ID_NORMA = @norma";
                     var parameterNorma = new
                     {
@@ -549,8 +551,9 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
 							a.FK_ID_CATEGORIA = (SELECT p.FK_ID_CATEGORIA_RNT FROM Pst p WHERE p.FK_ID_USUARIO = @iduser  ) OR
 							a.FK_ID_SUB_CATEGORIA = (SELECT p.FK_ID_SUB_CATEGORIA_RNT FROM Pst p WHERE p.FK_ID_USUARIO = @iduser) OR
 							a.FK_ID_NORMA IN (SELECT mn.ID_NORMA 
-												FROM  Pst p JOIN MaeCategoriaRnt cr ON cr.ID_CATEGORIA_RNT = p.FK_ID_CATEGORIA_RNT 
-															JOIN MaeNorma mn ON mn.FK_ID_CATEGORIA_RNT = cr.ID_CATEGORIA_RNT 
+												FROM  Pst p JOIN MaeCategoriaRnt cr ON cr.ID_CATEGORIA_RNT = p.FK_ID_CATEGORIA_RNT
+	                                                        JOIN MaeNormaCategoria nc ON cr.ID_CATEGORIA_RNT = nc.FK_ID_CATEGORIA_RNT
+															JOIN MaeNorma mn ON nc.FK_ID_NORMA = mn.ID_NORMA 
 												WHERE p.FK_ID_USUARIO =  (SELECT p.FK_ID_USUARIO FROM Pst p WHERE p.RNT = (SELECT u.RNT FROM Usuario u WHERE ID_USUARIO = @iduser)) )  
                             AND d.FECHA_REG >= CURDATE() - INTERVAL 1 WEEK)
                         ORDER BY d.FECHA_REG DESC
@@ -584,7 +587,8 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
 							a.FK_ID_SUB_CATEGORIA = (SELECT p.FK_ID_SUB_CATEGORIA_RNT FROM Pst p WHERE p.FK_ID_USUARIO = @iduser ) OR
 							a.FK_ID_NORMA IN (SELECT mn.ID_NORMA 
 												FROM  Pst p JOIN MaeCategoriaRnt cr ON cr.ID_CATEGORIA_RNT = p.FK_ID_CATEGORIA_RNT 
-															JOIN MaeNorma mn ON mn.FK_ID_CATEGORIA_RNT = cr.ID_CATEGORIA_RNT 
+	                                                        JOIN MaeNormaCategoria nc ON cr.ID_CATEGORIA_RNT = nc.FK_ID_CATEGORIA_RNT
+															JOIN MaeNorma mn ON nc.FK_ID_NORMA = mn.ID_NORMA 
 												WHERE p.FK_ID_USUARIO =  (SELECT p.FK_ID_USUARIO FROM Pst p WHERE p.RNT = (SELECT u.RNT FROM Usuario u WHERE ID_USUARIO = @iduser)))
 							AND DATE_FORMAT(STR_TO_DATE(c.FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d') >= CURDATE()
                             AND DATE_FORMAT(STR_TO_DATE(c.FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d') <= DATE_ADD(CURDATE(), INTERVAL 1 WEEK))
@@ -759,7 +763,8 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
                             p.RNT = (SELECT u.RNT FROM Usuario u WHERE ID_USUARIO = @iduser))) OR
 							(a.FK_ID_CATEGORIA = (SELECT p.FK_ID_CATEGORIA_RNT FROM Pst p WHERE p.FK_ID_USUARIO = @iduser ) OR
 							a.FK_ID_SUB_CATEGORIA = (SELECT p.FK_ID_SUB_CATEGORIA_RNT FROM Pst p WHERE p.FK_ID_USUARIO = @iduser ) OR
-							a.FK_ID_NORMA IN (SELECT mn.ID_NORMA FROM  Pst p JOIN MaeCategoriaRnt cr ON cr.ID_CATEGORIA_RNT = p.FK_ID_CATEGORIA_RNT JOIN MaeNorma mn ON mn.FK_ID_CATEGORIA_RNT = cr.ID_CATEGORIA_RNT WHERE  p.FK_ID_USUARIO = @iduser ))
+							a.FK_ID_NORMA IN (SELECT mn.ID_NORMA FROM  Pst p JOIN MaeCategoriaRnt cr ON cr.ID_CATEGORIA_RNT = p.FK_ID_CATEGORIA_RNT JOIN  MaeNormaCategoria cn ON cr.ID_CATEGORIA_RNT = cn.FK_ID_CATEGORIA_RNT 
+                            JOIN MaeNorma mn ON mn.ID_NORMA = cn.FK_ID_NORMA WHERE  p.FK_ID_USUARIO = @iduser  ))
 							ORDER BY d.FECHA_REG DESC, c.FECHA_FIN ASC;
             ";
                  result = await db.QueryAsync<ResponseNotificacion>(data, parameterUser);

@@ -115,7 +115,7 @@ namespace inti_repository.caracterizacion
             {
 
                 var id = dataUsuario.FK_ID_CATEGORIA_RNT;
-                var queryNorma = @"SELECT * FROM MaeNorma WHERE FK_ID_CATEGORIA_RNT = @id_categoria";
+                var queryNorma = @"SELECT a.ID_NORMA, b.FK_ID_CATEGORIA_RNT, a.NORMA, a.CODIGO, a.ADICIONAL, a.ESTADO  FROM MaeNorma a INNER JOIN MaeNormaCategoria b ON a.ID_NORMA = b.FK_ID_NORMA WHERE b.FK_ID_CATEGORIA_RNT = @id_categoria";
                 var parameter = new
                 {
                     id_categoria = id
@@ -192,11 +192,11 @@ namespace inti_repository.caracterizacion
                 }
                 else
                 {
-                    adicional = " AND ADICIONAL = FALSE";
+                    adicional = " AND a.ADICIONAL = FALSE";
                 }
             }
                     
-            var queryNorma_ = @"SELECT * FROM MaeNorma WHERE FK_ID_CATEGORIA_RNT = @id_categoria"+adicional;
+            var queryNorma_ = @"SELECT a.ID_NORMA, b.FK_ID_CATEGORIA_RNT, a.NORMA, a.CODIGO, a.ADICIONAL, a.ESTADO  FROM MaeNorma a INNER JOIN MaeNormaCategoria b ON a.ID_NORMA = b.FK_ID_NORMA WHERE b.FK_ID_CATEGORIA_RNT  = @id_categoria" + adicional;
             var parameterCat = new
             {
                 id_categoria = idCategoria

@@ -51,7 +51,7 @@ namespace inti_repository.validaciones
         public async Task<IEnumerable<dynamic>> GetNormas()
         {
             var db = dbConnection();
-            var sql = @"SELECT ID_NORMA, NORMA FROM MaeNorma WHERE ESTADO = 1 AND ID_USUARIO_ACT IS NULL";
+            var sql = @"SELECT ID_NORMA, NORMA FROM MaeNorma WHERE ESTADO = 1";
             var data = await db.QueryAsync(sql);
             return data;
         }
@@ -84,7 +84,7 @@ namespace inti_repository.validaciones
         {
             var db = dbConnection();
             var sql = @"
-                SELECT 
+                 SELECT 
                     ms.ID_SUB_CATEGORIA_RNT as ID,
                     mc.ID_CATEGORIA_RNT,
                     mc.CATEGORIA_RNT,
@@ -94,8 +94,9 @@ namespace inti_repository.validaciones
                     MaeCategoriaRnt mc
                         INNER JOIN
                     MaeSubCategoriaRnt ms ON mc.ID_CATEGORIA_RNT = ms.FK_ID_CATEGORIA_RNT
+                    LEFT JOIN MaeNormaCategoria cn ON ms.FK_ID_CATEGORIA_RNT = cn.FK_ID_CATEGORIA_RNT
                         LEFT JOIN
-                    MaeNorma n ON mc.ID_CATEGORIA_RNT = n.FK_ID_CATEGORIA_RNT
+                    MaeNorma n ON cn.FK_ID_NORMA = n.ID_NORMA
                 WHERE
                     mc.ESTADO = 1 AND ms.ESTADO = 1";
 
@@ -134,13 +135,13 @@ namespace inti_repository.validaciones
                     ps.NOMBRE_PST,
                     ps.FK_ID_CATEGORIA_RNT,
                     ps.FK_ID_SUB_CATEGORIA_RNT,
-                    n.ID_NORMA
+                    cn.FK_ID_NORMA
                 FROM
                     Pst ps
                         INNER JOIN
                     Usuario u ON ps.FK_ID_USUARIO = u.ID_USUARIO
-                        LEFT JOIN
-                    MaeNorma n ON ps.FK_ID_CATEGORIA_RNT = n.FK_ID_CATEGORIA_RNT
+                        INNER JOIN MaeNormaCategoria cn ON ps.FK_ID_CATEGORIA_RNT = cn.FK_ID_CATEGORIA_RNT
+                        
                 WHERE
                     u.ID_TIPO_USUARIO = 1 AND u.ESTADO = 1 AND ps.ESTADO = 1";
 
@@ -186,23 +187,23 @@ namespace inti_repository.validaciones
             if (count > 0 && data.MODULO != "login")
             {
                 var queryIds = @"SELECT ID_MONITORIZACION_USUARIO, MODULO
-                                 FROM MonitorizacionUsuario 
-                                 WHERE FK_ID_USUARIO = @idUser 
-                                      AND (
-                                        BINARY MODULO = ""CARACTERIZACIÓN"" OR
-                                        BINARY MODULO = ""DIAGNÓSTICO"" OR 
-                                        BINARY MODULO = ""PLANIFICACIÓN"" OR
-                                        BINARY MODULO = ""DOCUMENTACIÓN"" OR
-                                        BINARY MODULO = ""FORMACIÓN E E-LEARNING"" OR
-                                        BINARY MODULO = ""NOTICIAS"" OR
-                                        BINARY MODULO = ""AUDITORÍA INTERNA"" OR
-                                        BINARY MODULO = ""EVIDENCIA E IMPLEMENTACIÓN"" OR
-                                        BINARY MODULO = ""ALTA GERENCIA"" OR 
-                                        BINARY MODULO = ""MEDICIÓN Y KPI's"" OR
-                                        BINARY MODULO = ""MEJORA CONTINUA"" OR
-                                        BINARY MODULO = ""MONITORIZACIÓN""
-                                      )
-                                      AND ESTADO = 1";
+                 FROM MonitorizacionUsuario 
+                 WHERE FK_ID_USUARIO = @idUser 
+                      AND (
+                        BINARY MODULO = ""Caracterización"" OR
+                        BINARY MODULO = ""Autodiagnóstico"" OR 
+                        BINARY MODULO = ""Gestor De Tareas"" OR
+                        BINARY MODULO = ""Documentación"" OR
+                        BINARY MODULO = ""Formación E E-Learning"" OR
+                        BINARY MODULO = ""Noticias"" OR
+                        BINARY MODULO = ""Auditoría Interna"" OR
+                        BINARY MODULO = ""Evidencia E Implementación"" OR
+                        BINARY MODULO = ""Alta Gerencia"" OR 
+                        BINARY MODULO = ""Medición Y Kpi's"" OR
+                        BINARY MODULO = ""Mejora Continua"" OR
+                        BINARY MODULO = ""Monitorización""
+                      )
+                      AND ESTADO = 1";
                 var paramBusqueda = new
                 {
                     idUser = data.FK_ID_USUARIO

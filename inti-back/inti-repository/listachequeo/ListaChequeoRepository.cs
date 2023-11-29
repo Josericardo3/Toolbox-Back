@@ -168,7 +168,7 @@ namespace inti_repository.listachequeo
             };
             var datadescCalificacion = db.Query<Maestro>(querydescCalificacion, parameterIdCalificacion).ToList();
 
-            var queryNorma = @"SELECT * FROM  MaeNorma WHERE ID_NORMA = @id";
+            var queryNorma = @"SELECT a.ID_NORMA, b.FK_ID_CATEGORIA_RNT, a.NORMA, a.CODIGO, a.ADICIONAL, a.ESTADO  FROM MaeNorma a INNER JOIN MaeNormaCategoria b ON a.ID_NORMA = b.FK_ID_NORMA WHERE a.ID_NORMA = @id";
             var parameterIdNorma = new
             {
                 id = idnorma

@@ -405,7 +405,7 @@ namespace inti_repository.auditoria
 
             var dataIdUsuario = db.QueryFirstOrDefault<int>(querypst, param);
 
-            var querynorma = @"SELECT b.NORMA FROM Pst a  INNER JOIN MaeNorma b ON a.FK_ID_CATEGORIA_RNT = b.FK_ID_CATEGORIA_RNT WHERE a.ID_PST = 436 AND a.ESTADO = TRUE";
+            var querynorma = @" SELECT b.NORMA FROM Pst a  INNER JOIN MaeNormaCategoria cn ON a.FK_ID_CATEGORIA_RNT = cn.FK_ID_CATEGORIA_RNT INNER JOIN MaeNorma b ON cn.FK_ID_NORMA = b.ID_NORMA WHERE a.ID_PST = @ID_PST AND a.ESTADO = TRUE";
             var paramnorma = new
             {
                 ID_PST = dataauditoria.FK_ID_PST

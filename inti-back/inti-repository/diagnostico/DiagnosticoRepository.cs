@@ -22,6 +22,7 @@ namespace inti_repository.diagnostico
         public async Task<ResponseDiagnostico> GetResponseDiagnostico(int idnorma, int idusuario, int etapa, int idValorTituloFormulariodiagnostico, int idValorMaestroDiagnostico)
         {
             var db = dbConnection();
+  
             var queryDesplegableDiagnostico = @"SELECT * FROM MaeGeneral WHERE ID_TABLA = @idtabla and ITEM=@iditem";
             var parameters = new
             {
