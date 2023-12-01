@@ -55,6 +55,8 @@ namespace inti_model.DTOs
         public List<VariablesEvaluacionDTO> VARIABLES_EVALUACION { get; set; }
         public string SEMAFORIZACION { get; set; }
         public string FECHA_PERIODO_SMALL { get; set; }
+        public bool? ES_INCREMENTO { get; set; }
+        public bool ES_DISMINUIR { get; set; }
     }
     public class VariablesEvaluacionDTO
     {

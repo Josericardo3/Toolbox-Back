@@ -39,6 +39,7 @@ namespace inti_model.ViewModels
         public int ID_PERIODO_MEDICION { get; set; }
         public int ID_FUENTE_DATO { get; set; }
         public int META {  get; set; }
+        public bool? ES_INCREMENTO { get; set; }
         public List<ProcesosViewModel> Procesos { get; set; } = new List<ProcesosViewModel>();
     }
     public class ProcesosViewModel

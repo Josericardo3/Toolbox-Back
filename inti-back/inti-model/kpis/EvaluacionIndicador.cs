@@ -70,5 +70,6 @@ namespace inti_model.kpis
         public string FORMULA { get; set; }
         public DateTime? FECHA_RECORDATORIO { get; set; }
         public TimeSpan? HORA_RECORDATORIO { get; set; }
+        public bool? ES_INCREMENTO { get; set; }
     }
 }

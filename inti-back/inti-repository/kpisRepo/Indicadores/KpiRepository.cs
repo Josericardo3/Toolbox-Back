@@ -322,7 +322,8 @@ namespace inti_repository.kpisRepo
                         FECHA_FIN_MEDICION= peridoFin,
                         FORMULA=queryIndicador.FORMULA_TEXT,
                         PERIODO = $"DEL {baseHelpers.DateTimePst():dd/MM/yyyy} AL {peridoFin:dd/MM/yyyy} ",
-                        META=model.META
+                        META=model.META,
+                        ES_INCREMENTO=model.ES_INCREMENTO
 
                     };
                     Context.EvaluacionIndicadores.Add(objDetaEvalInd);
@@ -410,6 +411,8 @@ namespace inti_repository.kpisRepo
                     SEMAFORIZACION=$"{x.META-10}",
                     FECHA_PERIODO = $"DEL {x.FECHA_INICIO_MEDICION:dd/MM/yyyy} AL {x.FECHA_FIN_MEDICION:dd/MM/yyyy} ",
                     FECHA_PERIODO_SMALL = $"{x.FECHA_INICIO_MEDICION:dd/MM/yyyy} - {x.FECHA_FIN_MEDICION:dd/MM/yyyy} ",
+                    ES_INCREMENTO=x.ES_INCREMENTO,
+                    ES_DISMINUIR=x.ES_INCREMENTO==true?false:true,
                     VARIABLES_EVALUACION = Context.VariablesEvaluacionIndicadores.Include(y => y.Variable).Where(y => y.ID_EVALUACION_INDICADOR == x.ID_EVALUACION_INDICADOR && y.ID_INDICADOR == x.ID_INDICADOR).Select(y => new VariablesEvaluacionDTO
                     {
                         ID_VARIABLE_EVALUACION_INDICADOR = y.ID_VARIABLE_EVALUACION_INDICADOR,
