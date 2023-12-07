@@ -71,5 +71,6 @@ namespace inti_model.usuario
 
         public bool ESAVATAR {  get; set; }
         public string? LOGO { get; set; }
+        public string APELLIDO_REPRESENTANTE_LEGAL { get; set; }
     }
 }

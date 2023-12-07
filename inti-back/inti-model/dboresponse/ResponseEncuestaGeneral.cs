@@ -13,6 +13,8 @@ namespace inti_model.dboresponse
         public string? TITULO { get; set; }
         public string? DESCRIPCION { get; set; }
         public int NUM_ENCUESTADOS { get; set; }
+        public DateTime FECHA_REG { get; set; }
+        public DateTime FECHA_ACT { get; set; }
 
     }
 

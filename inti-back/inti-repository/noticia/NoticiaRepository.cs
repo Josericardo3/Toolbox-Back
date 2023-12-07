@@ -530,6 +530,7 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
                             NULL AS DESCRIPCION_ACTIVIDAD,
                             NULL AS FECHA_INICIO_ACTIVIDAD,
                             NULL AS FECHA_FIN_ACTIVIDAD,
+                            NULL AS FECHA_REGISTRO_ACTIVIDAD,
                             a.FK_ID_NOTICIA,
                             u.NOMBRE AS NOMBRE_FIRMA,
                             d.TITULO AS TITULO_NOTICIA,
@@ -566,6 +567,7 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
                             c.DESCRIPCION AS DESCRIPCION_ACTIVIDAD,
                             c.FECHA_INICIO AS FECHA_INICIO_ACTIVIDAD,
                             c.FECHA_FIN AS FECHA_FIN_ACTIVIDAD,
+                            c.FECHA_REG AS FECHA_REGISTRO_ACTIVIDAD,
                             NULL AS FK_ID_NOTICIA,
                             NULL AS NOMBRE_FIRMA,
                             NULL AS TITULO_NOTICIA,
@@ -592,7 +594,7 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
 												WHERE p.FK_ID_USUARIO =  (SELECT p.FK_ID_USUARIO FROM Pst p WHERE p.RNT = (SELECT u.RNT FROM Usuario u WHERE ID_USUARIO = @iduser)))
 							AND DATE_FORMAT(STR_TO_DATE(c.FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d') >= CURDATE()
                             AND DATE_FORMAT(STR_TO_DATE(c.FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d') <= DATE_ADD(CURDATE(), INTERVAL 1 WEEK))
-                        ORDER BY c.FECHA_FIN ASC
+                        ORDER BY c.FECHA_REG DESC
                         LIMIT 5
                     )
                 ) as result;";
@@ -608,6 +610,7 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
                             NULL AS DESCRIPCION_ACTIVIDAD,
                             NULL AS FECHA_INICIO_ACTIVIDAD,
                             NULL AS FECHA_FIN_ACTIVIDAD,
+                            NULL AS FECHA_REGISTRO_ACTIVIDAD,
                             a.FK_ID_NOTICIA,
                             u.NOMBRE AS NOMBRE_FIRMA,
                             d.TITULO AS TITULO_NOTICIA,
@@ -635,6 +638,7 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
                             c.DESCRIPCION AS DESCRIPCION_ACTIVIDAD,
                             c.FECHA_INICIO AS FECHA_INICIO_ACTIVIDAD,
                             c.FECHA_FIN AS FECHA_FIN_ACTIVIDAD,
+                            c.FECHA_REG AS FECHA_REGISTRO_ACTIVIDAD,
                             NULL AS FK_ID_NOTICIA,
                             NULL AS NOMBRE_FIRMA,
                             NULL AS TITULO_NOTICIA,
@@ -652,7 +656,7 @@ DATE_FORMAT(STR_TO_DATE(FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d')< CURDATE() OR DATE_F
                             AND c.FK_ID_USUARIO_PST = @iduser 
                             AND DATE_FORMAT(STR_TO_DATE(c.FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d') >= CURDATE()
                             AND DATE_FORMAT(STR_TO_DATE(c.FECHA_FIN, '%d-%m-%Y'), '%Y-%m-%d') <= DATE_ADD(CURDATE(), INTERVAL 1 WEEK)
-                        ORDER BY c.FECHA_FIN ASC
+                        ORDER BY c.FECHA_REG DESC
                         LIMIT 5
                     )
                 ) AS result;";

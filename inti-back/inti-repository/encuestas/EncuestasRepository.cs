@@ -127,7 +127,7 @@ namespace inti_repository.encuestas
             var resultrnt = db.QueryFirstOrDefault<string>(dataRnt, parameter);
 
             var queryEncuesta = @"
-                                    SELECT 
+                                     SELECT 
                                         me.ID_MAE_ENCUESTA,me.TITULO, me.DESCRIPCION, COALESCE(MAX(re.NUM_ENCUESTADO),0) as NUM_ENCUESTADOS, me.FECHA_REG, COALESCE(me.FECHA_ACT, me.FECHA_REG) AS FECHA_ACT
                                     FROM
                                         MaeEncuesta me
@@ -137,7 +137,7 @@ namespace inti_repository.encuestas
                                     WHERE
                                      me.ESTADO = 1 AND u.RNT = @RNT
                                     GROUP BY
-                                        me.ID_MAE_ENCUESTA, me.TITULO, me.DESCRIPCION;";
+                                        me.ID_MAE_ENCUESTA, me.TITULO, me.DESCRIPCION ORDER BY GREATEST(COALESCE(me.FECHA_ACT, me.FECHA_REG), me.FECHA_REG) DESC;;";
             var parameterrnt = new
             {
                 RNT = resultrnt
