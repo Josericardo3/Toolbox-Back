@@ -2,6 +2,7 @@
 using inti_model.dboresponse;
 using inti_model;
 using Microsoft.AspNetCore.Components.Web;
+using inti_model.Base;
 
 namespace inti_repository.usuario
 {
@@ -9,7 +10,7 @@ namespace inti_repository.usuario
     {
         Task<ResponseUsuarioPst> GetUsuarioPst(int id);
         Task<dynamic> GetUsuarioPstRegistro(int id);
-        Task<bool> InsertUsuarioPst(UsuarioPstPost usuariopst);
+        Task<string> InsertUsuarioPst(UsuarioPstPost usuariopst);
         Task<string> UpdateUsuarioPst(UsuarioPstUpd usuariopst);
         Task<bool> DeleteUsuarioPst(int id);
         Task<UsuarioPstLogin> LoginUsuario(InputLogin objLogin);
@@ -22,9 +23,7 @@ namespace inti_repository.usuario
         Task<IEnumerable<dynamic>> GetPstRoles(int rnt);
         Task<bool> DeletePstRoles(int pst);
         Task<bool> UpdatePstRoles(PstRolesUpdateModel pstRolesUpdateModel);
-
-
-
+        Task<BaseResponseDTO> ActivarCuenta(string codigo);
 
 
     }

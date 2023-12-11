@@ -6,12 +6,14 @@ using MySql.Data.MySqlClient;
 using System.Data;
 using inti_model.caracterizacion;
 using System.Net.WebSockets;
+using inti_model.Base;
+using Microsoft.AspNetCore.Http;
 
 namespace inti_repository.usuario
 {
     public class UsuarioPstRepository : IUsuarioPstRepository
     {
-
+        private BaseHelpers baseHelpers = new BaseHelpers();
         private readonly MySQLConfiguration _connectionString;
         public UsuarioPstRepository(MySQLConfiguration connectionString)
         {
@@ -257,8 +259,9 @@ namespace inti_repository.usuario
             var result = await db.QueryFirstOrDefaultAsync<ResponseUsuarioPst>(sql, parameterid);
             return result;
         }
-        public async Task<bool> InsertUsuarioPst(UsuarioPstPost usuariopst)
+        public async Task<string> InsertUsuarioPst(UsuarioPstPost usuariopst)
         {
+            var respuesta = "";
             var fecha_registro = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
             var db = dbConnection();
             var sql = @"INSERT INTO Pst(NIT,RNT,FK_ID_CATEGORIA_RNT,FK_ID_SUB_CATEGORIA_RNT,NOMBRE_PST,RAZON_SOCIAL_PST,CORREO_PST,TELEFONO_PST,NOMBRE_REPRESENTANTE_LEGAL,CORREO_REPRESENTANTE_LEGAL,TELEFONO_REPRESENTANTE_LEGAL,FK_ID_TIPO_IDENTIFICACION,IDENTIFICACION_REPRESENTANTE_LEGAL,DEPARTAMENTO,MUNICIPIO,NOMBRE_RESPONSABLE_SOSTENIBILIDAD,CORREO_RESPONSABLE_SOSTENIBILIDAD,TELEFONO_RESPONSABLE_SOSTENIBILIDAD,FK_ID_TIPO_AVATAR,LOGO,FECHA_REG,APELLIDO_REPRESENTANTE_LEGAL) 
@@ -305,7 +308,7 @@ namespace inti_repository.usuario
             };
             var data = await db.QueryFirstAsync<UsuarioPst>(sqlusuario, parameterPst);
 
-            var queryUsuario = @"INSERT INTO Usuario(FK_ID_PST,NOMBRE,RNT,ID_TIPO_USUARIO,CORREO,PASSWORD,FECHA_REG) VALUES(@FK_ID_PST,@NOMBRE,@RNT,@ID_TIPO_USUARIO,@CORREO,SHA1(@PASSWORD),@FECHA_REG)";
+            var queryUsuario = @"INSERT INTO Usuario(FK_ID_PST,NOMBRE,RNT,ID_TIPO_USUARIO,CORREO,PASSWORD,FECHA_REG,CODIGO_ACTIVACION) VALUES(@FK_ID_PST,@NOMBRE,@RNT,@ID_TIPO_USUARIO,@CORREO,SHA1(@PASSWORD),@FECHA_REG,SHA1(@CODIGO_ACTIVACION))";
             var parameterUser = new
             {
                 FK_ID_PST = idPst,
@@ -314,7 +317,8 @@ namespace inti_repository.usuario
                 ID_TIPO_USUARIO = 1,
                 CORREO = usuariopst.CORREO_PST,
                 PASSWORD = usuariopst.PASSWORD,
-                FECHA_REG = fecha_registro
+                FECHA_REG = fecha_registro,
+                CODIGO_ACTIVACION=$"{usuariopst.NOMBRE_PST}{usuariopst.CORREO_PST}" 
             };
             var dataUsuario = await db.ExecuteAsync(queryUsuario, parameterUser);
 
@@ -339,7 +343,8 @@ namespace inti_repository.usuario
                         ps.NIT,
                         u.RNT,
                         u.CORREO ,
-                        u.PASSWORD 
+                        u.PASSWORD,
+                        u.CODIGO_ACTIVACION
                     FROM
                         Pst ps
                             LEFT JOIN
@@ -362,9 +367,9 @@ namespace inti_repository.usuario
             };
             var resultPermisoPST = await db.ExecuteAsync(insertPermisoPST, parameterIdUsuario);
 
-            
+            respuesta = objUsuarioLogin.CODIGO_ACTIVACION == null ? "" : objUsuarioLogin.CODIGO_ACTIVACION;
 
-            return result > 0;
+            return respuesta;
         }
         public async Task<string> UpdateUsuarioPst(UsuarioPstUpd usuariopst)
         {
@@ -452,7 +457,7 @@ namespace inti_repository.usuario
                         Usuario u ON u.RNT = ps.RNT
                     WHERE
                         u.ESTADO = 1 AND ps.ESTADO = 1 AND
-                        u.RNT = @user AND u.PASSWORD = SHA1(@PASSWORD) AND u.CORREO = @Correopst";
+                        u.RNT = @user AND u.PASSWORD = SHA1(@PASSWORD) AND u.CORREO = @Correopst AND u.FECHA_ACTIVACION IS NOT NULL";
             }
             else
             {
@@ -539,10 +544,11 @@ namespace inti_repository.usuario
                 ID_TIPO_USUARIO = idcargo,
                 CORREO = correo,
                 PASSWORD = 123,
-                FECHA_REG = fecha_registro
+                FECHA_REG = fecha_registro,
+                FECHA_ACTIVACION = fecha_registro
             };
-            var sqlUsuario = @"INSERT INTO Usuario(FK_USUARIO_ROLES,RNT,NOMBRE,ID_TIPO_USUARIO,CORREO,PASSWORD,FECHA_REG) 
-                            VALUES(@FK_USUARIO_ROLES,@RNT,@NOMBRE,@ID_TIPO_USUARIO,@CORREO,SHA1(@PASSWORD),@FECHA_REG)";
+            var sqlUsuario = @"INSERT INTO Usuario(FK_USUARIO_ROLES,RNT,NOMBRE,ID_TIPO_USUARIO,CORREO,PASSWORD,FECHA_REG,FECHA_ACTIVACION) 
+                            VALUES(@FK_USUARIO_ROLES,@RNT,@NOMBRE,@ID_TIPO_USUARIO,@CORREO,SHA1(@PASSWORD),@FECHA_REG,@FECHA_ACTIVACION)";
             var resultUsuario = await db.ExecuteAsync(sqlUsuario, parameteruser);
 
             var queryEmpleado = @"Select * from Usuario where CORREO = @correo and NOMBRE = @nombre and ESTADO = true";
@@ -714,6 +720,75 @@ namespace inti_repository.usuario
             });
 
             return result > 0;
+        }
+
+        public async Task<BaseResponseDTO> ActivarCuenta(string codigo)
+        {
+            var respuesta = new BaseResponseDTO();
+            try
+            {
+                var db = dbConnection();
+                var sqlUsuario = @"SELECT ID_USUARIO,PASSWORD,CORREO,FECHA_ACTIVACION FROM Usuario WHERE CODIGO_ACTIVACION=@CODIGO_ACTIVACION
+                                        
+                                        AND ESTADO = 1";
+
+
+                var queryUsuario = @"
+                                UPDATE Usuario 
+                                SET 
+                                    FECHA_ACTIVACION=@FECHA_ACTIVACION
+                                WHERE
+                                        CODIGO_ACTIVACION=@CODIGO_ACTIVACION
+                                        AND FECHA_ACTIVACION IS NULL
+                                        AND ESTADO = 1";
+                var parameters = new
+                {
+                    CODIGO_ACTIVACION = codigo,
+                    FECHA_ACTIVACION = baseHelpers.DateTimePst()
+                };
+                var objUsuarioLogin = db.QueryFirstOrDefault<UsuarioPstLogin>(sqlUsuario, parameters);
+                if (objUsuarioLogin == null)
+                {
+                    respuesta.Mensaje = "No se encuentra usuario.";
+                    respuesta.Confirmacion = false;
+
+                    return respuesta;
+                }
+                if (objUsuarioLogin.FECHA_ACTIVACION != null)
+                {
+                    respuesta.Mensaje = "El usuario ya ha sido validado.";
+                    respuesta.Confirmacion = true;
+                    
+                    return respuesta;
+                }
+                
+                var resultUsuario = await db.ExecuteAsync(queryUsuario, parameters);
+
+                if(resultUsuario>0)
+                {
+                    respuesta.Mensaje = "Activación de la Cuenta de Usuario Correctamente.";
+                    respuesta.Confirmacion = true;
+                    return respuesta;
+                }
+                else
+                {
+                    respuesta.Mensaje = "No se puede activar la cuenta de Usuario";
+                    respuesta.Confirmacion = false;
+                    return respuesta;
+                }
+
+            }
+            catch (Exception ex)
+            {
+                respuesta.Mensaje = "No se puede activar la cuenta de Usuario";
+
+                respuesta.Exception = ex.Message;
+                
+            }
+
+            return respuesta;
+
+
         }
 
     }

@@ -15,7 +15,8 @@ namespace inti_model.usuario
         public string? HoraLogueo { get; set; }
         public string? TokenAcceso { get; set; }
         public string? TokenRefresco { get; set; }
-
+        public string? CODIGO_ACTIVACION { get; set; }
+        public string? FECHA_ACTIVACION { get; set; }
         public List<Permiso> Grupo { get; set; }
         public List<Permiso> SubGrupo { get; set; }
         public List<Permiso> permisoUsuario { get; set; }

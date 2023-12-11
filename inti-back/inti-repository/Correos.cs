@@ -176,9 +176,10 @@ namespace inti_repository
             return idsh1;
         }
 
-        public string Registro()
+        public string Registro(string create)
         {
             string enlaceLogin = this.Configuration.GetValue<string>("Settings:Login");
+            enlaceLogin = enlaceLogin + $"/{create}";
             string enlaceRecovery = enlaceLogin + "/recovery";
             String htmlRegistro = @"
             <!DOCTYPE html>
@@ -337,7 +338,7 @@ namespace inti_repository
                       <p class='texto'>Felicitaciones por tu registro en la plataforma <span style='color:#686868;'>HECATUR</span>.</p>
                     </div>
                     <div class='cuarta_seccion'>
-                         <p class='texto'>Ingresa ya haciendo clic en el siguiente enlace con tus credenciales</p>
+                         <p class='texto'>Para validar su cuenta, ingrese haciendo clic en el siguiente enlace</p>
                     </div>"+
                     $"<a class='btn-ingresar' href='{enlaceLogin}'>INGRESAR</a>"+
                     @"<div class='quinta_seccion'>

@@ -167,7 +167,7 @@ namespace inti_back.Controllers
             {
                 string subject = "Registro Exitoso";
                 Correos envio = new(Configuration);
-                String cuerpo = envio.Registro();
+                String cuerpo = envio.Registro("");
                 var estado = envio.EnviarCorreoRegistro(correo, subject, cuerpo);
                 if (estado == 0)
                 {

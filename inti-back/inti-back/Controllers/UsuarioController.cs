@@ -7,6 +7,7 @@ using inti_model;
 using inti_repository.usuario;
 using inti_repository.validaciones;
 using Org.BouncyCastle.Pkcs;
+using inti_model.Filters;
 
 namespace inti_back.Controllers
 {
@@ -105,9 +106,11 @@ namespace inti_back.Controllers
             try
             {
                 var create = await _usuarioPstRepository.InsertUsuarioPst(usuariopst);
+
                 Correos envio = new(Configuration);
-                String Cuerpo = envio.Registro();
-                String Subject = "Se creó tu cuenta satisfactoriamente";
+                String Cuerpo = envio.Registro(create);
+                //String Subject = "Se creó tu cuenta satisfactoriamente";
+                String Subject = "Verificación de cuenta";
                 int result = envio.EnviarCorreoRegistro(usuariopst.CORREO_PST, Subject, Cuerpo);
                 String? mensaje = "";
                 if (result == 0)
@@ -422,6 +425,12 @@ namespace inti_back.Controllers
                     ex.Message
                 });
             }
+        }
+        [HttpPost("activar")]
+        public async Task<IActionResult> ActivarCuenta(string codigo)
+        {
+            var response = await _usuarioPstRepository.ActivarCuenta(codigo);
+            return Ok(response);
         }
 
     }
