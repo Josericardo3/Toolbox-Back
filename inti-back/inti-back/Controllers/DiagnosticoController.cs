@@ -92,5 +92,24 @@ namespace inti_back.Controllers
 
         }
 
+        [HttpGet("PorcentajeEtapas")]
+        public async Task<IActionResult> GetPorcentajeEtapas(int idnorma, int idusuario)
+        {
+            try
+            {
+                var response = await _diagnosticoRepository.GetPorcentajeEtapas(idnorma,idusuario);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "Ocurrió un error al seleccionar la data",
+                    ex.Message
+                });
+            }
+        }
+
     }
 }

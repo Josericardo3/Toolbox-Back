@@ -220,6 +220,44 @@ namespace inti_repository.diagnostico
             var insertRpta = await db.ExecuteAsync(dataRpta, parameterRespuesta);
             return insertRpta > 0;
         }
+        public async Task<IEnumerable<dynamic>> GetPorcentajeEtapas(int idnorma, int idusuario)
+        {
+            var db = dbConnection();
+            var sql = @"
+                   SELECT 
+                    FK_ID_USUARIO,
+                    ETAPA,
+                    COUNT(ID_RESPUESTA_DIAGNOSTICO) AS RESPUESTAS,
+                    (SELECT COUNT(ID_DIAGNOSTICO_DINAMICO) FROM MaeDiagnosticoDinamico WHERE FK_ID_NORMA = 1 AND ETAPA = RespuestaDiagnostico.ETAPA) as PREGUNTAS,
+                    COUNT(ID_RESPUESTA_DIAGNOSTICO) / (SELECT COUNT(ID_DIAGNOSTICO_DINAMICO) FROM MaeDiagnosticoDinamico WHERE FK_ID_NORMA = 1 AND ETAPA = RespuestaDiagnostico.ETAPA) * 100 AS PORCENTAJE
+                FROM RespuestaDiagnostico
+                WHERE FK_ID_USUARIO = @idusuario AND FK_ID_NORMA = @idnorma
+                GROUP BY FK_ID_USUARIO, ETAPA;";
+            var parameterid = new
+            {
+                idusuario= idusuario,
+                idnorma = idnorma
+            };
+            var data = await db.QueryAsync(sql, parameterid);
 
+            var result = data.GroupBy(row => new
+            {
+                FK_ID_USUARIO = row.FK_ID_USUARIO,
+                ETAPA = row.ETAPA,
+                RESPUESTAS = row.RESPUESTAS,
+                PREGUNTAS = row.PREGUNTAS,
+                PORCENTAJE = row.PORCENTAJE
+            })
+            .Select(group => new
+            {
+                FK_ID_USUARIO = group.Key.FK_ID_USUARIO,
+                ETAPA = group.Key.ETAPA,
+                RESPUESTAS = group.Key.RESPUESTAS,
+                PREGUNTAS = group.Key.PREGUNTAS,
+                PORCENTAJE = group.Key.PORCENTAJE
+            });
+
+            return result;
+        }
     }
 }

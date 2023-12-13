@@ -139,7 +139,7 @@ namespace inti_back.Controllers
 
         [HttpGet("Respuestas")]
         [AllowAnonymous]
-        public async Task<IActionResult> GetGetRespuestasEncuesta(int idEncuesta)
+        public async Task<IActionResult> GetRespuestasEncuesta(int idEncuesta)
         {
             try
             {
