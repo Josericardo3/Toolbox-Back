@@ -216,9 +216,10 @@ app.UseSwaggerUI();
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
+app.UseAuthorization();
 app.UseMiddleware<CustomDelegatingHandler>();
 
-app.UseAuthorization();
+
 app.UseStaticFiles();
 app.MapControllers();
 /*app.Use(async (context, next) =>

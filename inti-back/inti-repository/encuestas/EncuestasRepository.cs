@@ -40,8 +40,8 @@ namespace inti_repository.encuestas
                     {
                         pregunta.FK_MAE_ENCUESTA = idEncuesta;
 
-                        var querypregunta = @"INSERT INTO MaeEncuestaPregunta (FK_MAE_ENCUESTA,DESCRIPCION,TIPO,VALOR,OBLIGATORIO,FECHA_REG)
-                                       VALUES(@FK_MAE_ENCUESTA,@DESCRIPCION,@TIPO,@VALOR,@OBLIGATORIO,NOW())";
+                        var querypregunta = @"INSERT INTO MaeEncuestaPregunta (FK_MAE_ENCUESTA,DESCRIPCION,TIPO,VALOR,ORDEN,OBLIGATORIO,FECHA_REG)
+                                       VALUES(@FK_MAE_ENCUESTA,@DESCRIPCION,@TIPO,@VALOR,@ORDEN,@OBLIGATORIO,NOW())";
 
                         var parameterPregunta = new
                         {
@@ -49,6 +49,7 @@ namespace inti_repository.encuestas
                             pregunta.DESCRIPCION,
                             pregunta.TIPO,
                             pregunta.VALOR,
+                            pregunta.ORDEN,
                             pregunta.OBLIGATORIO
                         };
                          var dataPregunta = await db.ExecuteAsync(querypregunta, parameterPregunta);
@@ -79,8 +80,8 @@ namespace inti_repository.encuestas
                 {
                     pregunta.FK_MAE_ENCUESTA = encuesta.ID_MAE_ENCUESTA;
 
-                    var querypregunta = @"INSERT INTO MaeEncuestaPregunta (FK_MAE_ENCUESTA,DESCRIPCION,TIPO,VALOR,OBLIGATORIO,FECHA_REG)
-                                       VALUES(@FK_MAE_ENCUESTA,@DESCRIPCION,@TIPO,@VALOR,@OBLIGATORIO,NOW())";
+                    var querypregunta = @"INSERT INTO MaeEncuestaPregunta (FK_MAE_ENCUESTA,DESCRIPCION,TIPO,VALOR,ORDEN,OBLIGATORIO,FECHA_REG)
+                                       VALUES(@FK_MAE_ENCUESTA,@DESCRIPCION,@TIPO,@VALOR,@ORDEN,@OBLIGATORIO,NOW())";
 
                     var parameterPregunta = new
                     {
@@ -88,6 +89,7 @@ namespace inti_repository.encuestas
                         pregunta.DESCRIPCION,
                         pregunta.TIPO,
                         pregunta.VALOR,
+                        pregunta.ORDEN,
                         pregunta.OBLIGATORIO
                     };
                     var dataPregunta = await db.ExecuteAsync(querypregunta, parameterPregunta);
@@ -98,6 +100,7 @@ namespace inti_repository.encuestas
                                         DESCRIPCION = @DESCRIPCION, 
                                         TIPO = @TIPO,
                                         VALOR = @VALOR,
+                                        ORDEN = @ORDEN,
                                         OBLIGATORIO = @OBLIGATORIO,
                                         FECHA_ACT = NOW() WHERE 
                                         ID_MAE_ENCUESTA_PREGUNTA = @ID_MAE_ENCUESTA_PREGUNTA";
@@ -107,6 +110,7 @@ namespace inti_repository.encuestas
                         pregunta.DESCRIPCION,
                         pregunta.TIPO,
                         pregunta.VALOR,
+                        pregunta.ORDEN,
                         pregunta.OBLIGATORIO,
                         pregunta.ID_MAE_ENCUESTA_PREGUNTA
                     };
@@ -166,7 +170,7 @@ namespace inti_repository.encuestas
             MaeEncuesta dataEncuesta = await db.QueryFirstAsync<MaeEncuesta>(queryEncuesta, parameterid);
 
             var queryEncuestaPreg = @"
-                                    SELECT ID_MAE_ENCUESTA_PREGUNTA, FK_MAE_ENCUESTA, DESCRIPCION, TIPO,VALOR, OBLIGATORIO 
+                                    SELECT ID_MAE_ENCUESTA_PREGUNTA, FK_MAE_ENCUESTA, DESCRIPCION, TIPO,VALOR,ORDEN, OBLIGATORIO 
                                     FROM MaeEncuestaPregunta WHERE ESTADO = 1 AND FK_MAE_ENCUESTA =@ID_ENCUESTA;";
    
             var queryEncuestap = await db.QueryAsync<MaeEncuestaPregunta>(queryEncuestaPreg, parameterid);
@@ -182,7 +186,7 @@ namespace inti_repository.encuestas
         {
             var db = dbConnection();
             var sql = @"
-                   SELECT a.ID_RESPUESTA_ENCUESTA, c.ID_MAE_ENCUESTA, c.TITULO, c.DESCRIPCION, a.NUM_ENCUESTADO, b.DESCRIPCION as DESCRIPCION_PREGUNTA, b.TIPO, b.VALOR,
+                   SELECT a.ID_RESPUESTA_ENCUESTA, c.ID_MAE_ENCUESTA, c.TITULO, c.DESCRIPCION, a.NUM_ENCUESTADO, b.DESCRIPCION as DESCRIPCION_PREGUNTA, b.TIPO, b.VALOR,b.ORDEN,
                         b.OBLIGATORIO, a.RESPUESTA, a.FECHA_REG
                     FROM RespuestaEncuesta a INNER JOIN MaeEncuestaPregunta b ON a.FK_ID_MAE_ENCUESTA_PREGUNTA = b.ID_MAE_ENCUESTA_PREGUNTA 
                     INNER JOIN MaeEncuesta c 
@@ -209,6 +213,7 @@ namespace inti_repository.encuestas
                     DESCRIPCION_PREGUNTA = row.DESCRIPCION_PREGUNTA,
                     TIPO = row.TIPO,
                     VALOR = row.VALOR,
+                    ORDEN = row.ORDEN,
                     OBLIGATORIO = row.OBLIGATORIO,
                     RESPUESTA = row.RESPUESTA,
                     FECHA_REG = row.FECHA_REG,

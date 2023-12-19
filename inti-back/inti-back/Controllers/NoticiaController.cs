@@ -11,9 +11,11 @@ using System.Linq.Expressions;
 using Microsoft.AspNetCore.Server.IIS.Core;
 using inti_repository;
 using System.Configuration;
+using Microsoft.AspNetCore.Authorization;
 
 namespace inti_back.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class NoticiaController : Controller

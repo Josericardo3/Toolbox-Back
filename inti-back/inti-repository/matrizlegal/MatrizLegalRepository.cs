@@ -119,25 +119,35 @@ namespace inti_repository.matrizlegal
             return await db.QueryAsync<ResponseMatrizLegal>(sql, parameterUserDoc);
         }
 
-        public async Task<bool> InsertLey(InputMatrizLegal oMatrizLegal)
+        public async Task<bool> InsertLey(List<InputMatrizLegal> ListMatrizLegal)
         {
+            
             var db = dbConnection();
+            var result = 0;
+
             var sql = @"INSERT INTO MaeLegal(ID_TABLA,ID_DOCUMENTO,CATEGORIA,TIPO_NORMATIVIDAD,NUMERO,ANIO,EMISOR,DESCRIPCION,DOCS_ESPECIFICOS,ES_FIJO,ID_USUARIO_REG) 
                         VALUES (13,@idDoc,@categoria,@tipoNorma,@numero,@anio,@emisor,@descripcion,@docsEspecificos,@esfijo,@idUsuario) ";
-            var parameters = new
+            foreach (var oMatrizLegal in ListMatrizLegal)
             {
-                idDoc = oMatrizLegal.ID_DOCUMENTO,
-                categoria = oMatrizLegal.CATEGORIA,
-                tipoNorma = oMatrizLegal.TIPO_NORMATIVIDAD,
-                numero = oMatrizLegal.NUMERO,
-                anio = oMatrizLegal.ANIO,
-                emisor = oMatrizLegal.EMISOR,
-                descripcion = oMatrizLegal.DESCRIPCION,
-                docsEspecificos = oMatrizLegal.DOCS_ESPECIFICOS,
-                esfijo = oMatrizLegal.ES_FIJO,
-                idUsuario = oMatrizLegal.ID_USUARIO_REG
-            };
-            var result = await db.ExecuteAsync(sql, parameters);
+                var parameters = new
+                {
+                    idDoc = oMatrizLegal.ID_DOCUMENTO,
+                    categoria = oMatrizLegal.CATEGORIA,
+                    tipoNorma = oMatrizLegal.TIPO_NORMATIVIDAD,
+                    numero = oMatrizLegal.NUMERO,
+                    anio = oMatrizLegal.ANIO,
+                    emisor = oMatrizLegal.EMISOR,
+                    descripcion = oMatrizLegal.DESCRIPCION,
+                    docsEspecificos = oMatrizLegal.DOCS_ESPECIFICOS,
+                    esfijo = oMatrizLegal.ES_FIJO,
+                    idUsuario = oMatrizLegal.ID_USUARIO_REG
+                };
+                result = await db.ExecuteAsync(sql, parameters);
+
+
+            }
+
+            
             return result > 0;
         }
         public async Task<bool> RespuestaMatrizLegal(RespuestaMatrizLegal respuestaMatrizLegal)

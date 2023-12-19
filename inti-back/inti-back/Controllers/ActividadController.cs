@@ -8,9 +8,11 @@ using System.Threading.Tasks;
 using System.Timers;
 using Microsoft.Extensions.Hosting.Internal;
 using inti_repository;
+using Microsoft.AspNetCore.Authorization;
 
 namespace inti_back.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ActividadController : Controller

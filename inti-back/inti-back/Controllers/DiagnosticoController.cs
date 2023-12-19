@@ -1,9 +1,11 @@
 ﻿using inti_model.diagnostico;
 using inti_repository.diagnostico;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace inti_back.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class DiagnosticoController : ControllerBase

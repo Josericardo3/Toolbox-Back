@@ -352,6 +352,7 @@ namespace inti_back.Controllers
             }
 
         }
+        [Authorize]
         [HttpGet("usuarioPermisosPorPerfil")]
         public async Task<IActionResult> GetPermisosPorPerfil(int idUsuarioPerfil)
         {

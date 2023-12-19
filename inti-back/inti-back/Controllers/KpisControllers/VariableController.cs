@@ -2,10 +2,12 @@
 using inti_model.ViewModels;
 using inti_repository.kpisRepo.PeriodosMedicionRepo;
 using inti_repository.kpisRepo.VariablesRepository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace inti_back.Controllers.KpisControllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class VariableController : ControllerBase

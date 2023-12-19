@@ -9,9 +9,11 @@ using System.Text;
 using System.Security.Cryptography;
 using inti_repository;
 using inti_model.dboresponse;
+using Microsoft.AspNetCore.Authorization;
 
 namespace inti_back.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class GeneralController : ControllerBase
@@ -123,7 +125,7 @@ namespace inti_back.Controllers
             }
         }
 
-
+        [AllowAnonymous]
         [HttpPost("MonitorizacionUsuario")]
         public async Task<IActionResult> postMonitorizacionUsuario(ResponseMonitorizacionUsuario data)
         {

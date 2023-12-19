@@ -4,9 +4,11 @@ using inti_model.dboinput;
 using inti_repository.auditoria;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
+using Microsoft.AspNetCore.Authorization;
 
 namespace inti_back.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class AuditoriaController : Controller

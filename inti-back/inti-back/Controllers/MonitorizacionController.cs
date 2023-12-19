@@ -8,9 +8,11 @@ using System.Timers;
 using Microsoft.Extensions.Options;
 using System.Linq.Expressions;
 using Microsoft.AspNetCore.Server.IIS.Core;
+using Microsoft.AspNetCore.Authorization;
 
 namespace inti_back.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class MonitorizacionController : Controller

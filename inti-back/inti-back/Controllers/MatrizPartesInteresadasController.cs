@@ -3,11 +3,13 @@ using inti_model.matrizpartesinteresadas;
 using inti_model.mejoracontinua;
 using inti_repository.caracterizacion;
 using inti_repository.matrizpartesinteresadas;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace inti_back.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class MatrizPartesInteresadasController : ControllerBase

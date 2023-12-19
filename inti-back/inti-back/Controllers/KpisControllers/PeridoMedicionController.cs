@@ -1,10 +1,12 @@
 ﻿using inti_model.Filters;
 using inti_repository.kpisRepo.Indicadores;
 using inti_repository.kpisRepo.PeriodosMedicionRepo;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace inti_back.Controllers.KpisControllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class PeridoMedicionController : ControllerBase

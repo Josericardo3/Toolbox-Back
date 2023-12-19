@@ -7,9 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace inti_back.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    
     public class EncuestaController : ControllerBase
     {
         private readonly IEncuestasRepository _encuestaRepository;

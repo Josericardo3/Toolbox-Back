@@ -2,10 +2,12 @@
 using inti_model.ViewModels;
 using inti_repository.DocumentoRequerimientoRepo;
 using inti_repository.kpisRepo.AccionRepo;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace inti_back.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class DocumentoRequerimientoController : Controller

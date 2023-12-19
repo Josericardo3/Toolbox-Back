@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using inti_repository.caracterizacion;
 using inti_model.caracterizacion;
+using Microsoft.AspNetCore.Authorization;
 
 namespace inti_back.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CaracterizacionController : Controller

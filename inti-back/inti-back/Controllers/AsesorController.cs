@@ -5,10 +5,11 @@ using inti_repository;
 using inti_repository.caracterizacion;
 using inti_repository.validaciones;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.AspNetCore.Authorization;
 
 namespace inti_back.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class AsesorController : Controller

@@ -1,11 +1,13 @@
 ﻿using inti_model.normas;
 using inti_repository.encuestas;
 using inti_repository.requisitosnorma;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace inti_back.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class RequisitosNormasController : ControllerBase

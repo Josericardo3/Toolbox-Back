@@ -1,11 +1,12 @@
 ﻿using inti_model.Filters;
 using inti_repository.kpisRepo.AccionRepo;
 using inti_repository.kpisRepo.ProcesosRepo;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace inti_back.Controllers.KpisControllers
 {
-    
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class AccionController : ControllerBase

@@ -10,11 +10,15 @@ using System.Net;
 using System.Text;
 using System.Security.Cryptography;
 using inti_repository;
+using Microsoft.AspNetCore.Authorization;
 
 namespace inti_back.Controllers
 {
+
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
+    
     public class ValidacionesController : ControllerBase
     {
         private readonly IValidacionesRepository _validacionesRepository;
@@ -24,6 +28,7 @@ namespace inti_back.Controllers
             _validacionesRepository = validacionesRepository;
             Configuration = _configuration;
         }
+        [AllowAnonymous]
 
         [HttpGet("Correo/{correo}")]
         public bool ValidarRegistroCorreo(String correo)
@@ -32,6 +37,7 @@ namespace inti_back.Controllers
             return validacion;
 
         }
+        [AllowAnonymous]
         [HttpGet("Telefono/{telefono}")]
         public bool ValidarRegistroTelefono(String telefono)
         {
@@ -75,7 +81,7 @@ namespace inti_back.Controllers
             }
        
         }
-
+        [AllowAnonymous]
         [HttpGet("UsuarioRnt/{rnt}")]
         public bool ValidarUsuarioRnt(string rnt)
         {
@@ -83,7 +89,7 @@ namespace inti_back.Controllers
             return validacion;
 
         }
-
+        [AllowAnonymous]
         [HttpPost("EnviarEmail")]
         public async Task<IActionResult> SendEmail(String correo)
         {
@@ -130,7 +136,7 @@ namespace inti_back.Controllers
             }
 
         }
-       
+        [AllowAnonymous]
         [HttpPost("CambioContraseña")]
         public async Task<IActionResult> UpdatePassword(String password, String id)
         {
@@ -158,7 +164,7 @@ namespace inti_back.Controllers
                 });
             }
         }
-
+        [AllowAnonymous]
         [HttpPost("EnviarEmail/2")]
         public async Task<IActionResult> SendEmail2(String correo)
         {
@@ -230,6 +236,7 @@ namespace inti_back.Controllers
             }
 
         }
+        [AllowAnonymous]
         [HttpGet("ObtenerDataMincit")]
         public async Task<IActionResult> ObtenerDataMincit(string RNT)
         {

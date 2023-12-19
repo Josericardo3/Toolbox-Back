@@ -27,6 +27,7 @@ namespace inti_model.encuesta
         public string DESCRIPCION { get; set;  }
         public string TIPO { get; set;  }
         public string VALOR { get; set;  }
+        public int ORDEN { get; set; }
         public bool OBLIGATORIO { get; set;  }
     }
 }

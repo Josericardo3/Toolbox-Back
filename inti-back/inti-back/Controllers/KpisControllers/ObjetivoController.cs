@@ -3,10 +3,12 @@ using inti_model.ViewModels;
 using inti_repository.kpisRepo;
 using inti_repository.kpisRepo.Indicadores;
 using inti_repository.kpisRepo.ObjetivosRepo;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace inti_back.Controllers.KpisControllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ObjetivoController : ControllerBase

@@ -4,9 +4,11 @@ using inti_repository.matrizlegal;
 using Microsoft.AspNetCore.Mvc;
 using MySqlX.XDevAPI;
 using inti_model.usuario;
+using Microsoft.AspNetCore.Authorization;
 
 namespace inti_back.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class MatrizLegalController : Controller
@@ -44,12 +46,12 @@ namespace inti_back.Controllers
         }
 
         [HttpPost("InsertLey")]
-        public async Task<IActionResult> InsertLey([FromBody] InputMatrizLegal oMatrizLegal)
+        public async Task<IActionResult> InsertLey([FromBody] List<InputMatrizLegal> ListMatrizLegal)
         {
 
             try
             {
-                var create = await _matrizlegalRepository.InsertLey(oMatrizLegal);
+                var create = await _matrizlegalRepository.InsertLey(ListMatrizLegal);
                 if (create == null)
                 {
                     return Ok(new
