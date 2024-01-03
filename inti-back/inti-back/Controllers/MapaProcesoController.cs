@@ -12,13 +12,15 @@ using Microsoft.AspNetCore.Server.IIS.Core;
 using inti_repository;
 using System.Configuration;
 using Microsoft.AspNetCore.Authorization;
+using inti_model.ViewModels;
+using inti_model.Filters;
 
 namespace inti_back.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    public class MapaProcesoController : Controller
+    public class MapaProcesoController : ControllerBase
     {
         private readonly IMapaProcesoRepository _mapaprocesoRepository;
         private readonly IValidacionesRepository _validacionesRepository;
@@ -111,7 +113,36 @@ namespace inti_back.Controllers
                 });
             }
         }
+        [HttpPost("Diagramar")]
+        public async Task<IActionResult> GuardarDiagramaProcesos(MapaProcesoViewModel procesos)
+        {
+            
+                var create = await _mapaprocesoRepository.AgregarDiagrama(procesos);
 
+                return Ok(create);
+
+        }
+       
+        [HttpPost("ObtenerDiagrama")]
+        public async Task<IActionResult> ObtenerDiagrama(BaseFilter filter)
+        {
+
+            var create = await _mapaprocesoRepository.ObtenerDiagrama(filter);
+
+            return Ok(create);
+
+        }
+        
+        [HttpPost("DeleteItemDiagrama")]
+        public async Task<IActionResult> EliminarDiagrama(DeleteDetalleProcesoViewModel model)
+        {
+
+            var create = await _mapaprocesoRepository.DeleteDetalleDiagramaProceso(model);
+
+            return Ok(create);
+
+        }
+        
 
     }
 }

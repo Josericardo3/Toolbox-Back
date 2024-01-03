@@ -48,6 +48,34 @@ namespace inti_back.Controllers
             }
 
         }
+        [HttpPut("UpdateEstadoEncuesta")]
+        [AllowAnonymous]
+        public async Task<IActionResult> UpdateEstadoEncuesta(int id_encuesta, int estado)
+        {
+            try
+            {
+                var data = _encuestaRepository.UpdateEstadoEncuesta(id_encuesta, estado);
+
+                return Ok(new
+                {
+                    Id = data.Result,
+                    StatusCode(200).StatusCode,
+                    valor = "Se actualizó el estado de la encuesta"
+                });
+
+
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    StatusCode = 500,
+                    Valor = "Ocurrió un error en la actualización",
+                    Mensaje = ex.Message
+                });
+            }
+        }
+
         [HttpPut]
         [AllowAnonymous]
         public async Task<IActionResult> UpdateMaeEncuestas(MaeEncuesta encuesta)
@@ -145,6 +173,25 @@ namespace inti_back.Controllers
             try
             {
                 var response = await _encuestaRepository.GetRespuestasEncuesta(idEncuesta);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    StatusCode(200).StatusCode,
+                    valor = "Ocurrió un error al seleccionar la data",
+                    ex.Message
+                });
+            }
+        }
+        [HttpGet("Respuestas/porcentaje")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetRespuestaPorcentaje(int idEncuesta)
+        {
+            try
+            {
+                var response = await _encuestaRepository.GetRespuestaPorcentaje(idEncuesta);
                 return Ok(response);
             }
             catch (Exception ex)

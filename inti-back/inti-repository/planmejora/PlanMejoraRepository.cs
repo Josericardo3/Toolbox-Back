@@ -164,8 +164,8 @@ namespace inti_repository.planmejora
             if(dataAsesorPst == null || dataAsesorPst.Equals(DBNull.Value))
             {
                 objAsesorPst.NOMBRE = "Sin Asignar";
+                dataAsesorPst.NOMBRE = objAsesorPst.NOMBRE;
             }
-            dataAsesorPst = objAsesorPst;
 
             ResponseArchivoPlanMejora responsePlanMejora = new();
 

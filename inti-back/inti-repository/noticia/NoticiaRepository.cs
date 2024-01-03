@@ -65,12 +65,13 @@ namespace inti_repository.noticia
                         LEFT JOIN MaeNorma d ON d.ID_NORMA = n.FK_ID_NORMA
                         LEFT JOIN MaeCategoriaRnt e ON e.ID_CATEGORIA_RNT = n.FK_ID_CATEGORIA
                         LEFT JOIN MaeSubCategoriaRnt f ON f.ID_SUB_CATEGORIA_RNT = n.FK_ID_SUB_CATEGORIA
-                        WHERE a.ESTADO = 1 AND (c.RNT = @RNT OR n.FK_ID_USUARIO = (SELECT FK_ID_USUARIO FROM Pst WHERE RNT = @RNT))
+                        WHERE a.ESTADO = 1 AND c.RNT = @RNT and (n.FK_ID_USUARIO = @iduser or n.FK_ID_PST=@iduser)
                         GROUP BY a.ID_NOTICIA, a.FK_ID_USUARIO, c.NOMBRE,a.TITULO, a.DESCRIPCION, a.IMAGEN, a.FECHA_REG, a.FECHA_ACT
                         ORDER BY a.FECHA_REG DESC";
                 var parameterRnt = new
                 {
-                    RNT = rnt
+                    RNT = rnt,
+                    iduser = iduser
                 };
                 result = (await db.QueryAsync<ResponseNoticia>(data, parameterRnt)).ToList();
             }

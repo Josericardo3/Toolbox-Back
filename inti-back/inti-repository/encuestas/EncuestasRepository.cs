@@ -2,6 +2,8 @@
 using inti_model.encuesta;
 using inti_model.dboresponse;
 using MySql.Data.MySqlClient;
+using inti_model.formulario;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace inti_repository.encuestas
 {
@@ -23,8 +25,8 @@ namespace inti_repository.encuestas
         {
             var db = dbConnection();
 
-                var queryEncuesta = @"INSERT INTO MaeEncuesta (TITULO,DESCRIPCION,FK_ID_USUARIO,ESTADO,FECHA_REG)
-                                   VALUES(@TITULO,@DESCRIPCION,@FK_ID_USUARIO,1,NOW())";
+                var queryEncuesta = @"INSERT INTO MaeEncuesta (TITULO,DESCRIPCION,FK_ID_USUARIO,ESTADO,FECHA_REG,ESTADO_HABILITADO)
+                                   VALUES(@TITULO,@DESCRIPCION,@FK_ID_USUARIO,1,NOW(),1)";
             var parameters = new
             {
                 encuesta.TITULO,
@@ -55,6 +57,21 @@ namespace inti_repository.encuestas
                          var dataPregunta = await db.ExecuteAsync(querypregunta, parameterPregunta);
                     }
             return idEncuesta;
+        }
+        public async Task<int> UpdateEstadoEncuesta(int id_encuesta, int estado)
+        {
+            var db = dbConnection();
+            var queryEstadoEncuesta = @"UPDATE MaeEncuesta  set 
+                                    ESTADO_HABILITADO = @ESTADO_HABILITADO
+                                    WHERE ID_MAE_ENCUESTA = @ID_MAE_ENCUESTA";
+            var parameters = new
+            {
+                ESTADO_HABILITADO = estado,
+                ID_MAE_ENCUESTA = id_encuesta
+            };
+            var dataEncuesta = await db.ExecuteAsync(queryEstadoEncuesta, parameters);
+
+            return id_encuesta;
         }
         public async Task<int> UpdateMaeEncuestas(MaeEncuesta encuesta)
         {
@@ -119,6 +136,148 @@ namespace inti_repository.encuestas
             }
             return encuesta.ID_MAE_ENCUESTA;
         }
+        public async Task<IEnumerable<ResponseEncuestaPorcentaje>> GetRespuestaPorcentaje(int ID_ENCUESTA)
+        {
+            var db = dbConnection();
+            var result = new List<ResponseEncuestaPorcentaje>();
+
+            string query = @"SELECT * FROM inti.MaeEncuestaPregunta where FK_MAE_ENCUESTA=@FK_MAE_ENCUESTA;";
+
+            result = (await db.QueryAsync<ResponseEncuestaPorcentaje>(query, new { FK_MAE_ENCUESTA = ID_ENCUESTA })).ToList();
+
+            foreach ( var item in result )
+            {
+                if (item.TIPO!="respuestaCorta" && item.TIPO!="respuestaLarga")
+                {
+                    string[] listaValores = item.VALOR.Split(';');
+                    List<string> valores = listaValores.ToList();
+                    List<ResumenPregunta> list_resumen = new List<ResumenPregunta>();
+                    if (item.TIPO == "checkbox")
+                    {
+                        var query1 = @"SELECT * FROM inti.RespuestaEncuesta where FK_ID_MAE_ENCUESTA_PREGUNTA=@FK_ID_MAE_ENCUESTA_PREGUNTA;";
+                        var datad = await db.QueryAsync<RespuestaPregunta>(query1, new { FK_ID_MAE_ENCUESTA_PREGUNTA = item.ID_MAE_ENCUESTA_PREGUNTA });
+                        //List<string> valOtros= new List<string>();
+
+                        for (int a = 0; a < valores.Count(); a++)
+                        {
+                            int n = 0;
+                            int c = 0;
+                            foreach (var i in datad)
+                            {
+                                string[] values = i.RESPUESTA.Split(", ");
+                                foreach (var v in values)
+                                {
+                                    if (v == "" || v == null)
+                                    {
+
+                                    }
+                                    else
+                                    {
+                                        if (v == valores[a])
+                                        {
+                                            n++;
+                                        }
+                                        else
+                                        {
+                                            if (valores[a] == "Otro" && v.Contains(valores[a])) 
+                                            {
+                                                if (!valores.Contains(v))
+                                                {
+                                                    valores.Add(v);
+                                                }
+                                                n++;
+                                            };
+                                        }
+                                        c++;
+                                    }
+                                }
+                                //c++;
+                            }
+                            if (valores[a] != "Otro")
+                            {
+                                ResumenPregunta resumen = new ResumenPregunta
+                                {
+                                    ITEM = valores[a],
+                                    N_RESPUESTAS = n,
+                                    RESPUESTA = "",
+                                    PORCENTAJE = (float)(100 * n) / c
+                                };
+                                list_resumen.Add(resumen);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var query1 = @"SELECT * FROM inti.RespuestaEncuesta where FK_ID_MAE_ENCUESTA_PREGUNTA=@FK_ID_MAE_ENCUESTA_PREGUNTA;";
+                        var datad = await db.QueryAsync<RespuestaPregunta>(query1, new { FK_ID_MAE_ENCUESTA_PREGUNTA = item.ID_MAE_ENCUESTA_PREGUNTA });
+
+                        for (int a = 0; a < valores.Count(); a++)
+                        {
+                            int n = 0;
+                            int c = 0;
+                            foreach (var i in datad)
+                            {
+                                if (i.RESPUESTA == "" || i.RESPUESTA == null)
+                                {
+
+                                }
+                                else
+                                {
+                                    if (i.RESPUESTA == valores[a])
+                                    {
+                                        n++;
+                                    }
+                                    else
+                                    {
+                                        if (valores[a] == "Otro" && i.RESPUESTA.Contains(valores[a])) 
+                                        {
+                                            if (!valores.Contains(i.RESPUESTA))
+                                            {
+                                                valores.Add(i.RESPUESTA);
+                                            }
+                                            n++; 
+                                        };
+                                    }
+                                    c++;
+                                }
+                            }
+                            if (valores[a] != "Otro")
+                            {
+                                ResumenPregunta resumen = new ResumenPregunta
+                                {
+                                    ITEM = valores[a],
+                                    N_RESPUESTAS = n,
+                                    RESPUESTA = "",
+                                    PORCENTAJE = (float)(100 * n) / c
+                                };
+                                list_resumen.Add(resumen);
+                            }
+                        }
+                    }
+                    item.RESUMEN = list_resumen;
+                }
+                else
+                {
+                    var query2 = @"SELECT * FROM inti.RespuestaEncuesta where FK_ID_MAE_ENCUESTA_PREGUNTA=@FK_ID_MAE_ENCUESTA_PREGUNTA;";
+                    var datad1 = await db.QueryAsync<RespuestaPregunta>(query2, new { FK_ID_MAE_ENCUESTA_PREGUNTA = item.ID_MAE_ENCUESTA_PREGUNTA });
+                    List<ResumenPregunta> list_resumen = new List<ResumenPregunta>();
+
+                    foreach (var v in datad1)
+                    {
+                        ResumenPregunta resumen = new ResumenPregunta
+                        {
+                            ITEM = v.ID_RESPUESTA_ENCUESTA.ToString(),
+                            N_RESPUESTAS = v.NUM_ENCUESTADO,
+                            RESPUESTA = v.RESPUESTA,
+                            PORCENTAJE = 0
+                        };
+                        list_resumen.Add(resumen);
+                    }
+                    item.RESUMEN = list_resumen;
+                }
+            }
+            return result;
+        }
         public async Task<IEnumerable<ResponseEncuestaGeneral>> GetEncuestaGeneral(int idusuario)
         {
             var db = dbConnection();
@@ -132,7 +291,7 @@ namespace inti_repository.encuestas
 
             var queryEncuesta = @"
                                      SELECT 
-                                        me.ID_MAE_ENCUESTA,me.TITULO, me.DESCRIPCION, COALESCE(MAX(re.NUM_ENCUESTADO),0) as NUM_ENCUESTADOS, me.FECHA_REG, COALESCE(me.FECHA_ACT, me.FECHA_REG) AS FECHA_ACT
+                                        me.ID_MAE_ENCUESTA,me.TITULO, me.DESCRIPCION, COALESCE(MAX(re.NUM_ENCUESTADO),0) as NUM_ENCUESTADOS, me.FECHA_REG, COALESCE(me.FECHA_ACT, me.FECHA_REG) AS FECHA_ACT, me.ESTADO_HABILITADO
                                     FROM
                                         MaeEncuesta me
                                             INNER JOIN MaeEncuestaPregunta ep ON me.ID_MAE_ENCUESTA = ep.FK_MAE_ENCUESTA
@@ -151,13 +310,13 @@ namespace inti_repository.encuestas
             return dataEncuesta;
         }
 
-        public async Task<MaeEncuesta> GetEncuestaPregunta( int idEncuesta)
+        public async Task<MaeEncuesta> GetEncuestaPregunta(int idEncuesta)
         {
             var db = dbConnection();
 
             var queryEncuesta = @"
                                     SELECT 
-                                        ID_MAE_ENCUESTA,TITULO,DESCRIPCION
+                                        ID_MAE_ENCUESTA,TITULO,DESCRIPCION,ESTADO_HABILITADO
                                     FROM
                                         MaeEncuesta
                                     WHERE
@@ -182,7 +341,7 @@ namespace inti_repository.encuestas
             
             return dataEncuesta;
         }
-        public async Task<IEnumerable<dynamic>> GetRespuestasEncuesta( int idencuesta)
+        public async Task<IEnumerable<dynamic>> GetRespuestasEncuesta(int idencuesta)
         {
             var db = dbConnection();
             var sql = @"

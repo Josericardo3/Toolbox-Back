@@ -12,8 +12,8 @@ namespace inti_model.encuesta
         public string TITULO { get; set; }
         public int FK_ID_USUARIO { get; set; }
         public string DESCRIPCION { get; set; }
+        public int ESTADO_HABILITADO { get; set; }
         public List<MaeEncuestaPregunta>? MAE_ENCUESTA_PREGUNTAS { get; set; }
-
         public MaeEncuesta()
         {
             MAE_ENCUESTA_PREGUNTAS = new List<MaeEncuestaPregunta>();

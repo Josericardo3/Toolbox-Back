@@ -45,7 +45,8 @@ using inti_repository.mapaproceso;
 using inti_repository.noticiaCategorias;
 using inti_repository.DocumentoRequerimientoRepo;
 
-const String default_url = "http://{0}:{1};https://{2}:{3}"; 
+
+const String default_url = "http://{0}:{1};https://{2}:{3}";
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,7 +60,7 @@ builder.Services.AddScoped<ActividadController>();
 
 //var host = Environment.GetEnvironmentVariable("INTI_BACK_HOST");
 var env = Environment.GetEnvironmentVariable("INTI_BACK_ENV");
-var port = 8050; 
+var port = 8050;
 //var port = 8050;
 var host = "0.0.0.0";
 String connectionString = env != "DEV" ? "MySqlConnectionDev" : "MySqlConnection";

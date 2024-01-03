@@ -1,14 +1,25 @@
-﻿using inti_model;
+﻿using Dapper;
+using inti_model;
+using inti_model.actividad;
 using inti_model.Base;
+using inti_model.dboinput;
 using inti_model.DTOs;
 using inti_model.Filters;
 using inti_model.kpis;
+using inti_model.mejoracontinua;
+using inti_model.usuario;
 using inti_model.ViewModels;
+using inti_repository.actividad;
 using inti_repository.Base;
 using inti_repository.kpisRepo.Indicadores;
+using inti_repository.mejoracontinua;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using MySql.Data.MySqlClient;
+using MySqlX.XDevAPI.Common;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -19,12 +30,22 @@ namespace inti_repository.kpisRepo
 {
     public class KpiRepository : RepoBase<Indicador>, IKpiRepository
     {
+        private IMejoraContinuaRepository _MejoraContinuaRepository;
+        private readonly IActividadRepository _actividadRepository;
+        private IConfiguration _Configuration;
         private BaseHelpers baseHelpers = new BaseHelpers();
-        public KpiRepository(DbContextOptions<IntiDBContext> options) : base(options)
+        private readonly MySQLConfiguration _connectionString;
+        public KpiRepository(DbContextOptions<IntiDBContext> options, IMejoraContinuaRepository MejoraContinuaRepository, IActividadRepository actividadRepository, IConfiguration Configuration, MySQLConfiguration connectionString) : base(options)
         {
-
+            _MejoraContinuaRepository = MejoraContinuaRepository;
+            _actividadRepository=actividadRepository;
+            _Configuration = Configuration;
+            _connectionString = connectionString;
         }
-
+        protected MySqlConnection dbConnection()
+        {
+            return new MySqlConnection(_connectionString.ConnectionString);
+        }
         public async Task<BaseResponseDTO> AgregarIndicadores(IndicadorViewModel model)
         {
             var response = new BaseResponseDTO();
@@ -38,7 +59,7 @@ namespace inti_repository.kpisRepo
 
                     return response;
                 }
-                if(model.ID_NORMA==0)
+                if(model.ID_NORMA.Count< 1)
                 {
                     response.Mensaje = $"No se puede registrar el indicador, elija una Norma Correcta";
                     return response;
@@ -69,12 +90,20 @@ namespace inti_repository.kpisRepo
 
                 await Context.SaveChangesAsync();
 
-                var objIndicadorNorma = new IndicadorPorNorma
+                foreach(var item in model.ID_NORMA)
                 {
-                    ID_INDICADOR=objIndicador.ID_INDICADOR,
-                    ID_NORMA=model.ID_NORMA
-                };
-                Context.IndicadoresPorNormas.Add(objIndicadorNorma);
+                    if (item != 0)
+                    {
+                    var objIndicadorNorma = new IndicadorPorNorma
+                    {
+                        ID_INDICADOR = objIndicador.ID_INDICADOR,
+                        ID_NORMA = item
+                    };
+                    Context.IndicadoresPorNormas.Add(objIndicadorNorma);
+                    }
+                   
+                }
+                
 
                 foreach( var item in model.VARIABLES)
                 {
@@ -110,15 +139,16 @@ namespace inti_repository.kpisRepo
             {
               
                 List<int>lisNormas=new List<int>();
-                if (baseFilter.ID_NORMA == 0)
+                if (baseFilter.ID_NORMA.Count< 1)
                 {
-                    baseFilter.ID_NORMA = -99;
+                    response.Mensaje = "Elija una norma";
+                    return response;
                 }
                 /*if (baseFilter.ID_PAQUETE == 0)
                 {
                     baseFilter.ID_NORMA = -99;
                 }*/
-                lisNormas = Context.IndicadoresPorNormas.Where(x => x.ID_NORMA == baseFilter.ID_NORMA).Select(x => x.ID_INDICADOR).ToList();
+                lisNormas = Context.IndicadoresPorNormas.Where(x =>  baseFilter.ID_NORMA.Contains(x.ID_NORMA)).Select(x => x.ID_INDICADOR).ToList();
                 var queryTotal =  Context.Indicadores.Include(x => x.Paquete).Include(x => x.PeriodoMedicion).Where(x => x.FECHA_ELIMINACION == null && lisNormas.Contains(x.ID_INDICADOR) ).Where(x => x.TITULO.Contains(baseFilter.Search));
 
                 var query = Context.Indicadores.Include(x => x.Objetivo).Include(x => x.Paquete).Include(x => x.PeriodoMedicion).Where(x => x.FECHA_ELIMINACION == null && lisNormas.Contains(x.ID_INDICADOR) ).Where(x => x.TITULO.Contains(baseFilter.Search));
@@ -144,7 +174,9 @@ namespace inti_repository.kpisRepo
                     NOMBRE_PAQUETE=x.Paquete.NOMBRE,
                     NOMBRE_PERIODO=x.PeriodoMedicion.NOMBRE,
                     ID_NORMA=baseFilter.ID_NORMA,
-                    CANTIDAD_ASIGNACIONES=Context.EvaluacionIndicadores.Where(x=>x.ID_USUARIO_ASIGNADO== baseFilter.ID_USUARIO).Count()
+                    TIPO_USUARIO=x.Usuario.ID_TIPO_USUARIO,
+                    ID_USUARIO_CREA= x.ID_USUARIO_CREA,
+                    CANTIDAD_ASIGNACIONES =Context.EvaluacionIndicadores.Where(x=>x.ID_USUARIO_ASIGNADO== baseFilter.ID_USUARIO).Count()
 
 
                 }).ToListAsync();
@@ -173,7 +205,7 @@ namespace inti_repository.kpisRepo
 
                     return response;
                 }
-                if (model.ID_NORMA == 0)
+                if (model.ID_NORMA.Count== 0)
                 {
                     response.Mensaje = $"No existe Norma";
 
@@ -192,7 +224,7 @@ namespace inti_repository.kpisRepo
 
                     return response;
                 }
-                var existeConNorma = Context.IndicadoresPorNormas.Where(x => x.ID_INDICADOR == model.ID_INDICADOR && x.ID_NORMA==model.ID_NORMA ).FirstOrDefault();
+                var existeConNorma = Context.IndicadoresPorNormas.Where(x => x.ID_INDICADOR == model.ID_INDICADOR && model.ID_NORMA.Contains(x.ID_NORMA) ).FirstOrDefault();
                 if (existeConNorma == null)
                 {
                     response.Mensaje = $"No se logra encontrar Indicador";
@@ -364,15 +396,16 @@ namespace inti_repository.kpisRepo
             {
 
                 List<int> lisNormas = new List<int>();
-                if (baseFilter.ID_NORMA == 0)
+                if (baseFilter.ID_NORMA.Count < 1)
                 {
-                    baseFilter.ID_NORMA = -99;
+                    response.Mensaje = "Elija una norma";
+                    return response;
                 }
-               /* if (baseFilter.ID_PAQUETE == 0)
+                /*if (baseFilter.ID_PAQUETE == 0)
                 {
                     baseFilter.ID_NORMA = -99;
                 }*/
-                lisNormas = Context.IndicadoresPorNormas.Where(x => x.ID_NORMA == baseFilter.ID_NORMA).Select(x => x.ID_INDICADOR).ToList();
+                lisNormas = Context.IndicadoresPorNormas.Where(x => baseFilter.ID_NORMA.Contains(x.ID_NORMA)).Select(x => x.ID_INDICADOR).ToList();
                 var totalquery =  Context.EvaluacionIndicadores.Include(x=>x.Accion).Include(x=>x.Indicador).Include(x=>x.Proceso).Include(x => x.Indicador.Paquete).Include(x => x.PeriodoMedicion).Where(x => x.Indicador.FECHA_ELIMINACION == null && lisNormas.Contains(x.ID_INDICADOR)  && x.ID_USUARIO_ASIGNADO== baseFilter.ID_USUARIO && x.Indicador.TITULO.Contains(baseFilter.Search));
                 var query = Context.EvaluacionIndicadores.Include(x => x.Indicador).Include(x => x.Indicador.Paquete).Include(x => x.PeriodoMedicion).Where(x => x.Indicador.FECHA_ELIMINACION == null && lisNormas.Contains(x.ID_INDICADOR) &&  x.ID_USUARIO_ASIGNADO == baseFilter.ID_USUARIO && x.Indicador.TITULO.Contains(baseFilter.Search));
                 if (baseFilter.ID_PAQUETE != 0)
@@ -408,6 +441,7 @@ namespace inti_repository.kpisRepo
                     TIENE_RECORDATORIO = x.FECHA_RECORDATORIO == null ? false : true,
                     FECHA_RECORDATORIO = x.FECHA_RECORDATORIO != null ? $"{x.FECHA_RECORDATORIO:dd-MM-yyyy h:mm tt} " : "",
                     ACCION = x.Accion == null ? "-" : x.Accion.NOMBRE,
+                    ID_ACCION=x.Accion== null ? 0 : x.ID_ACCION,
                     SEMAFORIZACION=$"{x.META-10}",
                     FECHA_PERIODO = $"DEL {x.FECHA_INICIO_MEDICION:dd/MM/yyyy} AL {x.FECHA_FIN_MEDICION:dd/MM/yyyy} ",
                     FECHA_PERIODO_SMALL = $"{x.FECHA_INICIO_MEDICION:dd/MM/yyyy} - {x.FECHA_FIN_MEDICION:dd/MM/yyyy} ",
@@ -445,6 +479,9 @@ namespace inti_repository.kpisRepo
             var response=new BaseResponseDTO();
             try
             {
+                Correos envio = new(_Configuration);
+                var mensajeAdicionalMejoraC = "";
+                var mensajeAdicionalGestion = "";
                 var existeAsignacion = Context.EvaluacionIndicadores.Where(x => x.ID_EVALUACION_INDICADOR == model.ID_EVALUACION_INDICADOR).FirstOrDefault();
                 if(existeAsignacion == null)
                 {
@@ -459,7 +496,13 @@ namespace inti_repository.kpisRepo
 
                     return response;
                 }
+                var existeAccion = Context.Acciones.Where(x => x.ID_ACCION == model.ID_ACCION).FirstOrDefault();
+                if (existeAccion == null)
+                {
+                    response.Mensaje = $"LA ACCION NO EXISTE ES INCORRECTO";
 
+                    return response;
+                }
                 existeAsignacion.RESULTADO = model.RESULTADO;
                 existeAsignacion.ANALISIS=model.ANALISIS;
                 existeAsignacion.ID_ACCION=model.ID_ACCION;
@@ -481,10 +524,82 @@ namespace inti_repository.kpisRepo
                 }
 
                 await Context.SaveChangesAsync();
+                if (existeAccion.CODIGO == "01")
+                {
+                    
+                    try
+                    {
+                        var mejoraContinua = Context.EvaluacionIndicadores.Where(x => x.ID_EVALUACION_INDICADOR == model.ID_EVALUACION_INDICADOR).Select(x =>new MejoraContinua
+                        {
+                            ID_USUARIO = x.Usuario.ID_USUARIO,
+                            RESPONSABLE = x.UsuarioAsignado.NOMBRE,
+                            DESCRIPCION = x.Indicador.TITULO,//$"{x.FECHA_INICIO_MEDICION:dd/MM/yyyy} - {x.FECHA_FIN_MEDICION:dd/MM/yyyy} ({x.PeriodoMedicion.NOMBRE})",
+                            NTC = model.NORMA==null?"-":model.NORMA,
+                            REQUISITOS = "",//existeAsignacion.ANALISIS==null?"": existeAsignacion.ANALISIS,
+                            TIPO = "MEDICION_KPIS",
+                            ESTADO = "Abierto",
+                            FECHA_INICIO = $"{x.FECHA_INICIO_MEDICION:dd/MM/yyyy}",
+                            FECHA_FIN = $"{x.FECHA_FIN_MEDICION:dd/MM/yyyy} ",
+                            
+                        }).FirstOrDefault();
+                       
+                         var result = await _MejoraContinuaRepository.Create(mejoraContinua);
 
+                         if (result > 0)
+                         {
+                             mensajeAdicionalMejoraC = "y se realizó el registro en mejora continua";
+                         }
+                         else
+                         {
+                             mensajeAdicionalMejoraC = ", pero no se logró realizar el registro en mejora continua";
+                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        mensajeAdicionalMejoraC = ", pero no se logró realizar el registro en mejora continua";
+                    }
+
+                    try
+                    {
+                        var gestionTareas = Context.EvaluacionIndicadores.Where(x => x.ID_EVALUACION_INDICADOR == model.ID_EVALUACION_INDICADOR).Select(x => new InputActividad
+                        {
+                            FK_ID_USUARIO_PST = x.ID_USUARIO_CREA,
+                            FK_ID_RESPONSABLE = x.ID_USUARIO_ASIGNADO,
+                            TIPO_ACTIVIDAD = "MEDICION_KPIS",
+                            DESCRIPCION = x.Indicador.TITULO,
+                            FECHA_INICIO = $"{x.FECHA_INICIO_MEDICION:dd/MM/yyyy}",
+                            FECHA_FIN = $"{x.FECHA_FIN_MEDICION:dd/MM/yyyy} ",
+                            ESTADO_PLANIFICACION = "En Proceso",
+                            
+
+
+                        }).FirstOrDefault();
+                        
+
+                        var resultGT = await _actividadRepository.InsertActividad(gestionTareas);
+
+                        if (model.ENVIO_CORREO == true)
+                        {
+                            var correos = Context.EvaluacionIndicadores.Where(x => x.ID_EVALUACION_INDICADOR == model.ID_EVALUACION_INDICADOR).Select(x => x.UsuarioAsignado.CORREO).ToList();
+                            var subject = "Notificación de Actividad";
+                            var estado = envio.EnvioCorreoActividad(correos, subject);
+                        }
+
+
+                        mensajeAdicionalGestion = " y se realizó el registro en Gestión de Tareas";
+
+                    }
+                    catch (Exception ex)
+                    {
+                        mensajeAdicionalGestion = ", pero no se logró realizar el registro en Gestión de Tareas";
+                    }
+
+
+
+                }
                 response.Confirmacion = true;
 
-                response.Mensaje = "Registro de la Evaluación correctamente";
+                response.Mensaje = "Registro de la Evaluación correctamente " + mensajeAdicionalMejoraC + mensajeAdicionalGestion;
 
 
 
@@ -608,6 +723,8 @@ namespace inti_repository.kpisRepo
             var response = new BaseResponseDTO();
             try
             {
+                Correos envio = new(_Configuration);
+                var mensajeAdicionalGestion = "";
 
                 var existeAsignacion = Context.EvaluacionIndicadores.Where(x => x.ID_EVALUACION_INDICADOR == model.ID_EVALUACION_INDICADOR).FirstOrDefault();
                 if (existeAsignacion == null)
@@ -667,10 +784,42 @@ namespace inti_repository.kpisRepo
 
                
                 await Context.SaveChangesAsync();
+                try
+                {
+                    var gestionTareas = Context.EvaluacionIndicadores.Where(x => x.ID_EVALUACION_INDICADOR == model.ID_EVALUACION_INDICADOR).Select(x => new InputActividad
+                    {
+                        FK_ID_USUARIO_PST = x.ID_USUARIO_CREA,
+                        FK_ID_RESPONSABLE = x.ID_USUARIO_ASIGNADO,
+                        TIPO_ACTIVIDAD = "MEDICION_KPIS",
+                        DESCRIPCION = x.Indicador.TITULO,
+                        FECHA_INICIO = $"{x.FECHA_INICIO_MEDICION:dd/MM/yyyy}",
+                        FECHA_FIN = $"{x.FECHA_FIN_MEDICION:dd/MM/yyyy} ",
+                        ESTADO_PLANIFICACION = "En Proceso",
 
+
+                    }).FirstOrDefault();
+
+                    
+                    var resultGT = await _actividadRepository.InsertActividad(gestionTareas);
+
+
+                    mensajeAdicionalGestion = " y se realizó el registro en Gestión de Tareas";
+                    if (model.ENVIO_CORREO == true)
+                    {
+                        var correos = Context.EvaluacionIndicadores.Where(x => x.ID_EVALUACION_INDICADOR == model.ID_EVALUACION_INDICADOR).Select(x => x.UsuarioAsignado.CORREO).ToList();
+
+                        var subject = "Notificación de Actividad";
+                        var estado = envio.EnvioCorreoActividad(correos, subject);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    mensajeAdicionalGestion = ", pero no se logró realizar el registro en Gestión de Tareas";
+                }
                 response.Confirmacion = true;
 
-                response.Mensaje = "Registro de Recordatorio se realizó correctamente";
+                response.Mensaje = "Registro de Recordatorio se realizó correctamente"+mensajeAdicionalGestion;
 
 
 
@@ -734,14 +883,17 @@ namespace inti_repository.kpisRepo
             var response = new TablaDTO<RecordatorioIndicadorDTO>();
             try
             {
-                var fechaActual = baseHelpers.DateTimePst();
                 List<int> lisNormas = new List<int>();
-                if (baseFilter.ID_NORMA == 0)
+                if (baseFilter.ID_NORMA.Count < 1)
+                {
+                    response.Mensaje = "Elija una norma";
+                    return response;
+                }
+                /*if (baseFilter.ID_PAQUETE == 0)
                 {
                     baseFilter.ID_NORMA = -99;
-                }
-
-                lisNormas = Context.IndicadoresPorNormas.Where(x => x.ID_NORMA == baseFilter.ID_NORMA).Select(x => x.ID_INDICADOR).ToList();
+                }*/
+                lisNormas = Context.IndicadoresPorNormas.Where(x => baseFilter.ID_NORMA.Contains(x.ID_NORMA)).Select(x => x.ID_INDICADOR).ToList();
 
                 var totalquery = Context.EvaluacionIndicadores.Include(x => x.Indicador)
                                                         .Include(x => x.Indicador.Paquete)
@@ -791,15 +943,17 @@ namespace inti_repository.kpisRepo
             {
 
                 List<int> lisNormas = new List<int>();
-                if (baseFilter.ID_NORMA == 0)
+                if (baseFilter.ID_NORMA.Count < 1)
+                {
+                    response.Mensaje = "Elija una norma";
+                    return response;
+                }
+                /*if (baseFilter.ID_PAQUETE == 0)
                 {
                     baseFilter.ID_NORMA = -99;
-                }
-                /* if (baseFilter.ID_PAQUETE == 0)
-                 {
-                     baseFilter.ID_NORMA = -99;
-                 }*/
-                lisNormas = Context.IndicadoresPorNormas.Where(x => x.ID_NORMA == baseFilter.ID_NORMA).Select(x => x.ID_INDICADOR).ToList();
+                }*/
+                lisNormas = Context.IndicadoresPorNormas.Where(x => baseFilter.ID_NORMA.Contains(x.ID_NORMA)).Select(x => x.ID_INDICADOR).ToList();
+
                 var totalquery = Context.EvaluacionIndicadores.Include(x => x.Accion).Include(x => x.Indicador).Include(x => x.Proceso).Include(x => x.Indicador.Paquete).Include(x => x.PeriodoMedicion).Where(x => x.Indicador.FECHA_ELIMINACION == null && lisNormas.Contains(x.ID_INDICADOR) && x.ID_USUARIO_CREA == baseFilter.ID_USUARIO && x.Indicador.TITULO.Contains(baseFilter.Search));
                 var query = Context.EvaluacionIndicadores.Include(x => x.Indicador).Include(x => x.Indicador.Paquete).Include(x => x.PeriodoMedicion).Where(x => x.Indicador.FECHA_ELIMINACION == null && lisNormas.Contains(x.ID_INDICADOR) && x.ID_USUARIO_CREA == baseFilter.ID_USUARIO && x.Indicador.TITULO.Contains(baseFilter.Search));
                 if (baseFilter.ID_PAQUETE != 0)
@@ -834,6 +988,7 @@ namespace inti_repository.kpisRepo
                     TIENE_RECORDATORIO = x.FECHA_RECORDATORIO == null ? false : true,
                     FECHA_RECORDATORIO = x.FECHA_RECORDATORIO != null ? $"{x.FECHA_RECORDATORIO:dd-MM-yyyy h:mm tt} " : "",
                     ACCION = x.Accion == null ? "-" : x.Accion.NOMBRE,
+                    ID_ACCION= x.Accion==null ? 0 : x.Accion.ID_ACCION,
                     FECHA_PERIODO = $"DEL {x.FECHA_INICIO_MEDICION:dd/MM/yyyy} AL {x.FECHA_FIN_MEDICION:dd/MM/yyyy} ",
                     VARIABLES_EVALUACION = Context.VariablesEvaluacionIndicadores.Include(y => y.Variable).Where(y => y.ID_EVALUACION_INDICADOR == x.ID_EVALUACION_INDICADOR && y.ID_INDICADOR == x.ID_INDICADOR).Select(y => new VariablesEvaluacionDTO
                     {
@@ -894,6 +1049,141 @@ namespace inti_repository.kpisRepo
             {
                 response.Mensaje = "No se puede listar combo de los paquetes";
                 response.Exception = ex.Message;
+            }
+            return response;
+        }
+        public async Task<TablaDTO<IndicadorMonitorizacionDTO>> ObtenerMonitorizacionKPI(IndicadorMonitorizacionFilter baseFilter)
+        {
+            var response = new TablaDTO<IndicadorMonitorizacionDTO>();
+            try
+            {
+
+                List<int> lisNormas = new List<int>();
+                List<int> listUsuariosRNT = new List<int>();
+                List<int> listRNT = new List<int>();
+                var totalquery = Context.EvaluacionIndicadores.Include(x => x.Accion).Include(x => x.Indicador).Include(x => x.Usuario).Include(x => x.Proceso).Include(x => x.Indicador.Paquete).Include(x => x.PeriodoMedicion).Where(x => x.Indicador.FECHA_ELIMINACION == null && (x.Indicador.Usuario.ID_TIPO_USUARIO==4 || x.Indicador.Usuario.ID_TIPO_USUARIO == 3) && x.Indicador.TITULO.Contains(baseFilter.Search));
+                
+                var query = Context.EvaluacionIndicadores.Include(x => x.Accion).Include(x => x.Indicador).Include(x => x.Usuario).Include(x => x.Proceso).Include(x => x.Indicador.Paquete).Include(x => x.PeriodoMedicion).Where(x => x.Indicador.FECHA_ELIMINACION == null && (x.Indicador.Usuario.ID_TIPO_USUARIO == 4 || x.Indicador.Usuario.ID_TIPO_USUARIO == 3) && x.Indicador.TITULO.Contains(baseFilter.Search));
+                if (baseFilter.ID_NORMA.Count > 0)
+                {
+                    lisNormas = Context.IndicadoresPorNormas.Where(x => baseFilter.ID_NORMA.Contains(x.ID_NORMA)).Select(x => x.ID_INDICADOR).ToList();
+                     totalquery = Context.EvaluacionIndicadores.Include(x => x.Accion).Include(x => x.Indicador).Include(x => x.Proceso).Include(x => x.Indicador.Paquete).Include(x => x.PeriodoMedicion).Where(x => x.Indicador.FECHA_ELIMINACION == null && lisNormas.Contains(x.ID_INDICADOR) && x.ID_USUARIO_CREA == baseFilter.ID_USUARIO && x.Indicador.TITULO.Contains(baseFilter.Search));
+                     query = Context.EvaluacionIndicadores.Include(x => x.Indicador).Include(x => x.Indicador.Paquete).Include(x => x.PeriodoMedicion).Where(x => x.Indicador.FECHA_ELIMINACION == null && lisNormas.Contains(x.ID_INDICADOR) && x.ID_USUARIO_CREA == baseFilter.ID_USUARIO && x.Indicador.TITULO.Contains(baseFilter.Search));
+
+                }
+
+               
+                if (baseFilter.ID_PAQUETE.Count> 0)
+                {
+                    totalquery = totalquery.Where(x => baseFilter.ID_PAQUETE.Contains(x.Indicador.ID_PAQUETE));
+                    query = query.Where(x => baseFilter.ID_PAQUETE.Contains(x.Indicador.ID_PAQUETE));
+                }
+                var db = dbConnection();
+                string query2 = @"SELECT RNT FROM Pst WHERE ESTADO = TRUE";
+                var stringID_Categorias = new List<int>();
+                var stringIdSubCategorias = new List<int>();
+                var stringDepartamento = new List<string>();
+
+                var stringMunicipios = new List<string>();
+                var resultPST = new List<UsuarioPstDTO>();
+                var pstss = new List<int>();
+                if (baseFilter.ID_CATEGORIA.Count>0)
+                {
+                    stringID_Categorias =baseFilter.ID_CATEGORIA;
+                    query2 = query2 + " AND FK_ID_CATEGORIA_RNT IN  @stringID_Categorias ";
+                    
+                }
+                if (baseFilter.ID_SUBCATEGORIAS.Count > 0)
+                {
+                    
+                    stringIdSubCategorias =  baseFilter.ID_SUBCATEGORIAS;
+
+                    query2 = query2 + " AND FK_ID_SUB_CATEGORIA_RNT IN  @stringIdSubCategorias  ";
+                    
+                }
+                if (baseFilter.DEPARTAMENTOS.Count > 0)
+                {
+                    stringDepartamento = baseFilter.DEPARTAMENTOS;
+
+                    query2 = query2 + " AND DEPARTAMENTO IN  @stringDepartamento  ";
+ 
+                }
+                if (baseFilter.MUNICIPIOS.Count > 0)
+                {
+                     stringMunicipios= baseFilter.MUNICIPIOS;
+
+                    query2 = query2 + " AND MUNICIPIO IN  @stringMunicipios  ";
+                    
+                }
+                if (baseFilter.ID_PST.Count > 0)
+                {
+                    pstss = baseFilter.ID_PST;
+
+                    query2 = query2 + " AND ID_PST IN  @pstss ";
+                }
+               
+                var queryParam = new
+                {
+                    stringID_Categorias=stringID_Categorias,
+                    stringIdSubCategorias=stringIdSubCategorias,
+                    stringDepartamento=stringDepartamento,
+                    stringMunicipios= stringMunicipios,
+                    pstss= pstss
+                };
+                resultPST = (await db.QueryAsync<UsuarioPstDTO>(query2, queryParam)).ToList();
+                if (resultPST.Count > 0)
+                {
+                    var stringRNT = resultPST.Select(x=>x.RNT);
+                    string queryUsuarios = @"SELECT ID_USUARIO FROM Usuario WHERE ESTADO = TRUE AND RNT IN @stringRNT OR  ID_TIPO_USUARIO IN (4,3)";
+                    listUsuariosRNT = (await db.QueryAsync<int>(queryUsuarios, new { stringRNT })).ToList();
+                }
+                else
+                {
+                    response.Confirmacion = true;
+                    response.Total = 0;
+                    response.Data = new List<IndicadorMonitorizacionDTO>();
+                    response.Mensaje = "Obtenido Correctamente";
+                    return response;
+                }
+                if(listUsuariosRNT.Count > 0)
+                {
+                    totalquery = query.Where(x=>listUsuariosRNT.Contains(x.ID_USUARIO_ASIGNADO));
+                    query = query.Where(x => listUsuariosRNT.Contains(x.ID_USUARIO_ASIGNADO));
+
+                }
+                else
+                {
+                    response.Confirmacion = true;
+                    response.Data = new List<IndicadorMonitorizacionDTO>();
+                    response.Total = 0;
+                    response.Mensaje = "Obtenido Correctamente";
+                    return response;
+                }
+                var total = totalquery.Count();
+
+                var queryData = await query.Skip(baseFilter.Skip).Take(baseFilter.Take).OrderByDescending(x => x.FECHA_CREACION).Select(x => new IndicadorMonitorizacionDTO
+                {
+                    ID_EVALUACION_INDICADOR = x.ID_EVALUACION_INDICADOR,
+                    ID_INDICADOR = x.ID_INDICADOR,
+                    TITULO = x.Indicador.TITULO,
+                    FECHA_INICIO = $"{x.FECHA_INICIO_MEDICION:dd/MM/yyyy}",
+                    FECHA_FIN = $"{x.FECHA_FIN_MEDICION:dd/MM/yyyy}",
+                    PERIODO =x.PERIODO,
+                    RESULTADO = x.RESULTADO==null?"0": x.RESULTADO.ToString(),
+                    META = x.META,
+                    ESTADO= x.ESTADO==null?"-": x.ESTADO.ToString(),
+                }).ToListAsync();
+
+                response.Confirmacion = true;
+                response.Total = total;
+                response.Data = queryData;
+                response.Mensaje = "Obtenido Correctamente";
+            }
+            catch (Exception ex)
+            {
+                response.Mensaje = "Algo Salió Mal al obtener Monotorizacion Indicadores";
+                response.Exception = ex.Message;
+
             }
             return response;
         }

@@ -21,8 +21,9 @@ namespace inti_model.DTOs
         public int ID_USUARIO_CREA { get; set; }
         public int ID_PAQUETE { get; set; }
         public string NOMBRE_PAQUETE { get; set; }
-        public int ID_NORMA { get; set; }
+        public List<int> ID_NORMA { get; set; }
         public int CANTIDAD_ASIGNACIONES { get; set; }
+        public int TIPO_USUARIO { get; set; }
     }
 
     public class IndicadorEvaluacionDTO
@@ -43,7 +44,7 @@ namespace inti_model.DTOs
         public int ID_PAQUETE { get; set; }
         public string NOMBRE_PAQUETE { get; set; }
         public string NOMBRE_PROCESO { get; set; }
-        public int ID_NORMA { get; set; }
+        public List<int> ID_NORMA { get; set; }
         public string FECHA_PERIODO { get; set; }
         public float META { get; set; }
         public string? ESTADO {  get; set; }
@@ -57,6 +58,7 @@ namespace inti_model.DTOs
         public string FECHA_PERIODO_SMALL { get; set; }
         public bool? ES_INCREMENTO { get; set; }
         public bool ES_DISMINUIR { get; set; }
+        public int? ID_ACCION { get; set; }
     }
     public class VariablesEvaluacionDTO
     {
@@ -107,6 +109,18 @@ namespace inti_model.DTOs
         public string NOMBRE_PAQUETE { get; set; }
         
 
+    }
+    public class IndicadorMonitorizacionDTO
+    {
+        public int ID_EVALUACION_INDICADOR { get; set; }
+        public int ID_INDICADOR { get; set; }
+        public string TITULO { get; set; }
+        public int META { get; set; }
+        public string RESULTADO { get; set; }
+        public string ESTADO { get; set; }
+        public string FECHA_INICIO { get; set; }
+        public string FECHA_FIN { get; set; }
+        public string PERIODO { get; set; }
     }
 
 }

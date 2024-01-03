@@ -35,5 +35,6 @@ namespace inti_model
         public DbSet<IdentificadorFormula> IdentificadoresFormulas { get; set; }
         public DbSet<Usuario> Usuario { get; set; }
         public DbSet<DocumentoRequerimiento> DocumentosRequerimientos { get; set; }
+        public DbSet<UsuarioPst>UsuarioPst { get; set; }
     }
 }

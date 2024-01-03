@@ -371,15 +371,15 @@ namespace inti_back.Controllers
 
                 return Ok(results);
             }
-            catch (Exception)
+            catch (FileNotFoundException ex)
             {
-
-                return Ok(new
-                {
-                    StatusCode(404).StatusCode,
-                    valor = "No se ha encontrado"
-                });
-
+                // Manejar la excepción cuando el archivo no se encuentra
+                return NotFound($"Archivo no encontrado: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                // Manejar otras excepciones de manera genérica
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
             }
         }
         [HttpGet("historialnotificaciones/{idusuario}")]

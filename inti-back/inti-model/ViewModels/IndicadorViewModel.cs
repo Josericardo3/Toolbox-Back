@@ -18,9 +18,10 @@ namespace inti_model.ViewModels
         public int ID_PERIODO_MEDICION { get; set; }
         public int ID_USUARIO_CREA { get; set; }
         public int ID_PAQUETE { get; set; }
-        public int ID_NORMA { get; set; }
+        //public int? ID_NORMA { get; set; }
         public List<int> VARIABLES { get; set; }
-        
+        public List<int> ID_NORMA { get; set; }
+
     }
     
     public class IndicadorDeletaViewModel
@@ -28,12 +29,12 @@ namespace inti_model.ViewModels
         public int ID_INDICADOR { get; set; }
         public int ID_USUARIO_CREA { get; set; }
         public int ID_PAQUETE { get; set; }
-        public int ID_NORMA { get; set; }
+        public List<int> ID_NORMA { get; set; } = new List<int>();
     }
     public class DetalleEvaluacionViewModel
     {
         public int ID_INDICADOR { get; set; }
-        public int? ID_NORMA { get; set; }
+        public List<int> ID_NORMA { get; set; }=new List<int>();
         public int ID_OBJETIVO { get; set; }
         public int ID_USUARIO_CREA { get; set; }
         public int ID_PERIODO_MEDICION { get; set; }
@@ -56,7 +57,9 @@ namespace inti_model.ViewModels
         public string ESTADO { get; set; }
         public int ID_ACCION { get; set; }
         public string? ANALISIS { get; set; }
+        public bool ENVIO_CORREO { get; set; }
         public List<VariablesEvaluacionViewModel> VARIABLES_EVALUACION { get; set; } = new List<VariablesEvaluacionViewModel>();
+        public string? NORMA { get; set; }
     }
     public class VariablesEvaluacionViewModel
     {
@@ -69,6 +72,7 @@ namespace inti_model.ViewModels
         public int ID_EVALUACION_INDICADOR { get; set; }
         public string FECHA_RECORDATORIO  { get; set; }
         public string HORA_RECORDATORIO { get; set; }
+        public bool ENVIO_CORREO { get; set; }
     }
 }
 

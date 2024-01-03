@@ -46,7 +46,7 @@ namespace inti_repository
               issuer,
               audience,
               claims,
-              DateTime.UtcNow.AddMinutes(Minutos),
+              DateTime.UtcNow,
               DateTime.UtcNow.AddMinutes(Minutos),
               SigningCredentials
               );

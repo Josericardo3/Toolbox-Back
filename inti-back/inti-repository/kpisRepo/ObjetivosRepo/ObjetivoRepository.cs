@@ -95,7 +95,7 @@ namespace inti_repository.kpisRepo.ObjetivosRepo
             try
             {
                 var total = Context.Objetivos.Where(x => x.TITULO.Contains(baseFilter.Search) && x.FECHA_ELIMINACION==null).Count();
-                var query = await Context.Objetivos.Where(x => x.TITULO.Contains(baseFilter.Search) && x.FECHA_ELIMINACION==null).Skip(baseFilter.Skip).Take(baseFilter.Take).Select(x=>new ObjetivoDTO
+                var query = await Context.Objetivos.Where(x => x.TITULO.Contains(baseFilter.Search) && x.FECHA_ELIMINACION==null).OrderByDescending(x => x.ID_OBJETIVO).Skip(baseFilter.Skip).Take(baseFilter.Take).Select(x=>new ObjetivoDTO
                 {
                     ID_OBJETIVO = x.ID_OBJETIVO,
                     TITULO=x.TITULO,

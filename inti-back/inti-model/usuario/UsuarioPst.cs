@@ -9,6 +9,7 @@ namespace inti_model.usuario
 {
     public class UsuarioPst
     {
+        [Key]
         public int ID_PST { get; set; }
         public int FK_ID_PST { get; set; }
         public int FK_ID_USUARIO { get; set; }

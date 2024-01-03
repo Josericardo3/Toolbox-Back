@@ -30,6 +30,8 @@ namespace inti_repository.kpisRepo.Indicadores
         Task<TablaDTO<IndicadorEvaluacionDTO>> ListarEvaluacionesIndicadoresPorUsuarioCrea(IndicadorFilter baseFilter);
         //anios
         Task<BaseComboDTO<BaseInformacionComboDTO>> ListarAniosCombo(BaseFilter baseFilter);
+        //Monitorizacion
+        Task<TablaDTO<IndicadorMonitorizacionDTO>> ObtenerMonitorizacionKPI(IndicadorMonitorizacionFilter baseFilter);
 
     }
 }

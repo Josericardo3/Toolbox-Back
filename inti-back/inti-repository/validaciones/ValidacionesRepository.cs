@@ -238,10 +238,18 @@ namespace inti_repository.validaciones
         {
 
             var db = dbConnection();
+            inicio:
             Random rnd = new Random();
             var numerorand = rnd.Next(maxValue: 100);
             Correos correos = new Correos(Configuration);
             var encriptado = correos.Encriptacion(numerorand);
+            var queryValidationCodExist = @"SELECT ID_RECUPERACION FROM MaeRecuperacion WHERE CODIGO_RECUPERACION=@CODIGO_RECUPERACION";
+            var parameterValid = new
+            {
+                CODIGO_RECUPERACION = encriptado
+            };
+            var responseValidation = await db.QueryFirstOrDefaultAsync(queryValidationCodExist, parameterValid);
+            if (responseValidation != null) { goto inicio; }
 
             var queryUsuario = @"SELECT ID_USUARIO, CORREO FROM Usuario WHERE CORREO = @correo and ESTADO = 1";
             var parameterCorreo = new

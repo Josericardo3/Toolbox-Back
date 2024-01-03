@@ -135,7 +135,7 @@ namespace inti_repository.validaciones
                     ps.NOMBRE_PST,
                     ps.FK_ID_CATEGORIA_RNT,
                     ps.FK_ID_SUB_CATEGORIA_RNT,
-                    cn.FK_ID_NORMA
+                    cn.FK_ID_NORMA as ID_NORMA
                 FROM
                     Pst ps
                         INNER JOIN

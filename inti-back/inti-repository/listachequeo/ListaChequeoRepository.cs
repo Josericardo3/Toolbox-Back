@@ -307,7 +307,7 @@ namespace inti_repository.listachequeo
                                 AsesorPst ap ON ap.FK_ID_PST = ps.ID_PST
                             WHERE
                                 us.ID_USUARIO = @FK_ID_USUARIO
-                                    AND us.ESTADO = 1";
+                                    AND us.ESTADO = 1 AND ap.ESTADO = 1";
             var parameterDataUsuario = new
             {
                 datausuario.FK_ID_USUARIO

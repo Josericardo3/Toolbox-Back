@@ -226,9 +226,9 @@ namespace inti_back.Controllers
             string audience = this.Configuration.GetValue<string>("Jwt:Audience");
             string key = this.Configuration.GetValue<string>("Jwt:key");
 
-            objUsuarioLogin.TokenAcceso = objTokenConf.GenerarToken(objLogin.USER, 5, objUsuarioLogin.ID_USUARIO,
+            objUsuarioLogin.TokenAcceso = objTokenConf.GenerarToken(objLogin.USER, 30, objUsuarioLogin.ID_USUARIO,
               issuer, audience, key);
-            objUsuarioLogin.TokenRefresco = objTokenConf.GenerarToken(objLogin.USER, 20, objUsuarioLogin.ID_USUARIO,
+            objUsuarioLogin.TokenRefresco = objTokenConf.GenerarToken(objLogin.USER, 60, objUsuarioLogin.ID_USUARIO,
               issuer, audience, key);
             objUsuarioLogin.HoraLogueo = DateTime.Now.ToString("hh:mm:ss");
             var serialized = JsonSerializer.Serialize(objUsuarioLogin);

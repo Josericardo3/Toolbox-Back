@@ -73,7 +73,7 @@ namespace inti_repository.matrizlegal
                                a.DOCS_ESPECIFICOS, 
                                a.ID_USUARIO_REG, b.ESTADO_CUMPLIMIENTO, b.ID_RESPONSABLE_CUMPLIMIENTO,b.RESPONSABLE_CUMPLIMIENTO, b.DATA_CUMPLIMIENTO, 
                                b.PLAN_ACCIONES_A_REALIZAR, b.PLAN_RESPONSABLE_CUMPLIMIENTO, b.ID_PLAN_RESPONSABLE_CUMPLIMIENTO,
-                               b.PLAN_FECHA_EJECUCION, b.PLAN_ESTADO, a.ESTADO, a.ES_FIJO, b.FK_ID_MEJORA_CONTINUA, b.FK_ID_ACTIVIDAD 
+                               b.PLAN_FECHA_EJECUCION, b.PLAN_ESTADO, a.ESTADO, a.ES_FIJO, b.FK_ID_MEJORA_CONTINUA, b.FK_ID_ACTIVIDAD, b.FLAG_MEJORA_CONTINUA
                         FROM MaeLegal a 
                              LEFT JOIN RespuestaMatrizLegal b ON a.ID_MATRIZ = b.FK_ID_MATRIZ
                              LEFT JOIN Usuario u ON u.ID_USUARIO = b.FK_ID_USUARIO
@@ -86,7 +86,7 @@ namespace inti_repository.matrizlegal
                                a.DOCS_ESPECIFICOS, 
                                a.ID_USUARIO_REG, b.ESTADO_CUMPLIMIENTO, b.ID_RESPONSABLE_CUMPLIMIENTO, b.RESPONSABLE_CUMPLIMIENTO, b.DATA_CUMPLIMIENTO, 
                                b.PLAN_ACCIONES_A_REALIZAR, b.PLAN_RESPONSABLE_CUMPLIMIENTO, b.ID_PLAN_RESPONSABLE_CUMPLIMIENTO,
-                               b.PLAN_FECHA_EJECUCION, b.PLAN_ESTADO, a.ESTADO, a.ES_FIJO ,b.FK_ID_MEJORA_CONTINUA, b.FK_ID_ACTIVIDAD  
+                               b.PLAN_FECHA_EJECUCION, b.PLAN_ESTADO, a.ESTADO, a.ES_FIJO ,b.FK_ID_MEJORA_CONTINUA, b.FK_ID_ACTIVIDAD,b.FLAG_MEJORA_CONTINUA
                         FROM MaeLegal a 
                              LEFT JOIN RespuestaMatrizLegal b ON a.ID_MATRIZ = b.FK_ID_MATRIZ 
                              LEFT JOIN Usuario u ON a.ID_USUARIO_REG = u.ID_USUARIO
@@ -98,7 +98,7 @@ namespace inti_repository.matrizlegal
                                a.DOCS_ESPECIFICOS, 
                                a.ID_USUARIO_REG,NULL AS ESTADO_CUMPLIMIENTO,NULL AS ID_RESPONSABLE_CUMPLIMIENTO, NULL AS RESPONSABLE_CUMPLIMIENTO, NULL AS DATA_CUMPLIMIENTO, 
                                NULL AS PLAN_ACCIONES_A_REALIZAR, NULL AS PLAN_RESPONSABLE_CUMPLIMIENTO, NULL AS ID_PLAN_RESPONSABLE_CUMPLIMIENTO,
-                               NULL AS PLAN_FECHA_EJECUCION, NULL AS PLAN_ESTADO, a.ESTADO, a.ES_FIJO, b.FK_ID_MEJORA_CONTINUA, b.FK_ID_ACTIVIDAD   
+                               NULL AS PLAN_FECHA_EJECUCION, NULL AS PLAN_ESTADO, a.ESTADO, a.ES_FIJO, b.FK_ID_MEJORA_CONTINUA, b.FK_ID_ACTIVIDAD, b.FLAG_MEJORA_CONTINUA  
                         FROM MaeLegal a 
                              LEFT JOIN RespuestaMatrizLegal b ON a.ID_MATRIZ = b.FK_ID_MATRIZ
                              LEFT JOIN Usuario u ON u.ID_USUARIO = b.FK_ID_USUARIO
@@ -158,7 +158,7 @@ namespace inti_repository.matrizlegal
 
 
             var dataRnt = @"SELECT RNT FROM Usuario WHERE ID_USUARIO=@ID_USUARIO AND ESTADO = TRUE";
-            var parameter = new
+            var parameter = new 
             {
                 ID_USUARIO = respuestaMatrizLegal.FK_ID_USUARIO
             };
@@ -190,7 +190,8 @@ namespace inti_repository.matrizlegal
                                     PLAN_RESPONSABLE_CUMPLIMIENTO = @PLAN_RESPONSABLE_CUMPLIMIENTO,
                                     PLAN_FECHA_EJECUCION = @PLAN_FECHA_EJECUCION,
                                     PLAN_ESTADO = @PLAN_ESTADO,
-                                    PLAN_FECHA_SEGUIMIENTO = NOW()
+                                    PLAN_FECHA_SEGUIMIENTO = NOW(),
+                                    FLAG_MEJORA_CONTINUA = @ENVIO_MEJORA_CONTINUA
                                 WHERE
                                     FK_ID_MATRIZ = @FK_ID_MATRIZ_PARAM AND FK_ID_USUARIO = @FK_ID_USUARIO_PARAM";
 
@@ -210,7 +211,8 @@ namespace inti_repository.matrizlegal
                         plan.ID_PLAN_RESPONSABLE_CUMPLIMIENTO,
                         plan.PLAN_RESPONSABLE_CUMPLIMIENTO,
                         plan.PLAN_FECHA_EJECUCION,
-                        plan.PLAN_ESTADO
+                        plan.PLAN_ESTADO,
+                        respuestaMatrizLegal.ENVIO_MEJORA_CONTINUA
                     };
                     queryRespuesta = db.Execute(actualizacion, parametersPlan);
                 }
@@ -219,9 +221,9 @@ namespace inti_repository.matrizlegal
             {
                 var dataRespuesta = @"INSERT INTO RespuestaMatrizLegal(FK_ID_USUARIO,FK_ID_MATRIZ,ESTADO_CUMPLIMIENTO
                                     ,ID_RESPONSABLE_CUMPLIMIENTO,RESPONSABLE_CUMPLIMIENTO,DATA_CUMPLIMIENTO,PLAN_ACCIONES_A_REALIZAR,
-                                    ID_PLAN_RESPONSABLE_CUMPLIMIENTO,PLAN_RESPONSABLE_CUMPLIMIENTO,PLAN_FECHA_EJECUCION,PLAN_ESTADO,PLAN_FECHA_SEGUIMIENTO) 
+                                    ID_PLAN_RESPONSABLE_CUMPLIMIENTO,PLAN_RESPONSABLE_CUMPLIMIENTO,PLAN_FECHA_EJECUCION,PLAN_ESTADO,PLAN_FECHA_SEGUIMIENTO,FLAG_MEJORA_CONTINUA) 
                                    VALUES(@FK_ID_USUARIO,@FK_ID_MATRIZ, @ESTADO_CUMPLIMIENTO,@ID_RESPONSABLE_CUMPLIMIENTO, @RESPONSABLE_CUMPLIMIENTO, 
-@DATA_CUMPLIMIENTO, @PLAN_ACCIONES_A_REALIZAR,@ID_PLAN_RESPONSABLE_CUMPLIMIENTO, @PLAN_RESPONSABLE_CUMPLIMIENTO, @PLAN_FECHA_EJECUCION, @PLAN_ESTADO, NOW());";
+@DATA_CUMPLIMIENTO, @PLAN_ACCIONES_A_REALIZAR,@ID_PLAN_RESPONSABLE_CUMPLIMIENTO, @PLAN_RESPONSABLE_CUMPLIMIENTO, @PLAN_FECHA_EJECUCION, @PLAN_ESTADO, NOW(),@ENVIO_MEJORA_CONTINUA);";
                 foreach (var plan in respuestaMatrizLegal.PLAN_INTERVENCION)
                 {
                     var parameterPlan = new
@@ -236,7 +238,8 @@ namespace inti_repository.matrizlegal
                         plan.ID_PLAN_RESPONSABLE_CUMPLIMIENTO,
                         plan.PLAN_RESPONSABLE_CUMPLIMIENTO,
                         plan.PLAN_FECHA_EJECUCION,
-                        plan.PLAN_ESTADO
+                        plan.PLAN_ESTADO,
+                        respuestaMatrizLegal.ENVIO_MEJORA_CONTINUA
                     };
                     queryRespuesta = db.Execute(dataRespuesta, parameterPlan);
                 }

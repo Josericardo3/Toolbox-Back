@@ -40,6 +40,8 @@ namespace inti_model.dboresponse
 
         public int FK_ID_ACTIVIDAD { get; set; }
 
+        public bool FLAG_MEJORA_CONTINUA { get; set; }
+
 
 
     }

@@ -96,5 +96,12 @@ namespace inti_back.Controllers.KpisControllers
             var response = await _kpiRepository.ListarAniosCombo(baseFilter);
             return Ok(response);
         }
+        
+        [HttpPost("Monitorizacion/Kpi/Tabla")]
+        public async Task<IActionResult> ObtenerMonitorizacionKPI(IndicadorMonitorizacionFilter baseFilter)
+        {
+            var response = await _kpiRepository.ObtenerMonitorizacionKPI(baseFilter);
+            return Ok(response);
+        }
     }
 }

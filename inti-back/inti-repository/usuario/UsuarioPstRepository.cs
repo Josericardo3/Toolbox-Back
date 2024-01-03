@@ -374,28 +374,25 @@ namespace inti_repository.usuario
         public async Task<string> UpdateUsuarioPst(UsuarioPstUpd usuariopst)
         {
             var db = dbConnection();
-            var queryPst = @"UPDATE Pst 
-                        SET FK_ID_USUARIO = @FK_ID_USUARIO,
-                            NIT = @NIT,
-                            RNT = @RNT,
-                            FK_ID_CATEGORIA_RNT = @FK_ID_CATEGORIA_RNT,
-                            FK_ID_SUB_CATEGORIA_RNT = @FK_ID_SUB_CATEGORIA_RNT,
-                            NOMBRE_PST = @NOMBRE_PST,
-                            RAZON_SOCIAL_PST = @RAZON_SOCIAL_PST,
-                            CORREO_PST = @CORREO_PST,
-                            TELEFONO_PST = @TELEFONO_PST,
-                            NOMBRE_REPRESENTANTE_LEGAL = @NOMBRE_REPRESENTANTE_LEGAL,
-                            CORREO_REPRESENTANTE_LEGAL = @CORREO_REPRESENTANTE_LEGAL,
-                            TELEFONO_REPRESENTANTE_LEGAL = @TELEFONO_REPRESENTANTE_LEGAL,
-                            FK_ID_TIPO_IDENTIFICACION = @FK_ID_TIPO_IDENTIFICACION,
-                            IDENTIFICACION_REPRESENTANTE_LEGAL = @IDENTIFICACION_REPRESENTANTE_LEGAL,
-                            DEPARTAMENTO = @DEPARTAMENTO,
-                            MUNICIPIO = @MUNICIPIO,
-                            NOMBRE_RESPONSABLE_SOSTENIBILIDAD = @NOMBRE_RESPONSABLE_SOSTENIBILIDAD,
-                            CORREO_RESPONSABLE_SOSTENIBILIDAD = @CORREO_RESPONSABLE_SOSTENIBILIDAD,
-                            TELEFONO_RESPONSABLE_SOSTENIBILIDAD = @TELEFONO_RESPONSABLE_SOSTENIBILIDAD,
-                            FK_ID_TIPO_AVATAR = @FK_ID_TIPO_AVATAR
-                        WHERE FK_ID_USUARIO = @FK_ID_USUARIO AND ESTADO = 1";
+
+            // Actualización en la tabla Pst
+            var queryPst = @"
+            UPDATE Pst 
+            SET FK_ID_USUARIO = @FK_ID_USUARIO,
+                NIT = @NIT,
+                RNT = @RNT,
+                FK_ID_CATEGORIA_RNT = @FK_ID_CATEGORIA_RNT,
+                FK_ID_SUB_CATEGORIA_RNT = @FK_ID_SUB_CATEGORIA_RNT,
+                RAZON_SOCIAL_PST = @RAZON_SOCIAL_PST,
+                CORREO_PST = @CORREO_PST,
+                TELEFONO_PST = @TELEFONO_PST,
+                NOMBRE_REPRESENTANTE_LEGAL = @NOMBRE_REPRESENTANTE_LEGAL,
+                APELLIDO_REPRESENTANTE_LEGAL = @APELLIDO_REPRESENTANTE_LEGAL,
+                DEPARTAMENTO = @DEPARTAMENTO,
+                MUNICIPIO = @MUNICIPIO,
+                FK_ID_TIPO_AVATAR = @FK_ID_TIPO_AVATAR
+            WHERE FK_ID_USUARIO = @FK_ID_USUARIO AND ESTADO = 1";
+
             var resultPst = await db.ExecuteAsync(queryPst, new
             {
                 usuariopst.FK_ID_USUARIO,
@@ -403,38 +400,27 @@ namespace inti_repository.usuario
                 usuariopst.RNT,
                 usuariopst.FK_ID_CATEGORIA_RNT,
                 usuariopst.FK_ID_SUB_CATEGORIA_RNT,
-                usuariopst.NOMBRE_PST,
                 usuariopst.RAZON_SOCIAL_PST,
                 usuariopst.CORREO_PST,
                 usuariopst.TELEFONO_PST,
                 usuariopst.NOMBRE_REPRESENTANTE_LEGAL,
-                usuariopst.CORREO_REPRESENTANTE_LEGAL,
-                usuariopst.TELEFONO_REPRESENTANTE_LEGAL,
-                usuariopst.FK_ID_TIPO_IDENTIFICACION,
-                usuariopst.IDENTIFICACION_REPRESENTANTE_LEGAL,
+                usuariopst.APELLIDO_REPRESENTANTE_LEGAL,
                 usuariopst.DEPARTAMENTO,
                 usuariopst.MUNICIPIO,
-                usuariopst.NOMBRE_RESPONSABLE_SOSTENIBILIDAD,
-                usuariopst.CORREO_RESPONSABLE_SOSTENIBILIDAD,
-                usuariopst.TELEFONO_RESPONSABLE_SOSTENIBILIDAD,
                 usuariopst.FK_ID_TIPO_AVATAR
             });
 
             var queryUsuario = @"
-                                UPDATE Usuario 
-                                SET 
-                                    CORREO = @CORREO,
-                                    NOMBRE = @NOMBRE
-                                WHERE
-                                    ID_USUARIO = @FK_ID_USUARIO
-                                        AND ESTADO = 1";
-            var parameters = new
+            UPDATE Usuario 
+            SET CORREO = @CORREO
+            WHERE ID_USUARIO = @FK_ID_USUARIO AND ESTADO = 1";
+
+            var resultUsuario = await db.ExecuteAsync(queryUsuario, new
             {
                 CORREO = usuariopst.CORREO_PST,
-                NOMBRE = usuariopst.NOMBRE_PST,
                 FK_ID_USUARIO = usuariopst.FK_ID_USUARIO
-            };
-            var resultUsuario = await db.ExecuteAsync(queryUsuario, parameters);
+            });
+
             return resultPst.ToString();
         }
         public async Task<UsuarioPstLogin> LoginUsuario(InputLogin objLogin)
@@ -579,6 +565,9 @@ namespace inti_repository.usuario
             {
                 return dataEmpleado.ID_USUARIO;
             }
+
+
+
         }
 
         public async Task<IEnumerable<Usuario>> GetUsuariosxPst(string rnt)
@@ -766,7 +755,7 @@ namespace inti_repository.usuario
 
                 if(resultUsuario>0)
                 {
-                    respuesta.Mensaje = "Activación de la Cuenta de Usuario Correctamente.";
+                    respuesta.Mensaje = "La Cuenta de Usuario ha sido validada Correctamente.";
                     respuesta.Confirmacion = true;
                     return respuesta;
                 }
